@@ -1,0 +1,149 @@
+.modal-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 9998;
+    opacity: 0;
+    background-color: #000;
+    transition: opacity 0.5s;
+}
+
+.modal-background.active {
+    width: 100%;
+    height: 100%;
+    opacity: 0.5;
+    transition: opacity 0.5s;
+}
+
+.modal-content {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 0;
+    height: 0;
+    z-index: 9999;
+    background-color: #fff;
+    border-radius: 24px;
+    box-shadow: 0px 4px 32px rgb(0 60 52 / 16%);
+    padding: 24px;
+    display: none;
+
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.modal-content.active {
+    width: 80%;
+    height: 75%;
+    opacity: 1;
+    transition: opacity 0.5s;
+}
+
+.doc-title {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #085b5b;
+}
+
+.doc-subtitle {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    color: #0e9c9c;
+}
+
+.doc-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.doc-navigation {
+    width: 300px;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+.doc-content {
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.example-editor {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: "Courier New", Courier, monospace;
+    padding: 12px;
+    background-color: #fff;
+    font-size: 16px;
+}
+
+.example-container {
+    background-color: #eee;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.example-container h3 {
+    margin: 0;
+}
+
+.example-error {
+    background-color: #ffdddd;
+}
+
+.doc-button {
+    margin-right: 24px;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.doc-button:hover {
+    background-color: #078181;
+    color: #fff;
+    font-weight: 600;
+}
+
+.doc-button-selected {
+    background-color: #078181;
+    color: #fff;
+}
+
+.doc-message {
+    margin-top: 8px;
+    padding: 12px;
+    background-color: #fef9c3;
+    border-radius: 8px;
+}
+
+.inline-code {
+    font-family: "Courier New", Courier, monospace;
+    padding: 1px 8px;
+    background-color: #c8f1ff;
+    font-weight: 600;
+    color: #bb29d5;
+    border-radius: 6px;
+}
+
+.learn-py-container {
+    padding: 6px;
+    background: #179a98;
+    border-radius: 6px;
+}
+
+.learn-py-doc-label {
+    color: #fff;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+}

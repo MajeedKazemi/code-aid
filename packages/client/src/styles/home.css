@@ -1,0 +1,40 @@
+.container {
+    max-width: 1024px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container .card {
+    border: 1px solid #78999480;
+    border-radius: 24px;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.card-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-row .left {
+    padding: 24px;
+    width: 50%;
+}
+
+.card-row .right {
+    padding: 24px;
+    background-color: #107472;
+    width: 50%;
+    font-weight: 200;
+    font-size: 28px;
+    color: #fff;
+}
+
+.card-title {
+    font-size: 40px;
+    font-weight: 700;
+    margin: 0px;
+}

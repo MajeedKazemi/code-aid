@@ -1,0 +1,159 @@
+.editor {
+    width: 45vw;
+    height: calc(55% - 2px);
+    border: solid 1px #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.output {
+    background-color: #023231;
+    color: #fff;
+    font-family: "Courier New", Courier, monospace;
+    overflow-y: auto;
+    height: calc(45% - 88px);
+    border-radius: 6px;
+    position: relative;
+    width: 45vw;
+    padding: 12px 0 12px 0;
+}
+
+.output p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 2px 12px 2px 12px;
+}
+
+.console-output-error {
+    color: #ec9e9e;
+    background-color: #2a0200;
+    border: solid 1px #ff000075;
+    padding: 12px !important;
+    margin-top: 6px !important;
+}
+
+.terminal-input {
+    display: inline;
+    background-color: #004847;
+    color: #fff;
+    border: none;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 2px 12px 2px 12px;
+    width: calc(100% - 24px);
+    border-bottom: 1px solid #fff6;
+    height: 20px;
+}
+
+.terminal-input:focus {
+    outline: none;
+    font-size: 16px;
+}
+
+.editor-buttons-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.quick-editing-buttons-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.editor-button {
+    border: none;
+    height: 40px;
+    border-radius: 12px;
+    color: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+    font-weight: 500;
+
+    font-family: "Poppins";
+
+    cursor: pointer;
+    padding: 0 20px;
+}
+
+.editing-btn {
+    height: 35px;
+    background-color: rgb(0, 122, 204);
+    color: rgb(255, 255, 255);
+    margin-left: 16px;
+
+    -webkit-transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
+    -webkit-transition-timing-function: ease-in-out;
+    transition-timing-function: ease-in-out;
+}
+
+.editing-btn:hover {
+    background-color: rgb(0, 152, 255);
+    color: rgb(255, 255, 255);
+}
+
+.editing-btn-disabled {
+    height: 35px;
+    background-color: #e4e4e4;
+    color: #9b9b9b;
+    margin-left: 16px;
+    border: solid 1px #cfcfcf;
+    cursor: not-allowed;
+}
+
+.stop-button {
+    background: #a54949;
+}
+.stop-button:hover {
+    background: #9c1010;
+}
+
+.run-button {
+    background: #0baa0b;
+}
+
+.run-button:hover {
+    background: #0cc40c;
+}
+
+.play-icon {
+    margin-right: 10px;
+}
+
+.task-workspace {
+    margin-left: 12px;
+}
+
+.task-assists {
+    margin-left: 12px;
+    width: calc(20vw - 76px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+@keyframes fade-highlight {
+    0% {
+        background-color: #d5afff;
+    }
+    100% {
+        background-color: #fff;
+    }
+}
+
+.highlighted-code {
+    background-color: #dbbbff;
+    animation-name: fade-highlight;
+    animation-duration: 2s;
+    animation-iteration-count: 1;
+}

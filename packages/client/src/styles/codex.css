@@ -1,0 +1,52 @@
+.codex-container {
+    width: calc(100% - 10px);
+    background: rgb(101, 245, 255);
+    background: -moz-linear-gradient(
+        180deg,
+        rgba(101, 245, 255, 1) 50%,
+        rgba(19, 173, 189, 1) 100%
+    );
+    background: -webkit-linear-gradient(
+        180deg,
+        rgba(101, 245, 255, 1) 50%,
+        rgba(19, 173, 189, 1) 100%
+    );
+    background: linear-gradient(
+        180deg,
+        rgba(101, 245, 255, 1) 50%,
+        rgba(19, 173, 189, 1) 100%
+    );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#65f5ff",endColorstr="#13adbd",GradientType=1);
+
+    padding: 6px;
+    color: #fff;
+    border-radius: 6px;
+}
+
+.codex-description-input {
+    width: calc(100% - 15px);
+    height: 150px;
+    font-family: "Courier New", Courier, monospace;
+    resize: none;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    font-size: 15px;
+    padding: 6px;
+}
+
+.context-checkbox-container {
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+.codex-feedback {
+    margin-top: 8px;
+    font-size: 15px;
+}
+
+.codex-description-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #000;
+}

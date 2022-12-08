@@ -1,0 +1,20 @@
+.grader-page-container {
+    padding: 24px;
+}
+
+.grader-page-submissions {
+    overflow-y: scroll;
+    height: calc(70vh);
+}
+
+.task-response-radio {
+    cursor: pointer;
+}
+
+.task-response-radio label {
+    cursor: pointer;
+}
+
+.task-response-radio input {
+    cursor: pointer;
+}

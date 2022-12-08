@@ -1,0 +1,47 @@
+.section-title {
+    display: block;
+    font-size: 30px;
+    font-weight: 500;
+    color: #085b5b;
+    margin-bottom: 10px;
+}
+
+.vertical-space-between {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    height: 100%;
+}
+
+.m-md {
+    margin: 24px;
+}
+
+.p-md {
+    padding: 24px;
+}
+
+.mb-sm {
+    margin-bottom: 18px;
+}
+
+.mb-md {
+    margin-bottom: 36px;
+}
+
+.text-sm {
+    font-size: 16px;
+}
+
+.text-sm a {
+    color: #00ffff;
+}
+
+.text-no-decoration {
+    text-decoration: none;
+}
+
+.font-mono {
+    font-family: "Courier New", Courier, monospace;
+}

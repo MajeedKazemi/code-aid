@@ -1,0 +1,82 @@
+.admin-grading-container {
+    padding: 24px;
+    font-size: 16px;
+}
+
+.task-submission-container {
+    background-color: #bbb;
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 24px;
+    padding-bottom: 0;
+    padding-top: 18px;
+}
+
+.container-green {
+    background-color: rgb(149, 207, 149) !important;
+}
+
+.container-orange {
+    background-color: rgb(255, 200, 149) !important;
+}
+
+.container-default {
+    background-color: #bbb !important;
+}
+
+.task-submission-divider {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.submitted-code-container {
+    width: 47%;
+}
+
+.submitted-code-container h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.submitted-code-container p {
+    margin: 8px 0;
+    font-size: 16px;
+}
+
+.admin-feedback-container {
+    width: 47%;
+    border-left: solid 1px #000;
+    padding-left: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.editor-user-code {
+    width: 100%;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.feedback-textarea {
+    width: 100%;
+    height: 50px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.admin-solution-code {
+    background-color: #fff;
+    padding: 12px;
+    border-radius: 6px;
+    font-family: "Courier New", Courier, monospace;
+}
+
+.submission-meta-data {
+    border-radius: 8px;
+    padding: 12px;
+    background-color: #444;
+    color: #fff;
+}

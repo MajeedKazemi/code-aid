@@ -1,0 +1,16 @@
+{
+    "name": "personal-teaching-assistant",
+    "version": "1.0.0",
+    "license": "MIT",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "dev": "lerna run --parallel dev"
+    },
+    "devDependencies": {
+        "lerna": "^5.0.0",
+        "typescript": "^4.7.3"
+    }
+}

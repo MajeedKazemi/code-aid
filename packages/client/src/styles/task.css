@@ -1,0 +1,223 @@
+.remaining-time {
+    font-weight: 600;
+}
+
+.task-title {
+    font-size: 18px;
+    font-weight: 900;
+    margin: 0 0 8px 0;
+    display: block;
+}
+
+.task-title h2 {
+    margin: 0;
+    display: inline;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 10px;
+    background-color: #b1e2e7;
+}
+
+.task-subtitle {
+    display: block;
+    font-size: 24px;
+    font-weight: 900;
+    margin: 0 0 16px 0;
+}
+
+.task-subtitle i {
+    background-color: #c8d1ff;
+    color: #000;
+    padding: 0px 4px;
+    border-radius: 4px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 18px;
+}
+
+.task-subtitle b {
+    background-color: #ffe0e0;
+    padding: 2px 8px;
+    border-radius: 4px;
+
+    font-weight: 700;
+}
+
+.task-subtitle p {
+    font-size: 15px;
+    font-weight: 400;
+    margin: 0;
+}
+
+.coding-task-container {
+    padding: 12px;
+    display: flex;
+    height: calc(100% - 24px);
+}
+
+.task-sample-output {
+    background-color: #bbd4d4;
+    padding: 8px;
+    border-radius: 8px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.task-sample-output p {
+    margin: 0;
+}
+
+.task-sample-output-header {
+    font-size: 18px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.task-feedback-container {
+    padding: 8px;
+    background-color: #ebc5f7;
+    border-radius: 8px;
+}
+
+.feedback-header {
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.feedback-content {
+    font-size: 15px;
+}
+
+.task-info {
+    width: 35vw;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0px 4px 32px rgb(0 60 52 / 16%);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.simple-task-container {
+    padding: 12px;
+    display: flex;
+    height: calc(100% - 24px);
+    justify-content: center;
+    align-items: center;
+}
+
+.simple-task-info {
+    width: 60vw;
+    background-color: #fff;
+    border-radius: 24px;
+    box-shadow: 0px 4px 32px rgb(0 60 52 / 16%);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto;
+    height: calc(100% - 48px);
+}
+
+.simple-task-info .code-block {
+    margin-top: 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 16px;
+    font-family: "Courier New", Courier, monospace;
+}
+
+.submit-attention {
+    color: rgb(92, 0, 221);
+    text-align: center;
+}
+
+/* .code-snippet {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 16px;
+    margin-bottom: 8px;
+} */
+
+.task-response-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 12px 0;
+}
+
+.task-response-radio {
+    margin-right: 16px;
+}
+
+.short-answer-textarea {
+    width: calc(100% - 18px);
+    font-size: 16px;
+    font-weight: 300;
+    padding: 8px;
+    color: #119796;
+    resize: none;
+    margin-bottom: 24px;
+    font-family: "Poppins", sans-serif;
+    border-radius: 8px;
+}
+
+.submit-urgent-message {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    font-size: 16px;
+    line-height: 16px;
+    font-weight: 500;
+    margin: 0;
+    padding: 12px;
+    color: #fff;
+    background-color: #2391ff;
+    border-radius: 6px;
+    margin-top: 12px;
+}
+
+.time-indicator-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.time-indicator {
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: #ac00d6;
+    color: #fff;
+}
+
+.skip-button {
+    margin-bottom: 12px;
+}
+
+.task-description-container {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.task-submission-buttons-container {
+    margin-top: 12px;
+}
+
+.video-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-checkbox {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
