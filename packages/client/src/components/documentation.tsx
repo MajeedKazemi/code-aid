@@ -17,9 +17,7 @@ import { OperatorsDoc } from "./docs/operators-doc";
 import { RandomDoc } from "./docs/random-doc";
 import { VariablesDoc } from "./docs/variables-doc";
 
-interface IPropsDocumentation {
-    taskId: string;
-}
+interface IPropsDocumentation {}
 
 export const Documentation = (props: IPropsDocumentation) => {
     const { context } = useContext(AuthContext);

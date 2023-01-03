@@ -60,3 +60,69 @@ export const apiGenerateCodex = (
             context: context,
         }),
     });
+
+export const apiAnswerQuestion = (
+    token: string | null | undefined,
+    question: string
+) =>
+    fetch(env.API_URL + "/api/codex/answer-question", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            question: question,
+        }),
+    });
+
+export const apiAnswerQuestionFromCode = (
+    token: string | null | undefined,
+    question: string,
+    code: string
+) =>
+    fetch(env.API_URL + "/api/codex/answer-question-from-code", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            question: question,
+            code: code,
+        }),
+    });
+
+export const apiAnswerQuestionV2 = (
+    token: string | null | undefined,
+    question: string
+) =>
+    fetch(env.API_URL + "/api/codex/answer-question-v2", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            question: question,
+        }),
+    });
+
+export const apiExplainCode = (
+    token: string | null | undefined,
+    code: string
+) =>
+    fetch(env.API_URL + "/api/codex/explain-code", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            code: code,
+        }),
+    });

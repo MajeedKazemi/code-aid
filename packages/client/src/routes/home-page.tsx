@@ -1,6 +1,9 @@
 import React, { useContext, useState } from "react";
 
 import { Button } from "../components/button";
+import { Documentation } from "../components/documentation";
+import { ExplainCodeComp } from "../components/explain-code-comp";
+import { AnswerQuestionComp } from "../components/hint-generator-comp";
 import { Layout } from "../components/layout";
 import { Login } from "../components/login";
 import { Register } from "../components/register";
@@ -12,20 +15,21 @@ export const HomePage = () => {
 
     return (
         <Layout>
-            <div className="container">
-                <main className="card">
-                    {context?.token ? (
-                        <div className="m-md">
-                            <h1>Welcome to My Personal TA: CSC209 UofT!</h1>
-                            {/* LLM-based tool 1 */}
-                            {/* LLM-based tool 2 */}
-                            {/* LLM-based tool 3 */}
-                            {/* documentation */}
-                        </div>
-                    ) : (
-                        // can show their name
-                        // a component showing how many tasks they have completed
-
+            {context?.token ? (
+                <main className="home-column-container">
+                    <div className="home-column">
+                        <AnswerQuestionComp />
+                    </div>
+                    <div className="home-column">
+                        <ExplainCodeComp />
+                    </div>
+                    <div className="home-column">
+                        <Documentation />
+                    </div>
+                </main>
+            ) : (
+                <div className="container">
+                    <main className="card">
                         <div className="card-row">
                             <div className="left">
                                 {showRegister ? (
@@ -46,39 +50,48 @@ export const HomePage = () => {
                                 ) : (
                                     <div className="vertical-space-between">
                                         <Login />
-                                        <div>
-                                            Need an account?
-                                            <Button
-                                                type="link"
-                                                onClick={() => {
-                                                    setShowRegister(true);
-                                                }}
-                                            >
-                                                Register
-                                            </Button>
-                                        </div>
                                     </div>
                                 )}
                             </div>
                             <section className="right">
-                                <h2 className="card-title">
-                                    My Personal TA: CSC209 UofT
-                                </h2>
-                                <p className="mb-md">
-                                    Learn Python and introductory programming
-                                    concepts by solving programming tasks step
-                                    by step
-                                </p>
+                                <h2 className="card-title">Coding Q+A</h2>
+                                <ul>
+                                    <li className="text-md">
+                                        Ask C programming questions
+                                    </li>
+                                    <li className="text-md">
+                                        Explain code snippets
+                                    </li>
+                                    <li className="text-md">
+                                        Ask questions about a code snippet
+                                    </li>
+                                    <li className="text-md">
+                                        Hints to fix bugs
+                                    </li>
+                                    <li className="text-md">
+                                        Break down task into steps
+                                    </li>
+                                </ul>
 
                                 <p className="text-sm">
                                     This tool is part of a research study
-                                    conducted by the University of Toronto. If
-                                    you have any questions or concerns, please{" "}
+                                    conducted by the University of Toronto under
+                                    the supervision of professors{" "}
+                                    <a href="mailto:mcraig@cs.toronto.edu">
+                                        Michelle Craig
+                                    </a>
+                                    {" and "}
+                                    <a href="mailto:tovi@dgp.toronto.edu">
+                                        Tovi Grossman
+                                    </a>
+                                    , and grad student{" "}
                                     <a href="mailto:majeed@dgp.toronto.edu">
-                                        email
-                                    </a>{" "}
-                                    us.
+                                        Majeed Kazemitabaar
+                                    </a>
+                                    . If you have any questions or concerns,
+                                    please contact us.
                                 </p>
+                                <br />
                                 <p className="text-sm">
                                     Powered by{" "}
                                     <a href="https://openai.com/blog/openai-codex/">
@@ -88,9 +101,9 @@ export const HomePage = () => {
                                 </p>
                             </section>
                         </div>
-                    )}
-                </main>
-            </div>
+                    </main>
+                </div>
+            )}
         </Layout>
     );
 };

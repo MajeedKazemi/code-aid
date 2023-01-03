@@ -6,47 +6,27 @@ import { verifyUser } from "../utils/strategy";
 
 export const codexRouter = express.Router();
 
-codexRouter.post("/generate", verifyUser, async (req, res, next) => {
-    const { description, type, context } = req.body;
+codexRouter.post("/explain-code", verifyUser, async (req, res, next) => {
+    const { code } = req.body;
     const userId = (req.user as IUser)._id;
 
-    if (description !== undefined && type !== undefined) {
-        const prompt = [
-            `<|endoftext|># blank Python3 file. Each Command corresponds to a short Python code snippet.`,
-            `# Command: say hello world\nprint("hello world")`,
-            ``,
-            `# Command: ask the user for their name\nname = input("What is your name? ")`,
-            ``,
-            `# Command: ask the user to enter a number\nnumber = int(input("Enter a number: "))`,
-            ``,
-            `# Command: generate a random number\nimport random\nnumber = random.randint(0, 100)`,
-            ``,
-            `# Command: check if the number is greater than 50\nif number > 50:\n    print("The number is greater than 50")`,
-            ``,
-            `# Command: check if roll is even\nif roll % 2 == 0:\n    print("The roll is even")`,
-            ``,
-            `${context && context.length > 0 ? "# Context:" + context : ""}`,
-            `# Command: ${
-                context && context.length > 0
-                    ? "use the above code as context and  "
-                    : ""
-            }${description.trim()}\n`,
-        ].join("\n");
+    if (code !== undefined) {
+        const prompt = explainCodePrompt(code);
 
         const result = await openai.createCompletion({
             model: "code-davinci-002",
-            prompt: prompt,
-            temperature: 0.1,
+            prompt: prompt.prompt,
+            temperature: 0.3,
             max_tokens: 500,
-            stop: ["# Command:"],
+            stop: prompt.stopTokens,
             user: userId,
         });
 
         if (result.data.choices && result.data.choices?.length > 0) {
-            const code = result.data.choices[0].text?.trim();
+            const explanation = result.data.choices[0].text?.trim();
 
             res.json({
-                code: code ? `# Instructions: ${description}\n` + code : "",
+                explanation: explanation ? "1." + explanation : "",
                 success: true,
             });
         } else {
@@ -56,3 +36,512 @@ codexRouter.post("/generate", verifyUser, async (req, res, next) => {
         }
     }
 });
+
+codexRouter.post("/answer-question", verifyUser, async (req, res, next) => {
+    const { question } = req.body;
+    const userId = (req.user as IUser)._id;
+
+    if (question !== undefined) {
+        const prompt = answerQuestionPrompt(question);
+
+        const result = await openai.createCompletion({
+            model: "code-davinci-002",
+            prompt: prompt.prompt,
+            temperature: 0.3,
+            max_tokens: 500,
+            stop: prompt.stopTokens,
+            user: userId,
+        });
+
+        if (result.data.choices && result.data.choices?.length > 0) {
+            const ans = result.data.choices[0].text?.trim();
+
+            res.json({
+                answer: ans ? ans : "",
+                success: true,
+            });
+        } else {
+            res.json({
+                success: false,
+            });
+        }
+    }
+});
+
+codexRouter.post(
+    "/reply-answer-question",
+    verifyUser,
+    async (req, res, next) => {
+        const { prevQuestions, question } = req.body;
+        const userId = (req.user as IUser)._id;
+
+        if (question !== undefined) {
+            const prompt = replyAnswerQuestionPrompt(prevQuestions, question);
+
+            const result = await openai.createCompletion({
+                model: "code-davinci-002",
+                prompt: prompt.prompt,
+                temperature: 0.3,
+                max_tokens: 500,
+                stop: prompt.stopTokens,
+                user: userId,
+            });
+
+            if (result.data.choices && result.data.choices?.length > 0) {
+                const ans = result.data.choices[0].text?.trim();
+
+                res.json({
+                    answer: ans ? ans : "",
+                    success: true,
+                });
+            } else {
+                res.json({
+                    success: false,
+                });
+            }
+        }
+    }
+);
+
+codexRouter.post("/answer-question-v2", verifyUser, async (req, res, next) => {
+    const { question } = req.body;
+    const userId = (req.user as IUser)._id;
+
+    if (question !== undefined) {
+        const prompt = answerQuestionPromptV2(question);
+
+        const result = await openai.createCompletion({
+            model: "code-davinci-002",
+            prompt: prompt.prompt,
+            temperature: 0.3,
+            max_tokens: 500,
+            stop: prompt.stopTokens,
+            user: userId,
+        });
+
+        if (result.data.choices && result.data.choices?.length > 0) {
+            const ans = result.data.choices[0].text?.trim();
+
+            res.json({
+                answer: ans ? ans : "",
+                success: true,
+            });
+        } else {
+            res.json({
+                success: false,
+            });
+        }
+    }
+});
+
+codexRouter.post("/generate", verifyUser, async (req, res, next) => {
+    const { description } = req.body;
+    const userId = (req.user as IUser)._id;
+
+    if (description !== undefined) {
+        const prompt = genCodePrompt(description);
+
+        const result = await openai.createCompletion({
+            model: "code-davinci-002",
+            prompt: prompt.prompt,
+            temperature: 0.1,
+            max_tokens: 500,
+            stop: prompt.stopTokens,
+            user: userId,
+        });
+
+        if (result.data.choices && result.data.choices?.length > 0) {
+            const code = result.data.choices[0].text?.trim();
+
+            res.json({
+                code: code ? code : "",
+                success: true,
+            });
+        } else {
+            res.json({
+                success: false,
+            });
+        }
+    }
+});
+
+const replyAnswerQuestionPrompt = (
+    prevQuestions: string,
+    newQuestion: string
+) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c question / answer file. all answers should be written in plain english without any code.  use the following format:`,
+            `// [question]: how can I use the fread function?`,
+            `// [answer]: 1. open the file using the \`fopen\` function. 2. use the \`fread\` function to read the file. 3. close the file using the \`fclose\` function.`,
+            `// [follow-up-question]: what are the parameters of the fread function?`,
+            `// [follow-up-answer]: the fread function takes 4 parameters: a pointer to the buffer (where the read data will be stored), the size of each element, the number of elements to read, and a pointer to the file. like this: \`fread(buffer, sizeof(char), 100, file)\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: how can I use sockets to create a connection to a server?`,
+            `// [answer]: 1. create a socket using the \`socket\` function. 2. connect to the server using the \`connect\` function. 3. send and receive data using the \`send\` and \`recv\` functions. 4. close the socket using the \`close\` function.`,
+            `// [follow-up-question]: explain how can I create a socket?`,
+            `// [follow-up-answer]: include the \`sys/socket.h\` header file, then use the \`socket\` function to create a socket. the \`socket\` function takes 3 parameters: the address family (use \`AF_INET\` for IPv4), the socket type (use \`SOCK_STREAM\` for TCP), and the protocol (use \`0\` for the default protocol). like this: \`socket(AF_INET, SOCK_STREAM, 0)\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: how can I manually concatenate two dynamically allocated strings?`,
+            `// [answer]: 1. use the \`strlen\` function to get the length of each string. 2. use the \`malloc\` function to allocate memory for the concatenated string. 3. use the \`strcat\` function to concatenate the two strings. 4. return the pointer to the concatenated string.`,
+            `// [follow-up-question]: and how to do it without using the \`strcat\` function?`,
+            `// [follow-up-answer]: do the same thing, but use a for loop to go through each character of the second string and copy it to the end of the first string. then add a null terminator to the end of the first string. like this: \`for (i = 0; i < strlen(s2); i++) { s1[strlen(s1) + i] = s2[i]; } s1[strlen(s1) + i] = '\0';\`.`,
+            `// [follow-up-question]: how can I get the length of a string without using the \`strlen\` function?`,
+            `// [follow-up-answer]: you have to go through each character of the string and count them before you reach the null terminator (\`'\0'\`). like this: \`for (i = 0; s[i] != '\0'; i++) { } return i;\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// ${prevQuestions}`,
+            `// [follow-up-question]: ${newQuestion}`,
+            `// [follow-up-answer]: `,
+        ].join("\n"),
+        stopTokens: ["// [end]"],
+    };
+};
+
+const explainCodePromptV2 = (code: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c programming file.`,
+            `// [code]:`,
+            `for (i = 0; i < iterations; i++) {`,
+            `    int n = fork();`,
+            `    if (n < 0) {`,
+            `        perror("fork");`,
+            `        exit(1);`,
+            `    }`,
+            `    printf("ppid = %d, pid = %d, i = %d\n", getppid(), getpid(), i);`,
+            `}`,
+            `// [explanation]: explain the gist of the above code in plain english:`,
+            `// [answer]: for each new process that is successfully forked, prints 0 in the child process and the child's PID in the parent process.`,
+            `// [end-explanation]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `char *copy(char *dest, const char *src, int capacity) {`,
+            `    dest[0] = '\0';`,
+            `    for (int i = 0; i < capacity - 1; i++) {`,
+            `        dest[i] = src[i];`,
+            `        if (src[i] == '\0') {`,
+            `            break;`,
+            `        }`,
+            `    }`,
+            ``,
+            `    dest[capacity - 1] = '\0';`,
+            ``,
+            `    return dest;`,
+            `}`,
+            `// [explanation]: explain the gist of the above code in plain english:`,
+            `// [answer]: for each character in the src string, copy it to the dest string until the end of the src string (detected by a null character) or until the dest string is full (detected by the capacity parameter).`,
+            `// [end-explanation]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `struct sigaction sa;`,
+            `sa.sa_handler = timeout;`,
+            `sa.sa_flags = 0;`,
+            `sigemptyset(&sa.sa_mask);`,
+            `sigaction(SIGPROF, &sa, NULL);`,
+            `// [explanation]: explain the gist of the above code in plain english:`,
+            `// [answer]: \`sigemptyset\` empties the signal set \`sa.sa_mask\` so that no signals are blocked. \`sigaction\` sets the signal handler for the \`SIGPROF\` signal (which is sent when a process uses too much CPU time) to the \`timeout\` function.`,
+            `// [end-explanation]`,
+            ``,
+            ``,
+            `// [code]: ${code}`,
+            `// [explanation]: explain what the code above does in plain english and steps:`,
+            `// [answer]: `,
+        ].join("\n"),
+        stopTokens: [`// [end-explanation]`],
+    };
+};
+
+const explainCodePrompt = (code: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c programming file.`,
+            `// [code]:`,
+            `for (i = 0; i < iterations; i++) {`,
+            `    int n = fork();`,
+            `    if (n < 0) {`,
+            `        perror("fork");`,
+            `        exit(1);`,
+            `    }`,
+            `    printf("ppid = %d, pid = %d, i = %d\n", getppid(), getpid(), i);`,
+            `}`,
+            `// [explanation]: explain what the code above does in plain english and steps:`,
+            `// 1. create a for loop that iterates from 0 to \`iterations - 1\``,
+            `// 2. create a child process using the \`fork\` function`,
+            `// 3. if the child process is created successfully, print the parent process id, child process id, and the current iteration`,
+            `// 4. otherwise, print an error message and exit the program`,
+            `// [end-explanation]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `char *copy(char *dest, const char *src, int capacity) {`,
+            `    dest[0] = '\0';`,
+            `    for (int i = 0; i < capacity - 1; i++) {`,
+            `        dest[i] = src[i];`,
+            `        if (src[i] == '\0') {`,
+            `            break;`,
+            `        }`,
+            `    }`,
+            ``,
+            `    dest[capacity - 1] = '\0';`,
+            ``,
+            `    return dest;`,
+            `}`,
+            `// [explanation]: explain what the code above does in plain english and steps:`,
+            `// 1. create a function that takes a destination string, a source string, and a capacity`,
+            `// 2. set the first character of the destination string to the null character`,
+            `// 3. create a for loop that iterates from 0 to \`capacity - 2\``,
+            `// 4. set the current character of the destination string to the current character of the source string`,
+            `// 5. if the current character of the source string is the null character, break out of the loop`,
+            `// 6. set the last character of the destination string to the null character`,
+            `// 7. return the destination string`,
+            `// [end-explanation]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `for (i = 0; i < iterations; i++) {`,
+            `    int n = fork();`,
+            `    if (n < 0) {`,
+            `        perror("fork");`,
+            `        exit(1);`,
+            `    }`,
+            `    printf("ppid = %d, pid = %d, i = %d\n", getppid(), getpid(), i);`,
+            `}`,
+            `// [explanation]: explain what the code above does in plain english and steps:`,
+            `// 1. loop for \`iterations\` times`,
+            `// 2. create a child process using the \`fork\` function`,
+            `// 3. the \`fork\` function returns 0 in the child process and the child process id in the parent process, and -1 if an error occurs`,
+            `// 4. if the child process is created successfully, print the parent process id, child process id, and the current iteration`,
+            `// 5. otherwise, print an error message and exit the program`,
+            `// [end-explanation]`,
+            ``,
+            ``,
+            `// [code]: ${code}`,
+            `// [explanation]: explain what the code above does in plain english and steps:`,
+            `// 1. `,
+        ].join("\n"),
+        stopTokens: [`// [end-explanation]`],
+    };
+};
+
+const answerQuestionPromptV3 = (question: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c question / answer file. all answers should be written in plain english without any code.  use the following format:`,
+            `// [question]: what does the ** operator do?`,
+            `// [answer]: the \`**\` operator is used to access the value of a pointer that points to a pointer.`,
+            `// [for-example]: for example, if \`int x = 5;\` and \`int *ptr = &x;\`, then \`*ptr\` would be the value of \`x\`, and \`**ptr\` would be the value of \`x\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: what does the & operator do?`,
+            `// [answer]: the \`&\` operator could be used to get the memory address of a variable, or to pass a variable by reference to a function.`,
+            `// [for-example]: for example, in \`int x = 5;\`, \`&x\` would be the memory address of \`x\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: how can I pass a pointer to a function?`,
+            `// [answer]: declare the function parameter as a pointer using the \`*\` operator, then pass the variable using the "address of" operator \`&\`.`,
+            `// [for-example]: for example, if \`int x = 5;\`, then \`void my_function(int *ptr) { ... }\` would be a function that takes a pointer to an integer, and \`my_function(&x);\` would pass the memory address of \`x\` to the function.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: I have an array of pointers and a size variable, how can I access each element of the array?`,
+            `// [answer]: use a for loop that iterates from 0 to size-1, and use the \`*\` operator to dereference and access the value of each element like this: \`*array[i]\``,
+            `// [for-example]: for example, in \`int *array[5];\`, \`array[0]\` would be the address of the first element, and \`*array[0]\` would be the value of the first element.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: how can I dynamically allocate memory for an array of n elements and update the value of each element?`,
+            `// [answer]: create a pointer to an integer and set it to \`malloc\` the size of the array (can use sizeof(int) to get the size of an integer). then use a for loop to iterate from 0 to n-1 and use the \`*\` operator to update the value of each element like this: \`*array[i] = new_value\``,
+            `// [for-example]: for example, in \`int *array = malloc(n * sizeof(int));\`, \`array[0]\` would be the address of the first element, and \`*array[0] = 5;\` would update the value of the first element to 5.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: how can I get both a string and a number from the user in the same line?`,
+            `// [answer]: use the \`scanf\` function with the \`%s\` and \`%d\` format specifiers to get the string and number from the user. the \`&\` operator is used to pass the variable by reference to the \`scanf\` function. For example: \`scanf("%s %d", &string, &number)\``,
+            `// [for-example]: for example, if \`char text[100];\` and \`int number;\`, then \`scanf("%s %d", &text, &number);\` would get the string and number from the user.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: ${question}`,
+            `// [answer]: `,
+        ].join("\n"),
+        stopTokens: ["// [question]:"],
+    };
+};
+
+const answerQuestionPromptV2 = (question: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c question / answer file. each [question] is followed by an [answer] with natural language explanation (and almost no code), a [example] that uses some of the concepts and code in the question. the [end] token indicates the end of the [answer] and [example].`,
+            `// [question]: what does the ** operator do?`,
+            `// [answer]:`,
+            `// the \`**\` operator is used to access the value of a pointer that points to a pointer.`,
+            `// [example]:`,
+            `int a = 5; // declare variable \`a\` and set it to \`5\``,
+            `int *b = &a; // declare pointer \`b\` and set it to the memory address of \`a\``,
+            `int **c = &b; // declare pointer \`c\` and set it to the memory address of \`b\``,
+            `printf("%d", **c); // print the value of \`a\``,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: what does the & operator do?`,
+            `// [answer]:`,
+            `// The \`&\` operator could be used to:`,
+            `// 1. Perform a bitwise AND operation on two numbers. For instance, \`0b1010 & 0b0011\` becomes \`0b0010\`.`,
+            `// 2. To get the memory address of a variable, or to pass a variable by reference to a function.`,
+            `// [example]:`,
+            `int a = 5; // declare variable \`a\` and set it to 5`,
+            `int *b = &a; // declare pointer \`b\` and set it to the memory address of \`a\``,
+            `scanf("%d", &a); // pass the variable \`a\` by reference to the \`scanf\` function that will update the value of \`a\``,
+            `scanf("%d", b); // pass the pointer \`b\` to the \`scanf\` function that will update the value of \`a\``,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: how can I pass a pointer to a function?`,
+            `// [answer]:`,
+            `// declare the function parameter as a pointer using the \`*\` operator (like this: \`int *a\`), then pass the variable using the "address of" operator \`&\` like this: \`my_function(&a)\``,
+            `// [example]:`,
+            `void my_function(int *a) { // declare the function parameter as a pointer using the \`*\` operator: \`int *a\``,
+            `    *a = 5; // update the value of the variable that the pointer points to. here, the \`*\` operator is used to dereference the pointer and access the value of the variable`,
+            `}`,
+            `int a = 0; // declare variable \`a\` and set it to 0`,
+            `my_function(&a); // pass the variable \`a\` by reference to the \`my_function\` function`,
+            `printf("%d", a); // print the value of \`a\``,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: I have an array of pointers and a size variable, how can I access each element of the array?`,
+            `// [answer]:`,
+            `// use a for loop that iterates from 0 to size-1, and use the \`*\` operator to dereference and access the value of each element like this: \`*array[i]\``,
+            `// [example]:`,
+            `int **array = malloc(sizeof(int*) * 3); // allocate memory for an array of 3 pointers`,
+            `for (int i = 0; i < 3; i++) {`,
+            `    array[i] = malloc(sizeof(int) * 3); // allocate memory for each pointer in the array`,
+            `}`,
+            `for (int i = 0; i < 3; i++) {`,
+            `    for (int j = 0; j < 3; j++) {`,
+            `        *array[i][j] = 5; // update the value of each element in the array. using the \`*\` operator before the identifier dereferences the pointer and accesses the value of the variable`,
+            `    }`,
+            `}`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: how can I get both a string and a number from the user in the same line?`,
+            `// [answer]:`,
+            `// use the \`scanf\` function with the \`%s\` and \`%d\` format specifiers to get the string and number from the user. the \`&\` operator is used to pass the variable by reference to the \`scanf\` function. For example: \`scanf("%s %d", &string, &number)\``,
+            `// [example]:`,
+            `char text[100]; // declare a variable called \`text\` that can hold up to 100 characters`,
+            `int number; // declare an integer called \`number\``,
+            `scanf("%s %d", &text, &number); // get the text and number from the user`,
+            `printf("%s %d", text, number); // print the text and number`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: how can I dynamically allocate memory for an array of n elements and update the value of each element?`,
+            `// [answer]:`,
+            `// 1. use the \`malloc\` function to allocate memory for the array.`,
+            `// 2. use a for loop to iterate from 0 to n-1 and use the \`*\` operator to dereference and update the value of each element.`,
+            `// [example]:`,
+            `int n = 5; // declare a variable called \`n\` and set it to 5`,
+            `int *array = malloc(sizeof(int) * n); // allocate memory for an array of n integers`,
+            `for (int i = 0; i < n; i++) {`,
+            `    *array[i] = 5; // update the value of each element in the array. using the \`*\` operator before the identifier dereferences the pointer and accesses the value of the variable`,
+            `}`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [question]: ${question}`,
+            `// [answer]: `,
+        ].join("\n"),
+        stopTokens: ["// [question]:"],
+    };
+};
+
+const answerQuestionPrompt = (question: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c question / answer file. all answers should be written in plain english without any code.  use the following format:`,
+            `// [question]: what does the ** operator do?`,
+            `// [answer]: the \`**\` operator is used to access the value of a pointer that points to a pointer.`,
+            ``,
+            ``,
+            `// [question]: what does the & operator do?`,
+            `// [answer]: the \`&\` operator could be used to get the memory address of a variable, or to pass a variable by reference to a function.`,
+            ``,
+            ``,
+            `// [question]: how can I pass a pointer to a function?`,
+            `// [answer]: declare the function parameter as a pointer using the \`*\` operator, then pass the variable using the "address of" operator \`&\`.`,
+            ``,
+            ``,
+            `// [question]: I have an array of pointers and a size variable, how can I access each element of the array?`,
+            `// [answer]: use a for loop that iterates from 0 to size-1, and use the \`*\` operator to dereference and access the value of each element like this: \`*array[i]\``,
+            ``,
+            ``,
+            `// [question]: how can I dynamically allocate memory for an array of n elements and update the value of each element?`,
+            `// [answer]: create a pointer to an integer and set it to \`malloc\` the size of the array (can use sizeof(int) to get the size of an integer). then use a for loop to iterate from 0 to n-1 and use the \`*\` operator to update the value of each element like this: \`*array[i] = new_value\``,
+            ``,
+            ``,
+            `// [question]: how can I get both a string and a number from the user in the same line?`,
+            `// [answer]: use the \`scanf\` function with the \`%s\` and \`%d\` format specifiers to get the string and number from the user. the \`&\` operator is used to pass the variable by reference to the \`scanf\` function. For example: \`scanf("%s %d", &string, &number)\``,
+            ``,
+            ``,
+            `// [question]: how can I define a function void fib(...) that takes parameter n and generates the first n values in the Fibonacci sequence. The values should be stored in a dynamically-allocated array composed of exactly the correct number of integers. The values should be returned through a pointer parameter passed in as the first argument.`,
+            `// [answer]: 1. to pass a pointer to a function, declare the function parameter as a pointer using the \`*\` operator, then pass the variable using the "address of" operator \`&\`. 2. to dynamically allocate memory for an array of n elements, create a pointer to an integer and set it to \`malloc\` the size of the array (can use \`sizeof(int)\` to get the size of an integer). 3. then use a for loop to iterate from 0 to n-1 and use the \`*\` operator to set the value of each element like this: \`*array[i] = new_value\`. 4. to set the pointer parameter, you should dereference the pointer and set it to the array pointer like this: \`*return_pointer = array\`.`,
+            ``,
+            ``,
+            `// [question]: how can I write an integer (in binary) to a file?`,
+            `// [answer]: 1. open the file using the \`fopen\` function. 2. use the \`fprintf\` function to write the integer to the file. use the \`%d\` format specifier to write the integer in decimal, or the \`%b\` format specifier to write the integer in binary. 3. close the file using the \`fclose\` function.`,
+            ``,
+            ``,
+            `// [question]: ${question}`,
+            `// [answer]: `,
+        ].join("\n"),
+        stopTokens: ["// [question]:"],
+    };
+};
+
+const genCodePrompt = (specification: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c programming file. Each Command corresponds to a short c programming code snippet. import libraries if special functions are being used.`,
+            `// Command: display the following message: hello world`,
+            `printf("hello world");`,
+            ``,
+            `// Command: ask the user for their name`,
+            `char name[100];`,
+            `printf("Enter your name: ");`,
+            `scanf("%s", name);`,
+            ``,
+            `// Command: ask the user to enter a number`,
+            `int number;`,
+            `printf("Enter a number: ");`,
+            `scanf("%d", &number);`,
+            ``,
+            `// Command: generate a random number`,
+            `#include <stdlib.h>`,
+            `int roll = rand() % 6 + 1;`,
+            ``,
+            `// Command: check if the number is greater than 50`,
+            `if (number > 50) {`,
+            `    printf("The number is greater than 50");`,
+            `}`,
+            ``,
+            `// Command: check if roll is even`,
+            `if (roll % 2 == 0) {`,
+            `    printf("The roll is even");`,
+            `}`,
+            ``,
+            `// Command: ${specification.trim()}\n`,
+        ].join("\n"),
+        stopTokens: ["// Command"],
+    };
+};
