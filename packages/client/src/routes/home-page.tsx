@@ -38,6 +38,17 @@ export const HomePage = () => {
                                 ) : (
                                     <div className="vertical-space-between">
                                         <Login />
+                                        <div>
+                                            Need an account?
+                                            <Button
+                                                type="link"
+                                                onClick={() => {
+                                                    setShowRegister(true);
+                                                }}
+                                            >
+                                                Register
+                                            </Button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
