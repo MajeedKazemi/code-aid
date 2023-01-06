@@ -1,11 +1,9 @@
 import React, { useContext, useState } from "react";
 
 import { Button } from "../components/button";
-import { Documentation } from "../components/documentation";
-import { ExplainCodeComp } from "../components/explain-code-comp";
-import { AnswerQuestionComp } from "../components/hint-generator-comp";
 import { Layout } from "../components/layout";
 import { Login } from "../components/login";
+import { MainComponent } from "../components/main-container";
 import { Register } from "../components/register";
 import { AuthContext } from "../context";
 
@@ -16,17 +14,7 @@ export const HomePage = () => {
     return (
         <Layout>
             {context?.token ? (
-                <main className="home-column-container">
-                    <div className="home-column">
-                        <AnswerQuestionComp />
-                    </div>
-                    <div className="home-column">
-                        <ExplainCodeComp />
-                    </div>
-                    <div className="home-column">
-                        <Documentation />
-                    </div>
-                </main>
+                <MainComponent />
             ) : (
                 <div className="container">
                     <main className="card">

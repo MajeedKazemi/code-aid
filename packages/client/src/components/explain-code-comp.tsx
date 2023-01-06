@@ -31,6 +31,10 @@ export const ExplainCodeComp = (props: IExplainCodeCompProps) => {
                     automaticLayout: true,
                     fontSize: 18,
                     lineHeight: 30,
+                    inlineSuggest: {
+                        enabled: true,
+                        mode: "prefix",
+                    },
                 })
             );
         }

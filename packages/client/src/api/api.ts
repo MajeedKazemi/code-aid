@@ -42,25 +42,6 @@ export const authSignup = (
         }),
     });
 
-export const apiGenerateCodex = (
-    token: string | null | undefined,
-    description: string,
-    context: string
-) =>
-    fetch(env.API_URL + "/api/codex/generate", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-            description: description,
-            type: "block",
-            context: context,
-        }),
-    });
-
 export const apiAnswerQuestion = (
     token: string | null | undefined,
     question: string
@@ -73,33 +54,16 @@ export const apiAnswerQuestion = (
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-            question: question,
+            question,
         }),
     });
 
-export const apiAnswerQuestionFromCode = (
+export const apiReplyAnswerQuestion = (
     token: string | null | undefined,
-    question: string,
-    code: string
-) =>
-    fetch(env.API_URL + "/api/codex/answer-question-from-code", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-            question: question,
-            code: code,
-        }),
-    });
-
-export const apiAnswerQuestionV2 = (
-    token: string | null | undefined,
+    prevQuestions: string,
     question: string
 ) =>
-    fetch(env.API_URL + "/api/codex/answer-question-v2", {
+    fetch(env.API_URL + "/api/codex/reply-answer-question", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -107,7 +71,8 @@ export const apiAnswerQuestionV2 = (
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-            question: question,
+            prevQuestions,
+            question,
         }),
     });
 
@@ -123,6 +88,6 @@ export const apiExplainCode = (
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-            code: code,
+            code,
         }),
     });

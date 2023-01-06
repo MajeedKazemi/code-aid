@@ -1,4 +1,5 @@
 import express from "express";
+import { v4 as uuid } from "uuid";
 
 import { IUser } from "../models/user";
 import { openai } from "../utils/codex";
@@ -26,6 +27,7 @@ codexRouter.post("/explain-code", verifyUser, async (req, res, next) => {
             const explanation = result.data.choices[0].text?.trim();
 
             res.json({
+                id: uuid(),
                 explanation: explanation ? "1." + explanation : "",
                 success: true,
             });
@@ -54,10 +56,16 @@ codexRouter.post("/answer-question", verifyUser, async (req, res, next) => {
         });
 
         if (result.data.choices && result.data.choices?.length > 0) {
-            const ans = result.data.choices[0].text?.trim();
+            const answer = result.data.choices[0].text?.trim();
 
             res.json({
-                answer: ans ? ans : "",
+                query: [
+                    `// [question]: ${question}`,
+                    `// [answer]: ${answer}`,
+                ].join("\n"),
+                id: uuid(),
+                question: question,
+                answer: answer ? answer : "",
                 success: true,
             });
         } else {
@@ -88,10 +96,17 @@ codexRouter.post(
             });
 
             if (result.data.choices && result.data.choices?.length > 0) {
-                const ans = result.data.choices[0].text?.trim();
+                const answer = result.data.choices[0].text?.trim();
 
                 res.json({
-                    answer: ans ? ans : "",
+                    query: [
+                        ...prevQuestions.split("\n"),
+                        `// [follow-up-question]: ${question}`,
+                        `// [follow-up-answer]: ${answer}`,
+                    ].join("\n"),
+                    id: uuid(),
+                    question: question,
+                    answer: answer ? answer : "",
                     success: true,
                 });
             } else {
@@ -195,11 +210,15 @@ const replyAnswerQuestionPrompt = (
             `// [end]`,
             ``,
             ``,
-            `// ${prevQuestions}`,
+            ...prevQuestions.split("\n"),
             `// [follow-up-question]: ${newQuestion}`,
             `// [follow-up-answer]: `,
         ].join("\n"),
-        stopTokens: ["// [end]"],
+        stopTokens: [
+            "// [end]",
+            "// [follow-up-question]",
+            "// [follow-up-answer]",
+        ],
     };
 };
 
@@ -505,7 +524,7 @@ const answerQuestionPrompt = (question: string) => {
             `// [question]: ${question}`,
             `// [answer]: `,
         ].join("\n"),
-        stopTokens: ["// [question]:"],
+        stopTokens: ["// [question]:", "// [answer]"],
     };
 };
 
