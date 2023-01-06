@@ -1,11 +1,12 @@
 import * as monaco from "monaco-editor";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { apiAnswerQuestion, apiBreakDownTask, apiExplainCode } from "../api/api";
+import { apiAnswerQuestion, apiBreakDownTask, apiExplainCode, apiQuestionFromCode } from "../api/api";
 import { AuthContext } from "../context";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
 import { QuestionAnswerResponse } from "./responses/question-answer-response";
+import { QuestionFromCodeResponse } from "./responses/question-from-code-response";
 import { SelectableOption } from "./selectable-option";
 
 export enum HintOption {
@@ -143,6 +144,21 @@ export const MainComponent = () => {
 
                 break;
 
+            case HintOption.QuestionFromCode:
+                apiQuestionFromCode(context?.token, code, question).then(
+                    async (res) => {
+                        const data = await res.json();
+
+                        setResponses([
+                            { ...data, type: "question-from-code" },
+                            ...responses,
+                        ]);
+                        setLoading(false);
+                    }
+                );
+
+                break;
+
             default:
                 break;
         }
@@ -229,6 +245,14 @@ export const MainComponent = () => {
                             case "explain-code":
                                 return (
                                     <ExplainCodeResponse
+                                        key={response.id}
+                                        data={response}
+                                    />
+                                );
+
+                            case "question-from-code":
+                                return (
+                                    <QuestionFromCodeResponse
                                         key={response.id}
                                         data={response}
                                     />

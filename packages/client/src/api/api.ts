@@ -107,3 +107,21 @@ export const apiExplainCode = (
             code,
         }),
     });
+
+export const apiQuestionFromCode = (
+    token: string | null | undefined,
+    code: string,
+    question: string
+) =>
+    fetch(env.API_URL + "/api/codex/question-from-code", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            code,
+            question,
+        }),
+    });
