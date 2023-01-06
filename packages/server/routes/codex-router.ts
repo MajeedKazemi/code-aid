@@ -12,23 +12,45 @@ codexRouter.post("/explain-code", verifyUser, async (req, res, next) => {
     const userId = (req.user as IUser)._id;
 
     if (code !== undefined) {
-        const prompt = explainCodePrompt(code);
+        const promptExplainSteps = explainCodePrompt(code);
+        const promptShortExplain = explainCodePromptV2(code);
 
-        const result = await openai.createCompletion({
+        const expStepsRes = await openai.createCompletion({
             model: "code-davinci-002",
-            prompt: prompt.prompt,
+            prompt: promptExplainSteps.prompt,
             temperature: 0.3,
             max_tokens: 500,
-            stop: prompt.stopTokens,
+            stop: promptExplainSteps.stopTokens,
             user: userId,
         });
 
-        if (result.data.choices && result.data.choices?.length > 0) {
-            const explanation = result.data.choices[0].text?.trim();
+        const expShortRes = await openai.createCompletion({
+            model: "code-davinci-002",
+            prompt: promptShortExplain.prompt,
+            temperature: 0.3,
+            max_tokens: 500,
+            stop: promptShortExplain.stopTokens,
+            user: userId,
+        });
+
+        if (
+            expStepsRes.data.choices &&
+            expStepsRes.data.choices?.length > 0 &&
+            expShortRes.data.choices &&
+            expShortRes.data.choices?.length > 0
+        ) {
+            const expSteps = expStepsRes.data.choices[0].text?.trim();
+            const expShort = expShortRes.data.choices[0].text?.trim();
 
             res.json({
                 id: uuid(),
-                explanation: explanation ? "1." + explanation : "",
+                code: code,
+                explanation: expShort,
+                steps: expSteps
+                    ? ("1." + expSteps)
+                          .split("\n")
+                          .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
+                    : [],
                 success: true,
             });
         } else {
