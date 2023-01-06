@@ -118,6 +118,43 @@ codexRouter.post(
     }
 );
 
+codexRouter.post("/break-down-task", verifyUser, async (req, res, next) => {
+    const { task } = req.body;
+    const userId = (req.user as IUser)._id;
+
+    if (task !== undefined) {
+        const prompt = breakDownTask(task);
+
+        const result = await openai.createCompletion({
+            model: "code-davinci-002",
+            prompt: prompt.prompt,
+            temperature: 0.3,
+            max_tokens: 500,
+            stop: prompt.stopTokens,
+            user: userId,
+        });
+
+        if (result.data.choices && result.data.choices?.length > 0) {
+            const answer = result.data.choices[0].text?.trim();
+
+            res.json({
+                id: uuid(),
+                task: task,
+                steps: answer
+                    ? ("// 1. " + answer)
+                          .split("\n")
+                          .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
+                    : [],
+                success: true,
+            });
+        } else {
+            res.json({
+                success: false,
+            });
+        }
+    }
+});
+
 codexRouter.post("/answer-question-v2", verifyUser, async (req, res, next) => {
     const { question } = req.body;
     const userId = (req.user as IUser)._id;
@@ -179,6 +216,48 @@ codexRouter.post("/generate", verifyUser, async (req, res, next) => {
         }
     }
 });
+
+const breakDownTask = (task: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c task step-by-step break-down. all answers should be written in plain english without any code. Use the following format:`,
+            `// [task]: how can I use the fread function?`,
+            `// [step-by-step]:`,
+            `// 1. use the \`fopen\` function to open the file. \`fopen\` has two parameters: the first is the name of the file, and the second is the mode. the mode can be \`"r"\` for read, \`"w"\` for write, or \`"a"\` for append. the function returns a pointer to the file.`,
+            `// 2. use the \`fread\` function to read the file. \`fread\` has three parameters: the first is a pointer to the file, the second is the size of each element, and the third is the number of elements to read. the function returns the number of elements read.`,
+            `// 3. to read the entire file, use a while loop to keep reading until the function returns 0 (reached the end of the file).`,
+            `// 4. use the \`fclose\` function to close the file. \`fclose\` has one parameter: the pointer to the file. the function returns 0 if successful.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [task]: how can I use sockets to create a connection to a server?`,
+            `// [step-by-step]:`,
+            `// 1. use the \`socket\` function to create a socket. \`socket\` has three parameters: the first is the address family (use \`AF_INET\` for IPv4), the second is the type of socket (use \`SOCK_STREAM\` for TCP), and the third is the protocol (use \`0\` for the default protocol). the function returns a socket descriptor (which is an integer that identifies the socket).`,
+            `// 2. use the \`connect\` function to connect to the server. \`connect\` has three parameters: the first is the socket descriptor, the second is a pointer to a \`struct sockaddr_in\` that contains the address of the server, and the third is the size of the \`struct sockaddr_in\`. the function returns 0 if successful.`,
+            `// 3. use the \`send\` function to send data to the server. \`send\` has four parameters: the first is the socket descriptor, the second is a pointer to the data to send, the third is the size of the data, and the fourth is the flags (use \`0\` for the default flags). the function returns the number of bytes sent.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [task]: generate code that manually concatenates two dynamically allocated strings?`,
+            `// [step-by-step]:`,
+            `// I am not supposed to give you the answer to this question, but I will break it down into steps so you can figure it out yourself:`,
+            `// 1. use the \`strlen\` function to get the length of the first string. \`strlen\` has one parameter: the pointer to the string. the function returns the length of the string.`,
+            `// 2. use the \`strlen\` function to get the length of the second string.`,
+            `// 3. use the \`malloc\` function to allocate memory for the new string. \`malloc\` has one parameter: the size of the memory to allocate. the function returns a pointer to the allocated memory.`,
+            `// 4. use the \`memcpy\` function to copy the first string to the new string. \`memcpy\` has three parameters: the first is the pointer to the destination, the second is the pointer to the source, and the third is the size of the memory to copy. the function returns a pointer to the destination.`,
+            `// 5. use the \`memcpy\` function again to copy the second string to the new string.`,
+            `// 6. use the \`free\` function to free the memory allocated for the first string. \`free\` has one parameter: the pointer to the memory to free. the function returns nothing.`,
+            `// 7. use the \`free\` function to free the memory allocated for the second string.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [task]: ${task}`,
+            `// [step-by-step]:`,
+            `// 1. `,
+        ].join("\n"),
+        stopTokens: ["// [end]", "// [step-by-step]:", "// [task]:"],
+    };
+};
 
 const replyAnswerQuestionPrompt = (
     prevQuestions: string,
