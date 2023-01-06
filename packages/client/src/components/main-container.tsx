@@ -1,9 +1,10 @@
 import * as monaco from "monaco-editor";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { apiAnswerQuestion, apiBreakDownTask } from "../api/api";
+import { apiAnswerQuestion, apiBreakDownTask, apiExplainCode } from "../api/api";
 import { AuthContext } from "../context";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
+import { ExplainCodeResponse } from "./responses/explain-code-response";
 import { QuestionAnswerResponse } from "./responses/question-answer-response";
 import { SelectableOption } from "./selectable-option";
 
@@ -103,9 +104,10 @@ export const MainComponent = () => {
                 apiAnswerQuestion(context?.token, question).then(
                     async (res) => {
                         const data = await res.json();
+
                         setResponses([
-                            ...responses,
                             { ...data, type: "question-answer" },
+                            ...responses,
                         ]);
                     }
                 );
@@ -115,9 +117,22 @@ export const MainComponent = () => {
             case HintOption.BreakDownSteps:
                 apiBreakDownTask(context?.token, question).then(async (res) => {
                     const data = await res.json();
+
                     setResponses([
-                        ...responses,
                         { ...data, type: "break-down-steps" },
+                        ...responses,
+                    ]);
+                });
+
+                break;
+
+            case HintOption.ExplainCode:
+                apiExplainCode(context?.token, code).then(async (res) => {
+                    const data = await res.json();
+
+                    setResponses([
+                        { ...data, type: "explain-code" },
+                        ...responses,
                     ]);
                 });
 
@@ -200,6 +215,14 @@ export const MainComponent = () => {
                             case "break-down-steps":
                                 return (
                                     <BreakDownStepsResponse
+                                        key={response.id}
+                                        data={response}
+                                    />
+                                );
+
+                            case "explain-code":
+                                return (
+                                    <ExplainCodeResponse
                                         key={response.id}
                                         data={response}
                                     />
