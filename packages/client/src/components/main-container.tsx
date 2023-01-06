@@ -18,7 +18,7 @@ export enum HintOption {
 
 export const MainComponent = () => {
     const { context } = useContext(AuthContext);
-
+    const [loading, setLoading] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] = useState<HintOption | null>(
         null
     );
@@ -99,6 +99,8 @@ export const MainComponent = () => {
     const performQuery = () => {
         if (!selectedOption) return;
 
+        setLoading(true);
+
         switch (selectedOption) {
             case HintOption.AskQuestion:
                 apiAnswerQuestion(context?.token, question).then(
@@ -109,6 +111,7 @@ export const MainComponent = () => {
                             { ...data, type: "question-answer" },
                             ...responses,
                         ]);
+                        setLoading(false);
                     }
                 );
 
@@ -122,6 +125,7 @@ export const MainComponent = () => {
                         { ...data, type: "break-down-steps" },
                         ...responses,
                     ]);
+                    setLoading(false);
                 });
 
                 break;
@@ -134,6 +138,7 @@ export const MainComponent = () => {
                         { ...data, type: "explain-code" },
                         ...responses,
                     ]);
+                    setLoading(false);
                 });
 
                 break;
@@ -200,6 +205,7 @@ export const MainComponent = () => {
                     <div className="mini-editor" ref={editorEl}></div>
                 </div>
                 <button onClick={performQuery}>ask</button>
+                {loading ? <div>loading...</div> : null}
 
                 <div>
                     {responses.map((response) => {
