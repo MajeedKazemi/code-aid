@@ -12,8 +12,8 @@ codexRouter.post("/explain-code", verifyUser, async (req, res, next) => {
     const userId = (req.user as IUser)._id;
 
     if (code !== undefined) {
-        const promptExplainSteps = explainCodePrompt(code);
-        const promptShortExplain = explainCodePromptV2(code);
+        const promptExplainSteps = explainCodeStepsPrompt(code);
+        const promptShortExplain = explainCodeShortPrompt(code);
 
         const expStepsRes = await openai.createCompletion({
             model: "code-davinci-002",
@@ -145,7 +145,7 @@ codexRouter.post("/break-down-task", verifyUser, async (req, res, next) => {
     const userId = (req.user as IUser)._id;
 
     if (task !== undefined) {
-        const prompt = breakDownTask(task);
+        const prompt = breakDownTaskPrompt(task);
 
         const result = await openai.createCompletion({
             model: "code-davinci-002",
@@ -177,43 +177,12 @@ codexRouter.post("/break-down-task", verifyUser, async (req, res, next) => {
     }
 });
 
-codexRouter.post("/answer-question-v2", verifyUser, async (req, res, next) => {
-    const { question } = req.body;
+codexRouter.post("/question-from-code", verifyUser, async (req, res, next) => {
+    const { question, code } = req.body;
     const userId = (req.user as IUser)._id;
 
-    if (question !== undefined) {
-        const prompt = answerQuestionPromptV2(question);
-
-        const result = await openai.createCompletion({
-            model: "code-davinci-002",
-            prompt: prompt.prompt,
-            temperature: 0.3,
-            max_tokens: 500,
-            stop: prompt.stopTokens,
-            user: userId,
-        });
-
-        if (result.data.choices && result.data.choices?.length > 0) {
-            const ans = result.data.choices[0].text?.trim();
-
-            res.json({
-                answer: ans ? ans : "",
-                success: true,
-            });
-        } else {
-            res.json({
-                success: false,
-            });
-        }
-    }
-});
-
-codexRouter.post("/generate", verifyUser, async (req, res, next) => {
-    const { description } = req.body;
-    const userId = (req.user as IUser)._id;
-
-    if (description !== undefined) {
-        const prompt = genCodePrompt(description);
+    if (question !== undefined && code !== undefined) {
+        const prompt = questionFromCodePrompt(code, question);
 
         const result = await openai.createCompletion({
             model: "code-davinci-002",
@@ -225,10 +194,12 @@ codexRouter.post("/generate", verifyUser, async (req, res, next) => {
         });
 
         if (result.data.choices && result.data.choices?.length > 0) {
-            const code = result.data.choices[0].text?.trim();
+            const answer = result.data.choices[0].text?.trim();
 
             res.json({
-                code: code ? code : "",
+                code,
+                question,
+                answer: answer ? answer : "",
                 success: true,
             });
         } else {
@@ -239,7 +210,85 @@ codexRouter.post("/generate", verifyUser, async (req, res, next) => {
     }
 });
 
-const breakDownTask = (task: string) => {
+const questionFromCodePrompt = (code: string, question: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c ask questions from code snippets. all answers should be written in plain english without any code. Use the following format:`,
+            `// [code]:`,
+            `unsigned long fsize(char* file)`,
+            `{`,
+            `    FILE f = fopen(file, "r");`,
+            `    fseek(0, f, SEEK_END);`,
+            `    long len = long(ftell(f));`,
+            `    fclose(f);`,
+
+            `    return len;`,
+            `}`,
+            `// [question]: how can I fix the error in this code?`,
+            `// [answer]: there are multiple issues: (1) \`fopen\` returns a \`FILE*\` not a \`FILE\`, (2) \`fseek\` takes the file as the first parameter and the offset as the second parameter, and (3) \`long\` is not a type, instead use \`unsigned long\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `char tmp[16];`,
+            `scanf("%s", tmp);`,
+            ``,
+            `int isDigit = 0;`,
+            `int j=0;`,
+            `while(j<strlen(tmp) && isDigit == 0){`,
+            `    if(tmp[j] > 57 && tmp[j] < 48)`,
+            `    isDigit = 0;`,
+            `    else`,
+            `    isDigit = 1;`,
+            `    j++;`,
+            `}`,
+            `// [question]: I want to check if a string is a number with this code. I must check that all the chars in the string are integer, but the while returns always isDigit = 1. I don't know why that if doesn't work`,
+            `// [answer]: instead of using ASCII codes, you can check if \`tmp[j]\` is between \`0\` and \`9\` using \`tmp[j] >= '0' && tmp[j] <= '9'\`. You could also use \`isdigit\` from \`<ctype.h>\`, or \`atoi\` from \`<stdlib.h>\`, or \`isnumber\` from \`<math.h>\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `#include <stdio.h>`,
+            ``,
+            `int main()`,
+            `{`,
+            `    for(int i=0;i<100;i++)`,
+            `    {`,
+            `        int count=0;`,
+            `        printf("%d ",++count);`,
+            `    }`,
+            `    return 0;`,
+            `}`,
+            `// [question]: if I declare a variable inside a for loop, will it be be created multiple times?`,
+            `// [answer]: yes, \`count\` is created each time the body of the loop is executed, and it is destroyed when execution of the body ends (denoted by \`}\`). By "created" and "destroyed," I mean that the memory is reserved for it and is released, and that the initialization is performed with the reservation.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `#include <stdio.h>
+#include <math.h>
+int main(void)
+{
+    double x = 0.5;
+    double result = sqrt(x);
+    printf("The square root of %lf is %lf\n", x, result);
+    return 0;
+}`,
+            `// [question]: Why am I getting "undefined reference to sqrt" error even though I include math.h header?`,
+            `// [answer]: The math library must be linked to the program. You can do this by adding \`-lm\` to the end of the command line. For example, \`gcc -o myprog myprog.c -lm\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `${code}`,
+            `// [question]: ${question}`,
+            `// [answer]: `,
+        ].join("\n"),
+        stopTokens: ["// [end]", "// [question]:", "// [code]:"],
+    };
+};
+
+const breakDownTaskPrompt = (task: string) => {
     return {
         prompt: [
             `<|endoftext|>// blank .c task step-by-step break-down. all answers should be written in plain english without any code. Use the following format:`,
@@ -323,7 +372,7 @@ const replyAnswerQuestionPrompt = (
     };
 };
 
-const explainCodePromptV2 = (code: string) => {
+const explainCodeShortPrompt = (code: string) => {
     return {
         prompt: [
             `<|endoftext|>// blank .c programming file.`,
@@ -379,7 +428,7 @@ const explainCodePromptV2 = (code: string) => {
     };
 };
 
-const explainCodePrompt = (code: string) => {
+const explainCodeStepsPrompt = (code: string) => {
     return {
         prompt: [
             `<|endoftext|>// blank .c programming file.`,
@@ -626,42 +675,5 @@ const answerQuestionPrompt = (question: string) => {
             `// [answer]: `,
         ].join("\n"),
         stopTokens: ["// [question]:", "// [answer]"],
-    };
-};
-
-const genCodePrompt = (specification: string) => {
-    return {
-        prompt: [
-            `<|endoftext|>// blank .c programming file. Each Command corresponds to a short c programming code snippet. import libraries if special functions are being used.`,
-            `// Command: display the following message: hello world`,
-            `printf("hello world");`,
-            ``,
-            `// Command: ask the user for their name`,
-            `char name[100];`,
-            `printf("Enter your name: ");`,
-            `scanf("%s", name);`,
-            ``,
-            `// Command: ask the user to enter a number`,
-            `int number;`,
-            `printf("Enter a number: ");`,
-            `scanf("%d", &number);`,
-            ``,
-            `// Command: generate a random number`,
-            `#include <stdlib.h>`,
-            `int roll = rand() % 6 + 1;`,
-            ``,
-            `// Command: check if the number is greater than 50`,
-            `if (number > 50) {`,
-            `    printf("The number is greater than 50");`,
-            `}`,
-            ``,
-            `// Command: check if roll is even`,
-            `if (roll % 2 == 0) {`,
-            `    printf("The roll is even");`,
-            `}`,
-            ``,
-            `// Command: ${specification.trim()}\n`,
-        ].join("\n"),
-        stopTokens: ["// Command"],
     };
 };
