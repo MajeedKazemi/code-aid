@@ -76,6 +76,22 @@ export const apiReplyAnswerQuestion = (
         }),
     });
 
+export const apiBreakDownTask = (
+    token: string | null | undefined,
+    task: string
+) =>
+    fetch(env.API_URL + "/api/codex/break-down-task", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            task,
+        }),
+    });
+
 export const apiExplainCode = (
     token: string | null | undefined,
     code: string

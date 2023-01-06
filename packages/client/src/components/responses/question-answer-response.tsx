@@ -43,9 +43,8 @@ export const QuestionAnswerResponse = (props: IProps) => {
                 onChange={(e) => {
                     setFollowUpQuestion(e.target.value);
                 }}
-            >
-                {followUpQuestion}
-            </textarea>
+                value={followUpQuestion}
+            ></textarea>
             <button
                 onClick={() => {
                     let prevQuestions =

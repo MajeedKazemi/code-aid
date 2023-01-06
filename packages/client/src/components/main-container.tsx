@@ -1,8 +1,9 @@
 import * as monaco from "monaco-editor";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { apiAnswerQuestion } from "../api/api";
+import { apiAnswerQuestion, apiBreakDownTask } from "../api/api";
 import { AuthContext } from "../context";
+import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { QuestionAnswerResponse } from "./responses/question-answer-response";
 import { SelectableOption } from "./selectable-option";
 
@@ -111,6 +112,17 @@ export const MainComponent = () => {
 
                 break;
 
+            case HintOption.BreakDownSteps:
+                apiBreakDownTask(context?.token, question).then(async (res) => {
+                    const data = await res.json();
+                    setResponses([
+                        ...responses,
+                        { ...data, type: "break-down-steps" },
+                    ]);
+                });
+
+                break;
+
             default:
                 break;
         }
@@ -164,9 +176,8 @@ export const MainComponent = () => {
                         onChange={(e) => {
                             setQuestion(e.target.value);
                         }}
-                    >
-                        {question}
-                    </textarea>
+                        value={question}
+                    ></textarea>
                 </div>
 
                 <div className={showEditor ? "" : "hidden-component"}>
@@ -181,6 +192,14 @@ export const MainComponent = () => {
                             case "question-answer":
                                 return (
                                     <QuestionAnswerResponse
+                                        key={response.id}
+                                        data={response}
+                                    />
+                                );
+
+                            case "break-down-steps":
+                                return (
+                                    <BreakDownStepsResponse
                                         key={response.id}
                                         data={response}
                                     />
