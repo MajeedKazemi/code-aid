@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { apiReplyAnswerQuestion } from "../../api/api";
 import { AuthContext } from "../../context";
 import { highlightCode } from "../../utils/utils";
+import { ResponseStatus } from "../main-container";
 
 interface IProps {
     data: { question: string; answer: string; id: string; query: string };
@@ -10,6 +11,7 @@ interface IProps {
 
 export const QuestionAnswerResponse = (props: IProps) => {
     const { context } = useContext(AuthContext);
+    const [status, setStatus] = useState<ResponseStatus | null>(null);
 
     const [followUps, setFollowUps] = useState<any[]>([]);
     const [followUpQuestion, setFollowUpQuestion] = useState<string>("");
@@ -52,18 +54,32 @@ export const QuestionAnswerResponse = (props: IProps) => {
                             ? followUps[followUps.length - 1].query
                             : props.data.query;
 
+                    setStatus(ResponseStatus.Loading);
+
                     apiReplyAnswerQuestion(
                         context?.token,
                         prevQuestions,
                         followUpQuestion
-                    ).then(async (res) => {
-                        const data = await res.json();
-                        setFollowUps([...followUps, { ...data }]);
-                    });
+                    )
+                        .then(async (res) => {
+                            const data = await res.json();
+
+                            setFollowUps([...followUps, { ...data }]);
+                            setStatus(ResponseStatus.Success);
+                        })
+                        .catch(() => {
+                            setStatus(ResponseStatus.Failed);
+                        });
                 }}
             >
                 follow-up
             </button>
+
+            {status === ResponseStatus.Loading ? (
+                <div>loading...</div>
+            ) : status === ResponseStatus.Failed ? (
+                <div>failed to load</div>
+            ) : null}
         </div>
     );
 };

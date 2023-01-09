@@ -17,9 +17,15 @@ export enum HintOption {
     QuestionFromCode = "ask question from code",
 }
 
+export enum ResponseStatus {
+    Loading,
+    Success,
+    Failed,
+}
+
 export const MainComponent = () => {
     const { context } = useContext(AuthContext);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [status, setStatus] = useState<ResponseStatus | null>(null);
     const [selectedOption, setSelectedOption] = useState<HintOption | null>(
         null
     );
@@ -41,7 +47,7 @@ export const MainComponent = () => {
         if (editorEl && !editor) {
             const monacoEditor = monaco.editor.create(editorEl.current!, {
                 value: code,
-                language: "python",
+                language: "c",
                 theme: "vs",
                 automaticLayout: true,
                 fontSize: 18,
@@ -100,62 +106,74 @@ export const MainComponent = () => {
     const performQuery = () => {
         if (!selectedOption) return;
 
-        setLoading(true);
+        setStatus(ResponseStatus.Loading);
 
         switch (selectedOption) {
             case HintOption.AskQuestion:
-                apiAnswerQuestion(context?.token, question).then(
-                    async (res) => {
+                apiAnswerQuestion(context?.token, question)
+                    .then(async (res) => {
                         const data = await res.json();
 
                         setResponses([
                             { ...data, type: "question-answer" },
                             ...responses,
                         ]);
-                        setLoading(false);
-                    }
-                );
+                        setStatus(ResponseStatus.Success);
+                    })
+                    .catch(() => {
+                        setStatus(ResponseStatus.Failed);
+                    });
 
                 break;
 
             case HintOption.BreakDownSteps:
-                apiBreakDownTask(context?.token, question).then(async (res) => {
-                    const data = await res.json();
+                apiBreakDownTask(context?.token, question)
+                    .then(async (res) => {
+                        const data = await res.json();
 
-                    setResponses([
-                        { ...data, type: "break-down-steps" },
-                        ...responses,
-                    ]);
-                    setLoading(false);
-                });
+                        setResponses([
+                            { ...data, type: "break-down-steps" },
+                            ...responses,
+                        ]);
+                        setStatus(ResponseStatus.Success);
+                    })
+                    .catch(() => {
+                        setStatus(ResponseStatus.Failed);
+                    });
 
                 break;
 
             case HintOption.ExplainCode:
-                apiExplainCode(context?.token, code).then(async (res) => {
-                    const data = await res.json();
+                apiExplainCode(context?.token, code)
+                    .then(async (res) => {
+                        const data = await res.json();
 
-                    setResponses([
-                        { ...data, type: "explain-code" },
-                        ...responses,
-                    ]);
-                    setLoading(false);
-                });
+                        setResponses([
+                            { ...data, type: "explain-code" },
+                            ...responses,
+                        ]);
+                        setStatus(ResponseStatus.Success);
+                    })
+                    .catch(() => {
+                        setStatus(ResponseStatus.Failed);
+                    });
 
                 break;
 
             case HintOption.QuestionFromCode:
-                apiQuestionFromCode(context?.token, code, question).then(
-                    async (res) => {
+                apiQuestionFromCode(context?.token, code, question)
+                    .then(async (res) => {
                         const data = await res.json();
 
                         setResponses([
                             { ...data, type: "question-from-code" },
                             ...responses,
                         ]);
-                        setLoading(false);
-                    }
-                );
+                        setStatus(ResponseStatus.Success);
+                    })
+                    .catch(() => {
+                        setStatus(ResponseStatus.Failed);
+                    });
 
                 break;
 
@@ -221,7 +239,12 @@ export const MainComponent = () => {
                     <div className="mini-editor" ref={editorEl}></div>
                 </div>
                 <button onClick={performQuery}>ask</button>
-                {loading ? <div>loading...</div> : null}
+
+                {status === ResponseStatus.Loading ? (
+                    <div>loading...</div>
+                ) : status === ResponseStatus.Failed ? (
+                    <div>failed to load</div>
+                ) : null}
 
                 <div>
                     {responses.map((response) => {
