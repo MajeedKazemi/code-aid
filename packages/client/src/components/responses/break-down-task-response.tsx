@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 
 import { AuthContext } from "../../context";
 import { highlightCode } from "../../utils/utils";
+import { ResponseFeedback } from "../response-feedback";
 
 interface IProps {
     data: { task: string; steps: string[]; id: string };
@@ -25,6 +26,8 @@ export const BreakDownStepsResponse = (props: IProps) => {
                     ))}
                 </ol>
             </div>
+
+            <ResponseFeedback responseId={props.data.id} />
         </div>
     );
 };

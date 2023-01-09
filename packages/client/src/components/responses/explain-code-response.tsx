@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 
 import { AuthContext } from "../../context";
 import { highlightCode } from "../../utils/utils";
+import { ResponseFeedback } from "../response-feedback";
 
 interface IProps {
     data: { code: string; steps: string[]; explanation: string; id: string };
@@ -16,7 +17,7 @@ export const ExplainCodeResponse = (props: IProps) => {
         if (codeEl.current) {
             monaco.editor.colorizeElement(codeEl.current as HTMLElement, {
                 theme: "vs",
-                mimeType: "python",
+                mimeType: "c",
                 tabSize: 4,
             });
         }
@@ -38,6 +39,8 @@ export const ExplainCodeResponse = (props: IProps) => {
                     ))}
                 </ol>
             </div>
+
+            <ResponseFeedback responseId={props.data.id} />
         </div>
     );
 };

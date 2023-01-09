@@ -3,7 +3,8 @@ import { useContext, useState } from "react";
 import { apiReplyAnswerQuestion } from "../../api/api";
 import { AuthContext } from "../../context";
 import { highlightCode } from "../../utils/utils";
-import { ResponseStatus } from "../main-container";
+import { StatusMessage } from "../main-container";
+import { ResponseFeedback } from "../response-feedback";
 
 interface IProps {
     data: { question: string; answer: string; id: string; query: string };
@@ -11,7 +12,7 @@ interface IProps {
 
 export const QuestionAnswerResponse = (props: IProps) => {
     const { context } = useContext(AuthContext);
-    const [status, setStatus] = useState<ResponseStatus | null>(null);
+    const [status, setStatus] = useState<StatusMessage>(StatusMessage.OK);
 
     const [followUps, setFollowUps] = useState<any[]>([]);
     const [followUpQuestion, setFollowUpQuestion] = useState<string>("");
@@ -35,6 +36,12 @@ export const QuestionAnswerResponse = (props: IProps) => {
                                     __html: highlightCode(f.answer),
                                 }}
                             ></div>
+
+                            <ResponseFeedback
+                                responseId={props.data.id}
+                                followUpId={f.id}
+                            />
+
                             <hr />
                         </div>
                     );
@@ -54,7 +61,13 @@ export const QuestionAnswerResponse = (props: IProps) => {
                             ? followUps[followUps.length - 1].query
                             : props.data.query;
 
-                    setStatus(ResponseStatus.Loading);
+                    if (followUpQuestion === "") {
+                        setStatus(StatusMessage.QuestionEmpty);
+
+                        return;
+                    }
+
+                    setStatus(StatusMessage.Loading);
 
                     apiReplyAnswerQuestion(
                         context?.token,
@@ -65,21 +78,19 @@ export const QuestionAnswerResponse = (props: IProps) => {
                             const data = await res.json();
 
                             setFollowUps([...followUps, { ...data }]);
-                            setStatus(ResponseStatus.Success);
+                            setStatus(StatusMessage.OK);
                         })
                         .catch(() => {
-                            setStatus(ResponseStatus.Failed);
+                            setStatus(StatusMessage.Failed);
                         });
                 }}
             >
                 follow-up
             </button>
 
-            {status === ResponseStatus.Loading ? (
-                <div>loading...</div>
-            ) : status === ResponseStatus.Failed ? (
-                <div>failed to load</div>
-            ) : null}
+            <div>{status !== StatusMessage.OK ? status : null}</div>
+
+            <ResponseFeedback responseId={props.data.id} />
         </div>
     );
 };
