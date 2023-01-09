@@ -17,15 +17,18 @@ export enum HintOption {
     QuestionFromCode = "ask question from code",
 }
 
-export enum ResponseStatus {
-    Loading,
-    Success,
-    Failed,
+export enum StatusMessage {
+    OK = "",
+    Loading = "loading",
+    Failed = "server error, please retry, or refresh",
+    QuestionEmpty = "question cannot be empty",
+    CodeEmpty = "code cannot be empty",
+    QuestionAndCodeEmpty = "please enter both code and question",
 }
 
 export const MainComponent = () => {
     const { context } = useContext(AuthContext);
-    const [status, setStatus] = useState<ResponseStatus | null>(null);
+    const [status, setStatus] = useState<StatusMessage>(StatusMessage.OK);
     const [selectedOption, setSelectedOption] = useState<HintOption | null>(
         null
     );
@@ -106,10 +109,16 @@ export const MainComponent = () => {
     const performQuery = () => {
         if (!selectedOption) return;
 
-        setStatus(ResponseStatus.Loading);
-
         switch (selectedOption) {
             case HintOption.AskQuestion:
+                if (!question) {
+                    setStatus(StatusMessage.QuestionEmpty);
+
+                    return;
+                }
+
+                setStatus(StatusMessage.Loading);
+
                 apiAnswerQuestion(context?.token, question)
                     .then(async (res) => {
                         const data = await res.json();
@@ -118,15 +127,23 @@ export const MainComponent = () => {
                             { ...data, type: "question-answer" },
                             ...responses,
                         ]);
-                        setStatus(ResponseStatus.Success);
+                        setStatus(StatusMessage.OK);
                     })
                     .catch(() => {
-                        setStatus(ResponseStatus.Failed);
+                        setStatus(StatusMessage.Failed);
                     });
 
                 break;
 
             case HintOption.BreakDownSteps:
+                if (!question) {
+                    setStatus(StatusMessage.QuestionEmpty);
+
+                    return;
+                }
+
+                setStatus(StatusMessage.Loading);
+
                 apiBreakDownTask(context?.token, question)
                     .then(async (res) => {
                         const data = await res.json();
@@ -135,15 +152,23 @@ export const MainComponent = () => {
                             { ...data, type: "break-down-steps" },
                             ...responses,
                         ]);
-                        setStatus(ResponseStatus.Success);
+                        setStatus(StatusMessage.OK);
                     })
                     .catch(() => {
-                        setStatus(ResponseStatus.Failed);
+                        setStatus(StatusMessage.Failed);
                     });
 
                 break;
 
             case HintOption.ExplainCode:
+                if (!code) {
+                    setStatus(StatusMessage.CodeEmpty);
+
+                    return;
+                }
+
+                setStatus(StatusMessage.Loading);
+
                 apiExplainCode(context?.token, code)
                     .then(async (res) => {
                         const data = await res.json();
@@ -152,15 +177,25 @@ export const MainComponent = () => {
                             { ...data, type: "explain-code" },
                             ...responses,
                         ]);
-                        setStatus(ResponseStatus.Success);
+                        setStatus(StatusMessage.OK);
                     })
                     .catch(() => {
-                        setStatus(ResponseStatus.Failed);
+                        setStatus(StatusMessage.Failed);
                     });
 
                 break;
 
             case HintOption.QuestionFromCode:
+                if (!question && !code) {
+                    setStatus(StatusMessage.QuestionAndCodeEmpty);
+                } else if (!question) {
+                    setStatus(StatusMessage.QuestionEmpty);
+                } else if (!code) {
+                    setStatus(StatusMessage.CodeEmpty);
+                }
+
+                setStatus(StatusMessage.Loading);
+
                 apiQuestionFromCode(context?.token, code, question)
                     .then(async (res) => {
                         const data = await res.json();
@@ -169,10 +204,10 @@ export const MainComponent = () => {
                             { ...data, type: "question-from-code" },
                             ...responses,
                         ]);
-                        setStatus(ResponseStatus.Success);
+                        setStatus(StatusMessage.OK);
                     })
                     .catch(() => {
-                        setStatus(ResponseStatus.Failed);
+                        setStatus(StatusMessage.Failed);
                     });
 
                 break;
@@ -240,11 +275,7 @@ export const MainComponent = () => {
                 </div>
                 <button onClick={performQuery}>ask</button>
 
-                {status === ResponseStatus.Loading ? (
-                    <div>loading...</div>
-                ) : status === ResponseStatus.Failed ? (
-                    <div>failed to load</div>
-                ) : null}
+                <div>{status !== StatusMessage.OK ? status : null}</div>
 
                 <div>
                     {responses.map((response) => {
