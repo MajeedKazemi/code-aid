@@ -10,6 +10,7 @@
 @import "styles/documentation.css";
 @import "styles/accordion.css";
 @import "styles/main-ui.css";
+@import "styles/responses.css";
 
 body {
     font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono,

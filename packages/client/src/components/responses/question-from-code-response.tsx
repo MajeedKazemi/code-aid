@@ -1,9 +1,9 @@
 import * as monaco from "monaco-editor";
-import { useContext, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 
 import { AuthContext } from "../../context";
+import { getIconSVG } from "../../utils/icons";
 import { highlightCode } from "../../utils/utils";
-import { ResponseFeedback } from "../response-feedback";
 
 interface IProps {
     data: { code: string; question: string; answer: string; id: string };
@@ -16,7 +16,7 @@ export const QuestionFromCodeResponse = (props: IProps) => {
     useEffect(() => {
         if (codeEl.current) {
             monaco.editor.colorizeElement(codeEl.current as HTMLElement, {
-                theme: "vs",
+                theme: "dark",
                 mimeType: "c",
                 tabSize: 4,
             });
@@ -24,16 +24,24 @@ export const QuestionFromCodeResponse = (props: IProps) => {
     }, [codeEl]);
 
     return (
-        <div>
-            <div>{props.data.question}</div>
-            <div ref={codeEl}>{props.data.code}</div>
+        <div className="question-from-code-container">
+            <div className="main-question">
+                <Fragment>
+                    {getIconSVG("question", "response-header-icon")}
+                    {props.data.question}
+                </Fragment>
+            </div>
+            <div className="question-code" ref={codeEl}>
+                {props.data.code}
+            </div>
             <div
+                className="main-answer"
                 dangerouslySetInnerHTML={{
                     __html: highlightCode(props.data.answer),
                 }}
             ></div>
 
-            <ResponseFeedback responseId={props.data.id} />
+            {/* <ResponseFeedback responseId={props.data.id} /> */}
         </div>
     );
 };

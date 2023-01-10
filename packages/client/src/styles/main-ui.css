@@ -1,8 +1,17 @@
 /* toolbox layout */
 
-.assistant-toolbox-container {
+.ai-assistant {
+    width: 1092px;
+}
+
+.toolbox-container {
     display: flex;
     flex-direction: row;
+}
+
+.response-container {
+    display: flex;
+    flex-direction: column;
 }
 
 .toolbox-right-container {
@@ -120,7 +129,7 @@
 
 /* home layout */
 
-.home-column-container {
+.home-container {
     display: flex;
     flex-direction: row;
     padding: 24px;

@@ -1,10 +1,10 @@
-import { useContext, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 
 import { apiReplyAnswerQuestion } from "../../api/api";
 import { AuthContext } from "../../context";
+import { getIconSVG } from "../../utils/icons";
 import { highlightCode } from "../../utils/utils";
 import { StatusMessage } from "../main-container";
-import { ResponseFeedback } from "../response-feedback";
 
 interface IProps {
     data: {
@@ -38,80 +38,99 @@ export const QuestionAnswerResponse = (props: IProps) => {
     const [followUpQuestion, setFollowUpQuestion] = useState<string>("");
 
     return (
-        <div>
-            <div>{props.data.question}</div>
-            <div
-                dangerouslySetInnerHTML={{
-                    __html: highlightCode(props.data.answer),
-                }}
-            ></div>
-            <hr />
-            <div>
-                {followUps.map((f) => {
-                    return (
-                        <div key={f.id}>
-                            <div>{f.question}</div>
-                            <div
-                                dangerouslySetInnerHTML={{
-                                    __html: highlightCode(f.answer),
-                                }}
-                            ></div>
-
-                            <ResponseFeedback
-                                responseId={props.data.id}
-                                followUpId={f.id}
-                            />
-
-                            <hr />
-                        </div>
-                    );
-                })}
+        <div className="question-answer-main-container">
+            <div className="main-question">
+                <Fragment>
+                    {getIconSVG("question", "response-header-icon")}
+                    {props.data.question}
+                </Fragment>
             </div>
-            <hr />
-            <textarea
-                onChange={(e) => {
-                    setFollowUpQuestion(e.target.value);
-                }}
-                value={followUpQuestion}
-            ></textarea>
-            <button
-                onClick={() => {
-                    let prevQuestions =
-                        followUps.length > 0
-                            ? followUps[followUps.length - 1].query
-                            : props.data.query;
+            <div className="question-answer-main-content">
+                <div
+                    dangerouslySetInnerHTML={{
+                        __html: highlightCode(props.data.answer),
+                    }}
+                ></div>
+                <div className="follow-up-responses">
+                    {followUps.map((f) => {
+                        return (
+                            <div key={f.id}>
+                                <div className="follow-up-question">
+                                    <div>
+                                        {getIconSVG(
+                                            "question",
+                                            "response-header-icon"
+                                        )}
+                                    </div>
+                                    {f.question}
+                                </div>
+                                <div
+                                    className="follow-up-answer"
+                                    dangerouslySetInnerHTML={{
+                                        __html: highlightCode(f.answer),
+                                    }}
+                                ></div>
 
-                    if (followUpQuestion === "") {
-                        setStatus(StatusMessage.QuestionEmpty);
+                                {/* <ResponseFeedback
+                                    responseId={props.data.id}
+                                    followUpId={f.id}
+                                /> */}
+                            </div>
+                        );
+                    })}
+                </div>
 
-                        return;
-                    }
+                <div className="follow-up-question-input-container">
+                    <textarea
+                        placeholder="follow up question..."
+                        className="follow-up-question-input"
+                        onChange={(e) => {
+                            setFollowUpQuestion(e.target.value);
+                        }}
+                        value={followUpQuestion}
+                    ></textarea>
 
-                    setStatus(StatusMessage.Loading);
+                    <div
+                        className="follow-up-question-button"
+                        onClick={() => {
+                            let prevQuestions =
+                                followUps.length > 0
+                                    ? followUps[followUps.length - 1].query
+                                    : props.data.query;
 
-                    apiReplyAnswerQuestion(
-                        context?.token,
-                        props.data.id,
-                        prevQuestions,
-                        followUpQuestion
-                    )
-                        .then(async (res) => {
-                            const data = await res.json();
+                            if (followUpQuestion === "") {
+                                setStatus(StatusMessage.QuestionEmpty);
 
-                            setFollowUps([...followUps, { ...data }]);
-                            setStatus(StatusMessage.OK);
-                        })
-                        .catch(() => {
-                            setStatus(StatusMessage.Failed);
-                        });
-                }}
-            >
-                follow-up
-            </button>
+                                return;
+                            }
 
-            <div>{status !== StatusMessage.OK ? status : null}</div>
+                            setStatus(StatusMessage.Loading);
 
-            <ResponseFeedback responseId={props.data.id} />
+                            apiReplyAnswerQuestion(
+                                context?.token,
+                                props.data.id,
+                                prevQuestions,
+                                followUpQuestion
+                            )
+                                .then(async (res) => {
+                                    const data = await res.json();
+
+                                    setFollowUps([...followUps, { ...data }]);
+                                    setStatus(StatusMessage.OK);
+                                })
+                                .catch(() => {
+                                    setStatus(StatusMessage.Failed);
+                                });
+                        }}
+                    >
+                        ask
+                    </div>
+                </div>
+
+                <div>{status !== StatusMessage.OK ? status : null}</div>
+
+                {/* <ResponseFeedback responseId={props.data.id} /> */}
+            </div>
         </div>
     );
 };

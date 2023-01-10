@@ -263,156 +263,165 @@ export const MainComponent = () => {
         <main className="home-container">
             <div className="ai-assistant">
                 <div className="assistant-toolbox-container">
-                    <div className="main-editor-container">
-                        <div className="main-editor-header">Code: </div>
-                        <div className="main-editor" ref={editorEl}></div>
-                        <div
-                            className={
-                                showEditor
-                                    ? "dummy-editor-enabled"
-                                    : "dummy-editor-disabled"
-                            }
-                        ></div>
-                    </div>
-
-                    <div className="toolbox-right-container">
-                        <div className="main-question-container">
-                            <div className="main-question-header">
-                                Question:{" "}
-                            </div>
-                            <textarea
-                                className="main-question-input"
-                                onChange={(e) => {
-                                    setQuestion(e.target.value);
-                                }}
-                                value={question}
-                                placeholder={"type question..."}
-                            ></textarea>
+                    <div className="toolbox-container">
+                        <div className="main-editor-container">
+                            <div className="main-editor-header">Code: </div>
+                            <div className="main-editor" ref={editorEl}></div>
                             <div
                                 className={
-                                    showPrompt
-                                        ? "dummy-question-enabled"
-                                        : "dummy-question-disabled"
+                                    showEditor
+                                        ? "dummy-editor-enabled"
+                                        : "dummy-editor-disabled"
                                 }
                             ></div>
                         </div>
 
-                        <div className="selectable-options-container">
-                            <SelectableOption
-                                icon="question"
-                                option={HintOption.AskQuestion}
-                                example="how can I generate a 2D array using malloc?"
-                                selected={
-                                    selectedOption == HintOption.AskQuestion
-                                }
-                                onClick={() =>
-                                    setSelectedOption(HintOption.AskQuestion)
-                                }
-                            />
-                            <SelectableOption
-                                icon="question"
-                                option={HintOption.QuestionFromCode}
-                                example="am I using pointers correctly?"
-                                selected={
-                                    selectedOption ==
-                                    HintOption.QuestionFromCode
-                                }
-                                onClick={() =>
-                                    setSelectedOption(
+                        <div className="toolbox-right-container">
+                            <div className="main-question-container">
+                                <div className="main-question-header">
+                                    Question:{" "}
+                                </div>
+                                <textarea
+                                    className="main-question-input"
+                                    onChange={(e) => {
+                                        setQuestion(e.target.value);
+                                    }}
+                                    value={question}
+                                    placeholder={"type question..."}
+                                ></textarea>
+                                <div
+                                    className={
+                                        showPrompt
+                                            ? "dummy-question-enabled"
+                                            : "dummy-question-disabled"
+                                    }
+                                ></div>
+                            </div>
+
+                            <div className="selectable-options-container">
+                                <SelectableOption
+                                    icon="question"
+                                    option={HintOption.AskQuestion}
+                                    example="how can I generate a 2D array using malloc?"
+                                    selected={
+                                        selectedOption == HintOption.AskQuestion
+                                    }
+                                    onClick={() =>
+                                        setSelectedOption(
+                                            HintOption.AskQuestion
+                                        )
+                                    }
+                                />
+                                <SelectableOption
+                                    icon="question"
+                                    option={HintOption.QuestionFromCode}
+                                    example="am I using pointers correctly?"
+                                    selected={
+                                        selectedOption ==
                                         HintOption.QuestionFromCode
-                                    )
-                                }
-                                codeIcon
-                            />
-                            <SelectableOption
-                                icon="magnifying-glass"
-                                option={HintOption.ExplainCode}
-                                selected={
-                                    selectedOption == HintOption.ExplainCode
-                                }
-                                onClick={() =>
-                                    setSelectedOption(HintOption.ExplainCode)
-                                }
-                                codeIcon
-                            />
-                            <SelectableOption
-                                icon="wrench"
-                                option={HintOption.HelpFix}
-                                selected={selectedOption == HintOption.HelpFix}
-                                onClick={() =>
-                                    setSelectedOption(HintOption.HelpFix)
-                                }
-                                codeIcon
-                            />
-                            <SelectableOption
-                                icon="bullet"
-                                option={HintOption.BreakDownSteps}
-                                example="how can I write binary numbers to a file?"
-                                selected={
-                                    selectedOption == HintOption.BreakDownSteps
-                                }
-                                onClick={() =>
-                                    setSelectedOption(HintOption.BreakDownSteps)
-                                }
-                            />
-                        </div>
-                        <div
-                            className="button-primary-full-width"
-                            onClick={performQuery}
-                        >
-                            {buttonText}
+                                    }
+                                    onClick={() =>
+                                        setSelectedOption(
+                                            HintOption.QuestionFromCode
+                                        )
+                                    }
+                                    codeIcon
+                                />
+                                <SelectableOption
+                                    icon="magnifying-glass"
+                                    option={HintOption.ExplainCode}
+                                    selected={
+                                        selectedOption == HintOption.ExplainCode
+                                    }
+                                    onClick={() =>
+                                        setSelectedOption(
+                                            HintOption.ExplainCode
+                                        )
+                                    }
+                                    codeIcon
+                                />
+                                <SelectableOption
+                                    icon="wrench"
+                                    option={HintOption.HelpFix}
+                                    selected={
+                                        selectedOption == HintOption.HelpFix
+                                    }
+                                    onClick={() =>
+                                        setSelectedOption(HintOption.HelpFix)
+                                    }
+                                    codeIcon
+                                />
+                                <SelectableOption
+                                    icon="bullet"
+                                    option={HintOption.BreakDownSteps}
+                                    example="how can I write binary numbers to a file?"
+                                    selected={
+                                        selectedOption ==
+                                        HintOption.BreakDownSteps
+                                    }
+                                    onClick={() =>
+                                        setSelectedOption(
+                                            HintOption.BreakDownSteps
+                                        )
+                                    }
+                                />
+                            </div>
+                            <div
+                                className="button-primary-full-width"
+                                onClick={performQuery}
+                            >
+                                {buttonText}
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div>
-                    <div className="status-message-container">
-                        {status !== StatusMessage.OK ? status : null}
+                    <div>
+                        <div className="status-message-container">
+                            {status !== StatusMessage.OK ? status : null}
+                        </div>
                     </div>
-                </div>
 
-                <div className="responses-container">
-                    {responses.map((response) => {
-                        switch (response.type) {
-                            case "question-answer":
-                                return (
-                                    <QuestionAnswerResponse
-                                        key={response.id}
-                                        data={response}
-                                    />
-                                );
+                    <div className="responses-container">
+                        {responses.map((response) => {
+                            switch (response.type) {
+                                case "question-answer":
+                                    return (
+                                        <QuestionAnswerResponse
+                                            key={response.id}
+                                            data={response}
+                                        />
+                                    );
 
-                            case "break-down-steps":
-                                return (
-                                    <BreakDownStepsResponse
-                                        key={response.id}
-                                        data={response}
-                                    />
-                                );
+                                case "break-down-steps":
+                                    return (
+                                        <BreakDownStepsResponse
+                                            key={response.id}
+                                            data={response}
+                                        />
+                                    );
 
-                            case "explain-code":
-                                return (
-                                    <ExplainCodeResponse
-                                        key={response.id}
-                                        data={response}
-                                    />
-                                );
+                                case "explain-code":
+                                    return (
+                                        <ExplainCodeResponse
+                                            key={response.id}
+                                            data={response}
+                                        />
+                                    );
 
-                            case "question-from-code":
-                                return (
-                                    <QuestionFromCodeResponse
-                                        key={response.id}
-                                        data={response}
-                                    />
-                                );
+                                case "question-from-code":
+                                    return (
+                                        <QuestionFromCodeResponse
+                                            key={response.id}
+                                            data={response}
+                                        />
+                                    );
 
-                            default:
-                                return null;
-                        }
-                    })}
+                                default:
+                                    return null;
+                            }
+                        })}
+                    </div>
                 </div>
             </div>
-            <div>documentation</div>
 
             {/* <div className="home-column">
                 <Documentation />

@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 
 import { authLogout } from "../api/api";
-import logo from "../assets/coding-steps-logo.png";
 import { AuthContext } from "../context";
 import { Button } from "./button";
 
@@ -23,19 +22,19 @@ export const NavigationBar = (props: NavigationBarProps) => {
         <header className="navbar">
             <Link to="/" className="text-no-decoration">
                 <div className="navbar-logo-container">
-                    <img
+                    {/* <img
                         className="navbar-logo"
                         src={logo}
                         alt="lines depicting steps "
-                    ></img>
-                    <h1 className="logo-type">Coding Q+A</h1>
+                    ></img> */}
+                    <h1 className="logo-type">Code Inquiry Assistant</h1>
                 </div>
             </Link>
-            {context?.user?.firstName && (
+            {/* {context?.user?.firstName && (
                 <span>
                     {context?.user?.firstName + " " + context?.user?.lastName}
                 </span>
-            )}
+            )} */}
 
             <div>
                 {!props.loading && context?.token ? (
