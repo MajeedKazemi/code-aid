@@ -22,7 +22,18 @@ responseRouter.get("/latest", verifyUser, async (req, res, next) => {
             }
 
             res.json({
-                responses: user?.responses,
+                responses: user?.responses
+                    .sort((a, b) => {
+                        return a.time < b.time ? 1 : -1;
+                    })
+                    .map((response) => {
+                        return {
+                            time: response.time,
+                            type: response.type,
+                            data: response.data,
+                            id: response._id,
+                        };
+                    }),
                 success: true,
             });
         });
