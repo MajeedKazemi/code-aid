@@ -1,5 +1,22 @@
 export const getIconSVG = (icon?: string, className?: string) => {
     switch (icon) {
+        case "exclamation":
+            return (
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={className}
+                    fill="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                    ></path>
+                </svg>
+            );
+
         case "wrench":
             return (
                 <svg
@@ -17,6 +34,7 @@ export const getIconSVG = (icon?: string, className?: string) => {
                     <path d="M14.5 11.5c.173 0 .345-.007.514-.022l3.754 3.754a2.5 2.5 0 01-3.536 3.536l-4.41-4.41 2.172-2.607c.052-.063.147-.138.342-.196.202-.06.469-.087.777-.067.128.008.257.012.387.012zM6 4.586l2.33 2.33a.452.452 0 01-.08.09L6.8 8.214 4.586 6H3.309a.5.5 0 01-.447-.276l-1.7-3.402a.5.5 0 01.093-.577l.49-.49a.5.5 0 01.577-.094l3.402 1.7A.5.5 0 016 3.31v1.277z"></path>
                 </svg>
             );
+
         case "code":
             return (
                 <svg
@@ -33,6 +51,7 @@ export const getIconSVG = (icon?: string, className?: string) => {
                     ></path>
                 </svg>
             );
+
         case "magnifying-glass":
             return (
                 <svg
@@ -50,6 +69,7 @@ export const getIconSVG = (icon?: string, className?: string) => {
                     ></path>
                 </svg>
             );
+
         case "question":
             return (
                 <svg
