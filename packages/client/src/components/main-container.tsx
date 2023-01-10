@@ -55,7 +55,7 @@ export const MainComponent = () => {
             if (data.success) {
                 setResponses(
                     data.responses.map((it: any) => {
-                        return { ...it.data, type: it.type };
+                        return { ...it.data, type: it.type, id: it.id };
                     })
                 );
             }
@@ -255,8 +255,8 @@ export const MainComponent = () => {
     };
 
     return (
-        <main className="home-column-container">
-            <div>
+        <main className="home-container">
+            <div className="ai-assistant">
                 <div className="assistant-toolbox-container">
                     <div className="main-editor-container">
                         <div className="main-editor-header">Code: </div>
@@ -365,48 +365,49 @@ export const MainComponent = () => {
                         {status !== StatusMessage.OK ? status : null}
                     </div>
                 </div>
+
+                <div className="responses-container">
+                    {responses.map((response) => {
+                        switch (response.type) {
+                            case "question-answer":
+                                return (
+                                    <QuestionAnswerResponse
+                                        key={response.id}
+                                        data={response}
+                                    />
+                                );
+
+                            case "break-down-steps":
+                                return (
+                                    <BreakDownStepsResponse
+                                        key={response.id}
+                                        data={response}
+                                    />
+                                );
+
+                            case "explain-code":
+                                return (
+                                    <ExplainCodeResponse
+                                        key={response.id}
+                                        data={response}
+                                    />
+                                );
+
+                            case "question-from-code":
+                                return (
+                                    <QuestionFromCodeResponse
+                                        key={response.id}
+                                        data={response}
+                                    />
+                                );
+
+                            default:
+                                return null;
+                        }
+                    })}
+                </div>
             </div>
-
-            <div className="responses-container">
-                {responses.map((response) => {
-                    switch (response.type) {
-                        case "question-answer":
-                            return (
-                                <QuestionAnswerResponse
-                                    key={response.id}
-                                    data={response}
-                                />
-                            );
-
-                        case "break-down-steps":
-                            return (
-                                <BreakDownStepsResponse
-                                    key={response.id}
-                                    data={response}
-                                />
-                            );
-
-                        case "explain-code":
-                            return (
-                                <ExplainCodeResponse
-                                    key={response.id}
-                                    data={response}
-                                />
-                            );
-
-                        case "question-from-code":
-                            return (
-                                <QuestionFromCodeResponse
-                                    key={response.id}
-                                    data={response}
-                                />
-                            );
-
-                        default:
-                            return null;
-                    }
-                })}
-            </div>
+            <div>documentation</div>
 
             {/* <div className="home-column">
                 <Documentation />
