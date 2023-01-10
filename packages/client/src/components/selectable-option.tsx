@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
+
+import { getIconSVG } from "../utils/icons";
 
 interface ISelectableOptionProps {
+    icon?: string;
     option: string;
     example?: string;
     selected: boolean;
     onClick: () => void;
+    codeIcon?: boolean;
 }
 
 export const SelectableOption = (props: ISelectableOptionProps) => {
@@ -17,7 +21,16 @@ export const SelectableOption = (props: ISelectableOptionProps) => {
                     : "selectable-option"
             }
         >
-            {props.example ? props.option + ":" + props.example : props.option}
+            <div className="icon-and-text">
+                {getIconSVG(
+                    props.icon ? props.icon : "lock-closed",
+                    "selectable-option-icon"
+                )}
+                <span>{props.option}</span>
+            </div>
+
+            {props.codeIcon &&
+                getIconSVG("code", "code-icon selectable-option-icon")}
         </div>
     );
 };

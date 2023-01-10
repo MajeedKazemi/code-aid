@@ -1,8 +1,0 @@
-.dummy {
-    height: 50px;
-    visibility: hidden;
-}
-
-.layout-content {
-    height: calc(100vh - 50px);
-}

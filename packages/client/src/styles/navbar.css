@@ -1,11 +1,14 @@
 .navbar {
     position: fixed;
-    background-color: white;
-    box-shadow: 0px 4px 32px rgb(0 60 52 / 16%);
+    background: rgba(10, 25, 41, 0.7);
+
+    /* fix the above */
+    box-shadow: inset 0px -1px 1px #132f4c;
+    backdrop-filter: blur(5px);
     padding: 0;
     margin: 0;
     top: 0;
-    height: 50px;
+    height: 60px;
     width: calc(100% - 72px);
     margin: 0 12px;
     display: flex;
@@ -15,6 +18,8 @@
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
     justify-content: space-between;
+
+    z-index: 100;
 }
 
 .navbar .navbar-logo-container {
@@ -25,10 +30,19 @@
 .navbar .navbar-logo-container .logo-type {
     font-weight: 600;
     margin-left: 16px;
-    color: #085b5b;
+    color: #037fff;
     font-size: 28px;
 }
 
 .navbar .navbar-logo-container .navbar-logo {
     height: 28px;
+}
+
+.dummy {
+    height: 60px;
+    visibility: hidden;
+}
+
+.layout-content {
+    height: calc(100vh - 60px);
 }

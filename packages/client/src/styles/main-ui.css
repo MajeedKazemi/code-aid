@@ -1,11 +1,94 @@
-.mini-editor {
-    width: 500px;
-    height: 300px;
+/* toolbox layout */
+
+.assistant-toolbox-container {
+    display: flex;
+    flex-direction: row;
 }
 
-.big-input {
-    width: 500px;
-    height: 100px;
+.toolbox-right-container {
+    margin-left: 24px;
+}
+
+/* main editor and question inputs */
+
+.main-editor-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.dummy-editor-enabled {
+    display: none;
+}
+
+.dummy-editor-disabled {
+    border-radius: 8px;
+
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    top: 0;
+    left: 0;
+
+    background-color: #3c424c75;
+}
+
+.main-editor-header {
+    background-color: #004c99;
+    border-radius: 8px 8px 0 0;
+    padding: 8px;
+    width: 600px;
+}
+
+.main-editor {
+    position: absolute;
+    border-radius: 8px;
+
+    width: 618px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.main-question-container {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.dummy-question-enabled {
+    display: none;
+}
+
+.dummy-question-disabled {
+    border-radius: 8px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    top: 0;
+    left: 0;
+
+    background-color: #3c424c75;
+}
+
+.main-question-header {
+    background-color: #004c99;
+    border-radius: 8px 8px 0 0;
+    padding: 8px;
+}
+
+.main-question-input {
+    width: calc(450px - 16px);
+    height: 170px;
+    border-radius: 0 0 8px 8px;
+    background-color: #001e3c;
+    color: #fff;
+    padding: 8px;
+    border: 1px solid #444;
+    font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono,
+        DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace,
+        serif;
+    resize: none;
 }
 
 .answer-container {
@@ -16,6 +99,26 @@
     margin: 0 0 1em;
     padding: 1em;
 }
+
+/* button */
+.button-primary-full-width {
+    background-color: #037fff;
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    width: calc(100% - 16px);
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+
+    transition: background-color 0.2s;
+}
+
+.button-primary-full-width:hover {
+    background-color: #0059b2;
+}
+
+/* home layout */
 
 .home-column-container {
     display: flex;
@@ -38,14 +141,54 @@
     overflow-y: auto;
 }
 
+/* selectable-option.tsx */
+
+.selectable-options-container {
+    border: 0.5px solid #e0e0e0;
+    border-radius: 8px;
+    width: 450px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+/* every child div except the first to have border-top */
+.selectable-options-container > div:not(:first-child) {
+    border-top: 0.5px solid #e0e0e0;
+}
+
 .selectable-option {
-    border: 1px solid #e0e0e0;
-    border-radius: 64px;
+    cursor: pointer;
+    overflow: hidden;
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 12px;
+}
+
+.selectable-option span {
+    margin-left: 10px;
+}
+
+.selectable-option .icon-and-text {
+    display: flex;
+    align-items: center;
+}
+
+.selectable-option .code-icon {
+    width: 30px;
+    height: 30px;
+}
+
+.selectable-option-icon {
+    width: 24px;
+    height: 24px;
 }
 
 .option-selected {
-    background-color: #e0ffe0;
-    border: 1px solid #00ffff;
+    background-color: #004c9975;
+    font-weight: bold;
 }
 
 .hidden-component {

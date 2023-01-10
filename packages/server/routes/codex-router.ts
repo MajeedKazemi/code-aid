@@ -671,7 +671,7 @@ const answerQuestionPrompt = (question: string) => {
             `// [answer]: 1. open the file using the \`fopen\` function. 2. use the \`fprintf\` function to write the integer to the file. use the \`%d\` format specifier to write the integer in decimal, or the \`%b\` format specifier to write the integer in binary. 3. close the file using the \`fclose\` function.`,
             ``,
             ``,
-            `// [question]: ${question}`,
+            `// [question]: ${question} (use plain english, without too much code)`,
             `// [answer]: `,
         ].join("\n"),
         stopTokens: ["// [question]:", "// [answer]"],

@@ -4,7 +4,6 @@
 @import "styles/navbar.css";
 @import "styles/button.css";
 @import "styles/loader.css";
-@import "styles/layout.css";
 @import "styles/home.css";
 @import "styles/input.css";
 @import "styles/utility.css";
@@ -17,5 +16,6 @@ body {
         DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace,
         serif;
     margin: 0px;
-    background-color: #edf8f9;
+    background-color: #0b192a;
+    color: #fff;
 }
