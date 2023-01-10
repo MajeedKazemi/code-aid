@@ -11,6 +11,7 @@ import passport from "passport";
 
 import { codexRouter } from "./routes/codex-router";
 import { loginRouter } from "./routes/login-router";
+import { responseRouter } from "./routes/response-router";
 import env from "./utils/env";
 
 const corsOptions = {
@@ -59,6 +60,7 @@ mongoose
 
         app.use("/api/auth/", loginRouter);
         app.use("/api/codex/", codexRouter);
+        app.use("/api/responses/", responseRouter);
 
         const server = app.listen(
             env.PORT_PREFIX + env.NODE_APP_INSTANCE,

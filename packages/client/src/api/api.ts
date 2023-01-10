@@ -125,3 +125,13 @@ export const apiQuestionFromCode = (
             question,
         }),
     });
+
+export const apiRecentResponses = (token: string | null | undefined) =>
+    fetch(env.API_URL + "/api/responses/latest", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });

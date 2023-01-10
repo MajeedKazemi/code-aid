@@ -1,7 +1,7 @@
 import * as monaco from "monaco-editor";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { apiAnswerQuestion, apiBreakDownTask, apiExplainCode, apiQuestionFromCode } from "../api/api";
+import { apiAnswerQuestion, apiBreakDownTask, apiExplainCode, apiQuestionFromCode, apiRecentResponses } from "../api/api";
 import { AuthContext } from "../context";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
@@ -46,6 +46,21 @@ export const MainComponent = () => {
     const [showEditor, setShowEditor] = useState<boolean>(false);
 
     const [responses, setResponses] = useState<any[]>([]);
+
+    useEffect(() => {
+        // load latest responses on first load
+        apiRecentResponses(context?.token).then(async (res) => {
+            const data = await res.json();
+
+            if (data.success) {
+                setResponses(
+                    data.responses.map((it: any) => {
+                        return { ...it.data, type: it.type };
+                    })
+                );
+            }
+        });
+    }, []);
 
     useEffect(() => {
         if (editorEl && !editor) {

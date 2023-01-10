@@ -1,7 +1,8 @@
 import express from "express";
 import { v4 as uuid } from "uuid";
 
-import { IUser } from "../models/user";
+import { ResponseModel } from "../models/response";
+import { IUser, UserModel } from "../models/user";
 import { openai } from "../utils/codex";
 import { verifyUser } from "../utils/strategy";
 
@@ -33,26 +34,44 @@ codexRouter.post("/explain-code", verifyUser, async (req, res, next) => {
             user: userId,
         });
 
+        const curUser = await UserModel.findById(userId);
+
         if (
             expStepsRes.data.choices &&
             expStepsRes.data.choices?.length > 0 &&
             expShortRes.data.choices &&
             expShortRes.data.choices?.length > 0
         ) {
-            const expSteps = expStepsRes.data.choices[0].text?.trim();
-            const expShort = expShortRes.data.choices[0].text?.trim();
+            let expSteps = expStepsRes.data.choices[0].text?.trim();
+            const steps = expSteps
+                ? ("1." + expSteps)
+                      .split("\n")
+                      .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
+                : [];
+            const explanation = expShortRes.data.choices[0].text?.trim();
 
-            res.json({
-                id: uuid(),
-                code: code,
-                explanation: expShort,
-                steps: expSteps
-                    ? ("1." + expSteps)
-                          .split("\n")
-                          .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
-                    : [],
-                success: true,
-            });
+            if (curUser) {
+                const response = new ResponseModel({
+                    type: "explain-code",
+                    data: {
+                        code,
+                        explanation,
+                        steps,
+                    },
+                });
+
+                const savedResponse = await response.save();
+                curUser.responses.push(savedResponse);
+                curUser.save();
+
+                res.json({
+                    id: savedResponse.id,
+                    code,
+                    explanation,
+                    steps,
+                    success: true,
+                });
+            }
         } else {
             res.json({
                 success: false,
@@ -77,19 +96,37 @@ codexRouter.post("/answer-question", verifyUser, async (req, res, next) => {
             user: userId,
         });
 
-        if (result.data.choices && result.data.choices?.length > 0) {
-            const answer = result.data.choices[0].text?.trim();
+        const curUser = await UserModel.findById(userId);
 
-            res.json({
-                query: [
-                    `// [question]: ${question}`,
-                    `// [answer]: ${answer}`,
-                ].join("\n"),
-                id: uuid(),
-                question: question,
-                answer: answer ? answer : "",
-                success: true,
-            });
+        if (result.data.choices && result.data.choices?.length > 0) {
+            const answer = result.data.choices[0].text?.trim() || "";
+            const query = [
+                `// [question]: ${question}`,
+                `// [answer]: ${answer}`,
+            ].join("\n");
+
+            if (curUser) {
+                const response = new ResponseModel({
+                    type: "question-answer",
+                    data: {
+                        query,
+                        question,
+                        answer,
+                    },
+                });
+
+                const savedResponse = await response.save();
+                curUser.responses.push(savedResponse);
+                curUser.save();
+
+                res.json({
+                    query,
+                    id: savedResponse.id,
+                    question,
+                    answer,
+                    success: true,
+                });
+            }
         } else {
             res.json({
                 success: false,
@@ -119,6 +156,10 @@ codexRouter.post(
 
             if (result.data.choices && result.data.choices?.length > 0) {
                 const answer = result.data.choices[0].text?.trim();
+
+                // get previous one (ID should be sent through API)
+                // update model with new data (append whole data to array)
+                // return just this one
 
                 res.json({
                     query: [
@@ -156,19 +197,36 @@ codexRouter.post("/break-down-task", verifyUser, async (req, res, next) => {
             user: userId,
         });
 
+        const curUser = await UserModel.findById(userId);
+
         if (result.data.choices && result.data.choices?.length > 0) {
             const answer = result.data.choices[0].text?.trim();
+            const steps = answer
+                ? ("// 1. " + answer)
+                      .split("\n")
+                      .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
+                : [];
 
-            res.json({
-                id: uuid(),
-                task: task,
-                steps: answer
-                    ? ("// 1. " + answer)
-                          .split("\n")
-                          .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
-                    : [],
-                success: true,
-            });
+            if (curUser) {
+                const response = new ResponseModel({
+                    type: "break-down-steps",
+                    data: {
+                        task,
+                        steps,
+                    },
+                });
+
+                const savedResponse = await response.save();
+                curUser.responses.push(savedResponse);
+                curUser.save();
+
+                res.json({
+                    id: savedResponse.id,
+                    task,
+                    steps,
+                    success: true,
+                });
+            }
         } else {
             res.json({
                 success: false,
@@ -193,15 +251,33 @@ codexRouter.post("/question-from-code", verifyUser, async (req, res, next) => {
             user: userId,
         });
 
-        if (result.data.choices && result.data.choices?.length > 0) {
-            const answer = result.data.choices[0].text?.trim();
+        const curUser = await UserModel.findById(userId);
 
-            res.json({
-                code,
-                question,
-                answer: answer ? answer : "",
-                success: true,
-            });
+        if (result.data.choices && result.data.choices?.length > 0) {
+            const answer = result.data.choices[0].text?.trim() || "";
+
+            if (curUser) {
+                const response = new ResponseModel({
+                    type: "question-from-code",
+                    data: {
+                        code,
+                        question,
+                        answer,
+                    },
+                });
+
+                const savedResponse = await response.save();
+                curUser.responses.push(savedResponse);
+                curUser.save();
+
+                res.json({
+                    id: savedResponse.id,
+                    code,
+                    question,
+                    answer,
+                    success: true,
+                });
+            }
         } else {
             res.json({
                 success: false,

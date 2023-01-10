@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import passportLocalMongoose from "passport-local-mongoose";
 
+import { IResponse, ResponseSchema } from "./response";
+
 const Schema = mongoose.Schema;
 
 const Session = new Schema({
@@ -15,12 +17,7 @@ export interface IUser extends mongoose.Document {
     firstName: string;
     lastName: string;
     role: string;
-    age: number;
-    grade: number;
-    editorType: "copilot" | "intellisense";
-    gender: "male" | "female" | "other";
-    ethnicity: string;
-    codingExperience: Array<string>;
+    responses: Array<IResponse>;
     refreshToken: Array<{ refreshToken: string }>;
 }
 
@@ -31,12 +28,7 @@ export const getUserData = (user: IUser) => {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
-        age: user.age,
-        grade: user.grade,
-        editorType: user.editorType,
-        gender: user.gender,
-        ethnicity: user.ethnicity,
-        codingExperience: user.codingExperience,
+        responses: user.responses,
     };
 };
 
@@ -59,31 +51,7 @@ const UserSchema = new Schema({
         enum: ["admin", "user"],
         default: "user",
     },
-    age: {
-        type: Number,
-        default: 0,
-    },
-    grade: {
-        type: Number,
-        default: 0,
-    },
-    editorType: {
-        type: String,
-        enum: ["copilot", "intellisense"],
-        default: "intellisense",
-    },
-    gender: {
-        type: String,
-        enum: ["male", "female", "other"],
-    },
-    ethnicity: {
-        type: String,
-        default: "",
-    },
-    codingExperience: {
-        type: [String],
-        default: [],
-    },
+    responses: [ResponseSchema],
     refreshToken: {
         type: [Session],
     },
@@ -91,7 +59,7 @@ const UserSchema = new Schema({
 
 UserSchema.set("toJSON", {
     transform: (doc, ret, options) => {
-        // Remove refreshToken from the response
+        // remove refreshToken from the response
         delete ret.refreshToken;
 
         return ret;
