@@ -7,14 +7,34 @@ import { StatusMessage } from "../main-container";
 import { ResponseFeedback } from "../response-feedback";
 
 interface IProps {
-    data: { question: string; answer: string; id: string; query: string };
+    data: {
+        question: string;
+        answer: string;
+        id: string;
+        query: string;
+        followUps: Array<{
+            time: Date;
+            query: string;
+            id: string;
+            question: string;
+            answer: string;
+        }>;
+    };
 }
 
 export const QuestionAnswerResponse = (props: IProps) => {
     const { context } = useContext(AuthContext);
     const [status, setStatus] = useState<StatusMessage>(StatusMessage.OK);
 
-    const [followUps, setFollowUps] = useState<any[]>([]);
+    const [followUps, setFollowUps] = useState<
+        Array<{
+            time: Date;
+            query: string;
+            id: string;
+            question: string;
+            answer: string;
+        }>
+    >(props.data.followUps || []);
     const [followUpQuestion, setFollowUpQuestion] = useState<string>("");
 
     return (
@@ -27,7 +47,7 @@ export const QuestionAnswerResponse = (props: IProps) => {
             ></div>
             <hr />
             <div>
-                {followUps.map((f: any) => {
+                {followUps.map((f) => {
                     return (
                         <div key={f.id}>
                             <div>{f.question}</div>
@@ -71,6 +91,7 @@ export const QuestionAnswerResponse = (props: IProps) => {
 
                     apiReplyAnswerQuestion(
                         context?.token,
+                        props.data.id,
                         prevQuestions,
                         followUpQuestion
                     )

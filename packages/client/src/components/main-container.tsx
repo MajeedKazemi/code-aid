@@ -55,7 +55,12 @@ export const MainComponent = () => {
             if (data.success) {
                 setResponses(
                     data.responses.map((it: any) => {
-                        return { ...it.data, type: it.type, id: it.id };
+                        return {
+                            ...it.data,
+                            type: it.type,
+                            id: it.id,
+                            followUps: it.followUps,
+                        };
                     })
                 );
             }

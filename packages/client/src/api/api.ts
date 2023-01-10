@@ -60,6 +60,7 @@ export const apiAnswerQuestion = (
 
 export const apiReplyAnswerQuestion = (
     token: string | null | undefined,
+    id: string,
     prevQuestions: string,
     question: string
 ) =>
@@ -71,6 +72,7 @@ export const apiReplyAnswerQuestion = (
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
+            id,
             prevQuestions,
             question,
         }),

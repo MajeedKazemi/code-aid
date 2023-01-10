@@ -139,7 +139,7 @@ codexRouter.post(
     "/reply-answer-question",
     verifyUser,
     async (req, res, next) => {
-        const { prevQuestions, question } = req.body;
+        const { id, prevQuestions, question } = req.body;
         const userId = (req.user as IUser)._id;
 
         if (question !== undefined) {
@@ -155,23 +155,34 @@ codexRouter.post(
             });
 
             if (result.data.choices && result.data.choices?.length > 0) {
-                const answer = result.data.choices[0].text?.trim();
+                const answer = result.data.choices[0].text?.trim() || "";
+                const query = [
+                    ...prevQuestions.split("\n"),
+                    `// [follow-up-question]: ${question}`,
+                    `// [follow-up-answer]: ${answer}`,
+                ].join("\n");
+                const curResponse = await ResponseModel.findById(id);
+                const followUpId = uuid();
 
-                // get previous one (ID should be sent through API)
-                // update model with new data (append whole data to array)
-                // return just this one
+                if (curResponse) {
+                    curResponse.followUps.push({
+                        time: Date(),
+                        query,
+                        id: followUpId,
+                        question,
+                        answer,
+                    });
 
-                res.json({
-                    query: [
-                        ...prevQuestions.split("\n"),
-                        `// [follow-up-question]: ${question}`,
-                        `// [follow-up-answer]: ${answer}`,
-                    ].join("\n"),
-                    id: uuid(),
-                    question: question,
-                    answer: answer ? answer : "",
-                    success: true,
-                });
+                    curResponse.save();
+
+                    res.json({
+                        query,
+                        id: followUpId,
+                        question,
+                        answer,
+                        success: true,
+                    });
+                }
             } else {
                 res.json({
                     success: false,
