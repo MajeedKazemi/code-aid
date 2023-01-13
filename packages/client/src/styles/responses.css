@@ -20,6 +20,7 @@
 }
 
 .main-question {
+    border-radius: 12px 12px 0 0;
     background-color: #1e4976;
     padding: 12px 16px;
     border-bottom: 3px solid #1e4976;
@@ -92,6 +93,7 @@
 }
 
 .break-down-task-header {
+    border-radius: 12px 12px 0 0;
     background-color: #1e4976;
     padding: 12px 16px;
     border-bottom: 3px solid #1e4976;
@@ -140,6 +142,7 @@
 }
 
 .explain-code-header {
+    border-radius: 12px 12px 0 0;
     background-color: #1e4976;
     padding: 12px 16px;
     border-bottom: 3px solid #1e4976;
@@ -190,4 +193,109 @@
     border: 1px solid #1e4976;
 
     width: 400px;
+}
+
+/* response-feedback */
+
+.response-feedback-container {
+    margin-top: 16px;
+    background: rgb(169, 110, 255);
+    background: -moz-linear-gradient(
+        90deg,
+        rgba(169, 110, 255, 1) 50%,
+        rgba(19, 173, 189, 1) 100%
+    );
+    background: -webkit-linear-gradient(
+        90deg,
+        rgba(169, 110, 255, 1) 50%,
+        rgba(19, 173, 189, 1) 100%
+    );
+    background: linear-gradient(
+        90deg,
+        rgba(169, 110, 255, 1) 50%,
+        rgba(19, 173, 189, 1) 100%
+    );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#a96eff",endColorstr="#13adbd",GradientType=1);
+
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#8938ff",endColorstr="#13adbd",GradientType=1);
+
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#a8a5ff",endColorstr="#13adbd",GradientType=1);
+    color: #000;
+    /* padding: 16px; */
+    border-radius: 12px;
+    box-shadow: rgb(0 0 0 / 10%) 0px 20px 25px, rgb(0 0 0 / 4%) 0px 10px 10px;
+    overflow: hidden;
+}
+
+.response-feedback-header {
+    padding: 10px 16px;
+    background-color: #dcfffc;
+    color: #000;
+    font-weight: bold;
+}
+
+.response-feedback-content {
+    width: calc(100% - 24px);
+    display: inline-flex;
+    padding: 12px;
+    justify-content: space-between;
+}
+
+.feedback-reason-textarea {
+    width: calc(100% - 270px);
+    height: 22px;
+    padding: 4px 8px;
+
+    margin: 0 12px 0 12px;
+
+    border-radius: 8px;
+    resize: none;
+
+    font-size: 17px;
+
+    font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono,
+        DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace,
+        serif;
+}
+
+.star-icons-container {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.star-icons-container svg {
+    cursor: pointer;
+    height: 26px;
+}
+
+.single-star-icon-container {
+    display: inline-flex;
+    flex-direction: row;
+}
+
+.response-star-selected {
+    color: #ffbe00;
+}
+
+.submit-feedback-button {
+    display: inline;
+    background-color: #9f00c2;
+    color: #fff;
+    border-radius: 8px;
+    padding: 3px 10px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+
+    transition: background-color 0.2s;
+}
+
+.submit-feedback-button:hover {
+    background-color: #d000ff;
+}
+
+.feedback-button-disabled {
+    background-color: #a8a5ff;
+    cursor: not-allowed;
 }
