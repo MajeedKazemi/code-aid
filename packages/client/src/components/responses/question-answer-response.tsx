@@ -3,8 +3,9 @@ import { Fragment, useContext, useState } from "react";
 import { apiReplyAnswerQuestion } from "../../api/api";
 import { AuthContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
-import { highlightCode } from "../../utils/utils";
 import { StatusMessage } from "../main-container";
+import { ResponseFeedback } from "../response-feedback";
+import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
     data: {
@@ -46,11 +47,21 @@ export const QuestionAnswerResponse = (props: IProps) => {
                 </Fragment>
             </div>
             <div className="question-answer-main-content">
-                <div
-                    dangerouslySetInnerHTML={{
-                        __html: highlightCode(props.data.answer),
-                    }}
-                ></div>
+                <div>
+                    <Fragment>
+                        {responseToArrayWithKeywords(props.data.answer).map(
+                            (item: string | JSX.Element, index: number) => {
+                                if (typeof item === "string") {
+                                    return (
+                                        <span key={"txt-" + index}>{item}</span>
+                                    );
+                                }
+
+                                return item;
+                            }
+                        )}
+                    </Fragment>
+                </div>
                 <div className="follow-up-responses">
                     {followUps.map((f) => {
                         return (
@@ -64,12 +75,30 @@ export const QuestionAnswerResponse = (props: IProps) => {
                                     </div>
                                     {f.question}
                                 </div>
-                                <div
-                                    className="follow-up-answer"
-                                    dangerouslySetInnerHTML={{
-                                        __html: highlightCode(f.answer),
-                                    }}
-                                ></div>
+                                <div className="follow-up-answer">
+                                    <Fragment>
+                                        {responseToArrayWithKeywords(
+                                            f.answer
+                                        ).map(
+                                            (
+                                                item: string | JSX.Element,
+                                                index: number
+                                            ) => {
+                                                if (typeof item === "string") {
+                                                    return (
+                                                        <span
+                                                            key={"txt-" + index}
+                                                        >
+                                                            {item}
+                                                        </span>
+                                                    );
+                                                }
+
+                                                return item;
+                                            }
+                                        )}
+                                    </Fragment>
+                                </div>
 
                                 {/* <ResponseFeedback
                                     responseId={props.data.id}
@@ -129,7 +158,7 @@ export const QuestionAnswerResponse = (props: IProps) => {
 
                 <div>{status !== StatusMessage.OK ? status : null}</div>
 
-                {/* <ResponseFeedback responseId={props.data.id} /> */}
+                <ResponseFeedback responseId={props.data.id} />
             </div>
         </div>
     );

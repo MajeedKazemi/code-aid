@@ -3,7 +3,7 @@ import { Fragment, useContext, useEffect, useRef, useState } from "react";
 
 import { AuthContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
-import { highlightCode } from "../../utils/utils";
+import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
     data: { code: string; steps: string[]; explanation: string; id: string };
@@ -34,22 +34,42 @@ export const ExplainCodeResponse = (props: IProps) => {
             <div className="explained-code" ref={codeEl}>
                 {props.data.code}
             </div>
-            <div
-                className="short-explanation-text"
-                dangerouslySetInnerHTML={{
-                    __html: highlightCode(props.data.explanation),
-                }}
-            ></div>
+            <div className="short-explanation-text">
+                <Fragment>
+                    {responseToArrayWithKeywords(props.data.explanation).map(
+                        (item: string | JSX.Element, index: number) => {
+                            if (typeof item === "string") {
+                                return <span key={"txt-" + index}>{item}</span>;
+                            }
+
+                            return item;
+                        }
+                    )}
+                </Fragment>
+            </div>
             <div className="short-explanation-text">
                 <ol>
                     {props.data.steps.map((s: string, i: number) => (
-                        <li
-                            className="explain-code-response-step"
-                            key={i}
-                            dangerouslySetInnerHTML={{
-                                __html: highlightCode(s),
-                            }}
-                        ></li>
+                        <li className="explain-code-response-step" key={i}>
+                            <Fragment>
+                                {responseToArrayWithKeywords(s).map(
+                                    (
+                                        item: string | JSX.Element,
+                                        index: number
+                                    ) => {
+                                        if (typeof item === "string") {
+                                            return (
+                                                <span key={"txt-" + index}>
+                                                    {item}
+                                                </span>
+                                            );
+                                        }
+
+                                        return item;
+                                    }
+                                )}
+                            </Fragment>
+                        </li>
                     ))}
                 </ol>
             </div>

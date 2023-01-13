@@ -3,7 +3,7 @@ import { Fragment, useContext, useEffect, useRef, useState } from "react";
 
 import { AuthContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
-import { highlightCode } from "../../utils/utils";
+import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
     data: { code: string; question: string; answer: string; id: string };
@@ -34,12 +34,19 @@ export const QuestionFromCodeResponse = (props: IProps) => {
             <div className="question-code" ref={codeEl}>
                 {props.data.code}
             </div>
-            <div
-                className="main-answer"
-                dangerouslySetInnerHTML={{
-                    __html: highlightCode(props.data.answer),
-                }}
-            ></div>
+            <div className="main-answer">
+                <Fragment>
+                    {responseToArrayWithKeywords(props.data.answer).map(
+                        (item: string | JSX.Element, index: number) => {
+                            if (typeof item === "string") {
+                                return <span key={"txt-" + index}>{item}</span>;
+                            }
+
+                            return item;
+                        }
+                    )}
+                </Fragment>
+            </div>
 
             {/* <ResponseFeedback responseId={props.data.id} /> */}
         </div>

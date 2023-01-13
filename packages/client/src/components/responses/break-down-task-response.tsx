@@ -2,7 +2,7 @@ import { Fragment, useContext, useState } from "react";
 
 import { AuthContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
-import { highlightCode } from "../../utils/utils";
+import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
     data: { task: string; steps: string[]; id: string };
@@ -22,13 +22,26 @@ export const BreakDownStepsResponse = (props: IProps) => {
             <div className="break-down-response">
                 <ol>
                     {props.data.steps.map((s: string, i: number) => (
-                        <li
-                            className="break-down-response-step"
-                            key={i}
-                            dangerouslySetInnerHTML={{
-                                __html: highlightCode(s),
-                            }}
-                        ></li>
+                        <li className="break-down-response-step" key={i}>
+                            <Fragment>
+                                {responseToArrayWithKeywords(s).map(
+                                    (
+                                        item: string | JSX.Element,
+                                        index: number
+                                    ) => {
+                                        if (typeof item === "string") {
+                                            return (
+                                                <span key={"txt-" + index}>
+                                                    {item}
+                                                </span>
+                                            );
+                                        }
+
+                                        return item;
+                                    }
+                                )}
+                            </Fragment>
+                        </li>
                     ))}
                 </ol>
             </div>

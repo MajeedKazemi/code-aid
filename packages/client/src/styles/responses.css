@@ -9,7 +9,6 @@
 .question-answer-main-container {
     line-height: 26px;
 
-    overflow: hidden;
     border-radius: 12px;
     background-color: #132f4c;
     margin-top: 16px;
@@ -86,7 +85,6 @@
 .break-down-task-container {
     line-height: 26px;
 
-    overflow: hidden;
     border-radius: 12px;
     background-color: #132f4c;
     margin-top: 16px;
@@ -114,7 +112,6 @@
 .question-from-code-container {
     line-height: 26px;
 
-    overflow: hidden;
     border-radius: 12px;
     background-color: #132f4c;
     margin-top: 16px;
@@ -136,7 +133,6 @@
 .explain-code-container {
     line-height: 26px;
 
-    overflow: hidden;
     border-radius: 12px;
     background-color: #132f4c;
     margin-top: 16px;
@@ -176,4 +172,22 @@
 
 .explain-code-response-step {
     margin-bottom: 12px;
+}
+
+/* hoverable keyword */
+
+.hoverable-keyword-container {
+    display: inline-block;
+    position: relative;
+}
+
+.keyword-hovered-container {
+    position: absolute;
+    z-index: 999;
+    background-color: #1f144b;
+    border-radius: 8px;
+    padding: 8px;
+    border: 1px solid #1e4976;
+
+    width: 400px;
 }
