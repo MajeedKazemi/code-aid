@@ -1,7 +1,14 @@
 import * as monaco from "monaco-editor";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { apiAnswerQuestion, apiBreakDownTask, apiExplainCode, apiQuestionFromCode, apiRecentResponses } from "../api/api";
+import {
+    apiAnswerQuestion,
+    apiBreakDownTask,
+    apiExplainCode,
+    apiHelpFixCode,
+    apiQuestionFromCode,
+    apiRecentResponses,
+} from "../api/api";
 import { AuthContext } from "../context";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
@@ -60,6 +67,7 @@ export const MainComponent = () => {
                             type: it.type,
                             id: it.id,
                             followUps: it.followUps,
+                            feedback: it.feedback,
                         };
                     })
                 );
@@ -244,6 +252,29 @@ export const MainComponent = () => {
 
                         setResponses([
                             { ...data, type: "question-from-code" },
+                            ...responses,
+                        ]);
+                        setStatus(StatusMessage.OK);
+                    })
+                    .catch(() => {
+                        setStatus(StatusMessage.Failed);
+                    });
+
+                break;
+
+            case HintOption.HelpFix:
+                if (!code) {
+                    setStatus(StatusMessage.CodeEmpty);
+                }
+
+                setStatus(StatusMessage.Loading);
+
+                apiHelpFixCode(context?.token, code)
+                    .then(async (res) => {
+                        const data = await res.json();
+
+                        setResponses([
+                            { ...data, type: "help-fix-code" },
                             ...responses,
                         ]);
                         setStatus(StatusMessage.OK);

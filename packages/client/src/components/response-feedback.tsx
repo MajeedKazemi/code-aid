@@ -1,9 +1,14 @@
 import { Fragment, useContext, useState } from "react";
 
+import { apiSetFeedback } from "../api/api";
 import { AuthContext } from "../context";
 import { getIconSVG } from "../utils/icons";
 
 interface IProps {
+    priorData?: {
+        rating: number;
+        reason: string;
+    };
     responseId: string;
     followUpId?: string;
     onSubmit?: () => void;
@@ -17,7 +22,9 @@ export const ResponseFeedback = (props: IProps) => {
     const [reason, setReason] = useState("");
     const [submitted, setSubmitted] = useState(false);
 
-    if (submitted) return null;
+    if (props.priorData?.rating || submitted)
+        return <div>{props.priorData?.rating || selectedNumber}</div>;
+    // TODO: display submitted rating and a thank you message instead of null.
 
     return (
         <div className="response-feedback-container">
@@ -134,7 +141,16 @@ export const ResponseFeedback = (props: IProps) => {
                         (selectedNumber == 0 ? "feedback-button-disabled" : "")
                     }
                     onClick={() => {
-                        setSubmitted(true);
+                        apiSetFeedback(
+                            context?.token,
+                            props.responseId,
+                            selectedNumber,
+                            reason
+                        ).then(async (res) => {
+                            if (res.status === 200) {
+                                setSubmitted(true);
+                            }
+                        });
                     }}
                 >
                     submit

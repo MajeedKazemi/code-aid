@@ -2,10 +2,19 @@ import { Fragment, useContext, useState } from "react";
 
 import { AuthContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
+import { ResponseFeedback } from "../response-feedback";
 import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
-    data: { task: string; steps: string[]; id: string };
+    data: {
+        task: string;
+        steps: string[];
+        id: string;
+        feedback?: {
+            reason: string;
+            rating: number;
+        };
+    };
 }
 
 export const BreakDownStepsResponse = (props: IProps) => {
@@ -46,7 +55,10 @@ export const BreakDownStepsResponse = (props: IProps) => {
                 </ol>
             </div>
 
-            {/* <ResponseFeedback responseId={props.data.id} /> */}
+            <ResponseFeedback
+                priorData={props.data.feedback}
+                responseId={props.data.id}
+            />
         </div>
     );
 };

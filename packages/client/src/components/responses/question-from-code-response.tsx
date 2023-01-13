@@ -3,10 +3,20 @@ import { Fragment, useContext, useEffect, useRef, useState } from "react";
 
 import { AuthContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
+import { ResponseFeedback } from "../response-feedback";
 import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
-    data: { code: string; question: string; answer: string; id: string };
+    data: {
+        code: string;
+        question: string;
+        answer: string;
+        id: string;
+        feedback?: {
+            reason: string;
+            rating: number;
+        };
+    };
 }
 
 export const QuestionFromCodeResponse = (props: IProps) => {
@@ -48,7 +58,10 @@ export const QuestionFromCodeResponse = (props: IProps) => {
                 </Fragment>
             </div>
 
-            {/* <ResponseFeedback responseId={props.data.id} /> */}
+            <ResponseFeedback
+                priorData={props.data.feedback}
+                responseId={props.data.id}
+            />
         </div>
     );
 };

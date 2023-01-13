@@ -20,6 +20,10 @@ interface IProps {
             question: string;
             answer: string;
         }>;
+        feedback?: {
+            reason: string;
+            rating: number;
+        };
     };
 }
 
@@ -158,7 +162,10 @@ export const QuestionAnswerResponse = (props: IProps) => {
 
                 <div>{status !== StatusMessage.OK ? status : null}</div>
 
-                <ResponseFeedback responseId={props.data.id} />
+                <ResponseFeedback
+                    priorData={props.data.feedback}
+                    responseId={props.data.id}
+                />
             </div>
         </div>
     );

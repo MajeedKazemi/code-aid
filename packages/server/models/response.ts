@@ -6,6 +6,7 @@ export interface IResponse extends mongoose.Document {
     time: Date;
     type: string;
     data: {};
+    feedback: {};
     followUps: any[];
 }
 
@@ -22,7 +23,10 @@ export const ResponseSchema = new Schema({
         type: JSON,
         default: {},
     },
-    feedback: {},
+    feedback: {
+        type: JSON,
+        default: {},
+    },
     followUps: {
         type: Array,
         default: [],

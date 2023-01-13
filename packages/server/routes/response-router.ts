@@ -26,8 +26,29 @@ responseRouter.get("/latest", verifyUser, async (req, res, next) => {
                 type: r.type,
                 data: r.data,
                 followUps: r.followUps,
+                feedback: r.feedback,
             };
         }),
         success: true,
     });
+});
+
+responseRouter.post("/set-feedback", verifyUser, async (req, res, next) => {
+    const { rating, reason, responseId } = req.body;
+
+    const response = await ResponseModel.findById(responseId);
+
+    if (response) {
+        response.feedback = {
+            rating,
+            reason,
+            time: new Date(),
+        };
+
+        await response.save();
+
+        res.json({
+            success: true,
+        });
+    }
 });

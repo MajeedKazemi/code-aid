@@ -94,6 +94,22 @@ export const apiBreakDownTask = (
         }),
     });
 
+export const apiHelpFixCode = (
+    token: string | null | undefined,
+    code: string
+) =>
+    fetch(env.API_URL + "/api/codex/help-fix-code", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            code,
+        }),
+    });
+
 export const apiExplainCode = (
     token: string | null | undefined,
     code: string
@@ -128,6 +144,22 @@ export const apiQuestionFromCode = (
         }),
     });
 
+export const apiKeywordUsageExample = (
+    token: string | null | undefined,
+    keyword: string
+) =>
+    fetch(env.API_URL + "/api/codex/keyword-usage-example", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            keyword,
+        }),
+    });
+
 export const apiRecentResponses = (token: string | null | undefined) =>
     fetch(env.API_URL + "/api/responses/latest", {
         method: "GET",
@@ -136,4 +168,24 @@ export const apiRecentResponses = (token: string | null | undefined) =>
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         },
+    });
+
+export const apiSetFeedback = (
+    token: string | null | undefined,
+    responseId: string,
+    rating: number,
+    reason: string
+) =>
+    fetch(env.API_URL + "/api/responses/set-feedback", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            responseId,
+            rating,
+            reason,
+        }),
     });
