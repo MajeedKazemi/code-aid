@@ -92,18 +92,20 @@ export const responseToArrayWithKeywords = (
     //  => ["word1", <HoverableKeyword keyword="keyword1" />,
     // "word2", <HoverableKeyword keyword="keyword2" />, "word3"]
 
-    return response.split("`").map((item: string, index: number) => {
-        if (index % 2 === 0) {
-            return item;
-        }
-        return (
-            <HoverableKeyword
-                key={uuid()}
-                keyword={item}
-                askQuestion={askQuestion}
-                generateExample={generateExample}
-                canUseToolbox={canUseToolbox}
-            />
-        );
-    });
+    return response
+        ? response.split("`").map((item: string, index: number) => {
+              if (index % 2 === 0) {
+                  return item;
+              }
+              return (
+                  <HoverableKeyword
+                      key={uuid()}
+                      keyword={item}
+                      askQuestion={askQuestion}
+                      generateExample={generateExample}
+                      canUseToolbox={canUseToolbox}
+                  />
+              );
+          })
+        : [];
 };
