@@ -37,7 +37,12 @@ export const BreakDownStepsResponse = (props: IProps) => {
                     {props.data.steps.map((s: string, i: number) => (
                         <li className="break-down-response-step" key={i}>
                             <Fragment>
-                                {responseToArrayWithKeywords(s).map(
+                                {responseToArrayWithKeywords(
+                                    s,
+                                    props.canUseToolbox,
+                                    props.askQuestion,
+                                    props.generateExample
+                                ).map(
                                     (
                                         item: string | JSX.Element,
                                         index: number
