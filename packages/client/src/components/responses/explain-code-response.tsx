@@ -9,6 +9,8 @@ import { responseToArrayWithKeywords } from "./keyword";
 interface IProps {
     canUseToolbox: boolean;
     onSubmitFeedback: () => void;
+    generateExample: (keyword: string) => void;
+    askQuestion: (question: string) => void;
     data: {
         code: string;
         steps: string[];
@@ -48,15 +50,18 @@ export const ExplainCodeResponse = (props: IProps) => {
             </div>
             <div className="short-explanation-text">
                 <Fragment>
-                    {responseToArrayWithKeywords(props.data.explanation).map(
-                        (item: string | JSX.Element, index: number) => {
-                            if (typeof item === "string") {
-                                return <span key={"txt-" + index}>{item}</span>;
-                            }
-
-                            return item;
+                    {responseToArrayWithKeywords(
+                        props.data.explanation,
+                        props.canUseToolbox,
+                        props.askQuestion,
+                        props.generateExample
+                    ).map((item: string | JSX.Element, index: number) => {
+                        if (typeof item === "string") {
+                            return <span key={"txt-" + index}>{item}</span>;
                         }
-                    )}
+
+                        return item;
+                    })}
                 </Fragment>
             </div>
             <div className="short-explanation-text">
@@ -64,7 +69,12 @@ export const ExplainCodeResponse = (props: IProps) => {
                     {props.data.steps.map((s: string, i: number) => (
                         <li className="explain-code-response-step" key={i}>
                             <Fragment>
-                                {responseToArrayWithKeywords(s).map(
+                                {responseToArrayWithKeywords(
+                                    s,
+                                    props.canUseToolbox,
+                                    props.askQuestion,
+                                    props.generateExample
+                                ).map(
                                     (
                                         item: string | JSX.Element,
                                         index: number

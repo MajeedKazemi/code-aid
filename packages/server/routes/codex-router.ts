@@ -388,9 +388,9 @@ codexRouter.post(
                     const response = new ResponseModel({
                         type: "keyword-example",
                         data: {
+                            keyword,
                             code,
                             description,
-                            answer,
                         },
                     });
 
@@ -401,6 +401,7 @@ codexRouter.post(
 
                     res.json({
                         id: savedResponse.id,
+                        keyword,
                         code,
                         description,
                         success: true,

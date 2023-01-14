@@ -7,12 +7,14 @@ import {
     apiCheckCanUseToolbox,
     apiExplainCode,
     apiHelpFixCode,
+    apiKeywordUsageExample,
     apiQuestionFromCode,
     apiRecentResponses,
 } from "../api/api";
 import { AuthContext } from "../context";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
+import { KeywordExampleResponse } from "./responses/keyword-example-response";
 import { QuestionAnswerResponse } from "./responses/question-answer-response";
 import { QuestionFromCodeResponse } from "./responses/question-from-code-response";
 import { SelectableOption } from "./selectable-option";
@@ -36,27 +38,24 @@ export enum StatusMessage {
 
 export const MainComponent = () => {
     const { context } = useContext(AuthContext);
+
+    const editorEl = useRef<HTMLDivElement>(null);
+
     const [status, setStatus] = useState<StatusMessage>(StatusMessage.OK);
-    const [selectedOption, setSelectedOption] = useState<HintOption | null>(
-        HintOption.QuestionFromCode
-    );
-    const [editor, setEditor] =
-        useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-
     const [buttonText, setButtonText] = useState<string>("ask");
-    const editorEl = useRef(null);
-
     const [question, setQuestion] = useState<string>("");
     const [code, setCode] = useState<string>("");
     const [questionHeader, setQuestionHeader] = useState<string>("Question:");
     const [codeHeader, setCodeHeader] = useState<string>("Code:");
     const [showPrompt, setShowPrompt] = useState<boolean>(false);
     const [showEditor, setShowEditor] = useState<boolean>(false);
-
     const [responses, setResponses] = useState<any[]>([]);
-
     const [canUseToolbox, setCanUseToolbox] = useState<boolean>(false);
-    // useEffect(()) => get awaiting feedback count from server [check both at the beginning, and check whwever a new response is added]
+    const [editor, setEditor] =
+        useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+    const [selectedOption, setSelectedOption] = useState<HintOption | null>(
+        HintOption.QuestionFromCode
+    );
 
     useEffect(() => {
         // load latest responses on first load
@@ -148,14 +147,14 @@ export const MainComponent = () => {
                 editor?.updateOptions({ readOnly: true });
                 break;
 
-            case HintOption.HelpFix:
-                setQuestionHeader("");
-                setCodeHeader("Code:");
-                setShowPrompt(false);
-                setShowEditor(true);
-                setButtonText("assist");
-                editor?.updateOptions({ readOnly: false });
-                break;
+            // case HintOption.HelpFix:
+            //     setQuestionHeader("");
+            //     setCodeHeader("Code:");
+            //     setShowPrompt(false);
+            //     setShowEditor(true);
+            //     setButtonText("assist");
+            //     editor?.updateOptions({ readOnly: false });
+            //     break;
 
             case HintOption.QuestionFromCode:
                 setQuestionHeader("Question:");
@@ -312,6 +311,33 @@ export const MainComponent = () => {
         });
     };
 
+    const askQuestion = (question: string) => {
+        setQuestion(question);
+
+        window.scrollTo(0, 0);
+    };
+
+    const generateExample = (keyword: string) => {
+        window.scrollTo(0, 0);
+        setStatus(StatusMessage.Loading);
+
+        apiKeywordUsageExample(context?.token, keyword)
+            .then(async (res) => {
+                const data = await res.json();
+
+                if (data.success) {
+                    setResponses([
+                        { ...data, type: "keyword-example" },
+                        ...responses,
+                    ]);
+                    setStatus(StatusMessage.OK);
+                }
+            })
+            .catch(() => {
+                setStatus(StatusMessage.Failed);
+            });
+    };
+
     return (
         <main className="home-container">
             <div className="ai-assistant">
@@ -393,7 +419,7 @@ export const MainComponent = () => {
                                     }
                                     codeIcon
                                 />
-                                <SelectableOption
+                                {/* <SelectableOption
                                     icon="wrench"
                                     option={HintOption.HelpFix}
                                     selected={
@@ -403,7 +429,7 @@ export const MainComponent = () => {
                                         setSelectedOption(HintOption.HelpFix)
                                     }
                                     codeIcon
-                                />
+                                /> */}
                                 <SelectableOption
                                     icon="bullet"
                                     option={HintOption.BreakDownSteps}
@@ -446,6 +472,8 @@ export const MainComponent = () => {
                                             onSubmitFeedback={
                                                 checkCanUseToolbox
                                             }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
                                         />
                                     );
 
@@ -458,6 +486,8 @@ export const MainComponent = () => {
                                             onSubmitFeedback={
                                                 checkCanUseToolbox
                                             }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
                                         />
                                     );
 
@@ -470,6 +500,8 @@ export const MainComponent = () => {
                                             onSubmitFeedback={
                                                 checkCanUseToolbox
                                             }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
                                         />
                                     );
 
@@ -482,6 +514,22 @@ export const MainComponent = () => {
                                             onSubmitFeedback={
                                                 checkCanUseToolbox
                                             }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                        />
+                                    );
+
+                                case "keyword-example":
+                                    return (
+                                        <KeywordExampleResponse
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
                                         />
                                     );
 

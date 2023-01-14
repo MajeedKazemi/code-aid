@@ -193,6 +193,36 @@
     border: 1px solid #1e4976;
 
     width: 400px;
+
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px,
+        rgba(0, 0, 0, 0.22) 0px 10px 10px;
+}
+
+.keyword-ask-button {
+    cursor: pointer;
+    background-color: #037fff;
+    color: #fff;
+    border-radius: 8px;
+    padding: 4px 12px;
+
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+
+    transition: background-color 0.2s;
+}
+
+.keyword-ask-button:hover {
+    background-color: #0059b2;
+}
+
+.keyword-inline-code {
+    font-family: "Courier New", Courier, monospace;
+    padding: 1px 8px;
+    background-color: #413573;
+    font-weight: 600;
+    color: #00f2ff;
+    border-radius: 6px;
 }
 
 /* response-feedback */

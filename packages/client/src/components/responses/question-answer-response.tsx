@@ -10,6 +10,8 @@ import { responseToArrayWithKeywords } from "./keyword";
 interface IProps {
     canUseToolbox: boolean;
     onSubmitFeedback: () => void;
+    generateExample: (keyword: string) => void;
+    askQuestion: (question: string) => void;
     data: {
         question: string;
         answer: string;
@@ -55,17 +57,18 @@ export const QuestionAnswerResponse = (props: IProps) => {
             <div className="question-answer-main-content">
                 <div>
                     <Fragment>
-                        {responseToArrayWithKeywords(props.data.answer).map(
-                            (item: string | JSX.Element, index: number) => {
-                                if (typeof item === "string") {
-                                    return (
-                                        <span key={"txt-" + index}>{item}</span>
-                                    );
-                                }
-
-                                return item;
+                        {responseToArrayWithKeywords(
+                            props.data.answer,
+                            props.canUseToolbox,
+                            props.askQuestion,
+                            props.generateExample
+                        ).map((item: string | JSX.Element, index: number) => {
+                            if (typeof item === "string") {
+                                return <span key={"txt-" + index}>{item}</span>;
                             }
-                        )}
+
+                            return item;
+                        })}
                     </Fragment>
                 </div>
                 <div className="follow-up-responses">
@@ -84,7 +87,10 @@ export const QuestionAnswerResponse = (props: IProps) => {
                                 <div className="follow-up-answer">
                                     <Fragment>
                                         {responseToArrayWithKeywords(
-                                            f.answer
+                                            f.answer,
+                                            props.canUseToolbox,
+                                            props.askQuestion,
+                                            props.generateExample
                                         ).map(
                                             (
                                                 item: string | JSX.Element,

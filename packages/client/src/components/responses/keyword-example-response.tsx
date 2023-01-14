@@ -12,10 +12,10 @@ interface IProps {
     generateExample: (keyword: string) => void;
     askQuestion: (question: string) => void;
     data: {
-        code: string;
-        question: string;
-        answer: string;
         id: string;
+        keyword: string;
+        code: string;
+        description: string;
         feedback?: {
             reason: string;
             rating: number;
@@ -23,7 +23,7 @@ interface IProps {
     };
 }
 
-export const QuestionFromCodeResponse = (props: IProps) => {
+export const KeywordExampleResponse = (props: IProps) => {
     const { context } = useContext(AuthContext);
     const codeEl = useRef(null);
 
@@ -41,8 +41,8 @@ export const QuestionFromCodeResponse = (props: IProps) => {
         <div className="question-from-code-container">
             <div className="main-question">
                 <Fragment>
-                    {getIconSVG("question", "response-header-icon")}
-                    {props.data.question}
+                    {getIconSVG("command-line", "response-header-icon")}
+                    {props.data.keyword}
                 </Fragment>
             </div>
             <div className="question-code" ref={codeEl}>
@@ -51,7 +51,7 @@ export const QuestionFromCodeResponse = (props: IProps) => {
             <div className="main-answer">
                 <Fragment>
                     {responseToArrayWithKeywords(
-                        props.data.answer,
+                        props.data.description,
                         props.canUseToolbox,
                         props.askQuestion,
                         props.generateExample

@@ -8,6 +8,8 @@ import { responseToArrayWithKeywords } from "./keyword";
 interface IProps {
     canUseToolbox: boolean;
     onSubmitFeedback: () => void;
+    generateExample: (keyword: string) => void;
+    askQuestion: (question: string) => void;
     data: {
         task: string;
         steps: string[];
