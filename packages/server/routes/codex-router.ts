@@ -44,7 +44,7 @@ codexRouter.post("/explain-code", verifyUser, async (req, res, next) => {
         ) {
             let expSteps = expStepsRes.data.choices[0].text?.trim();
             const steps = expSteps
-                ? ("1." + expSteps)
+                ? expSteps
                       .split("\n")
                       .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
                 : [];
@@ -62,7 +62,8 @@ codexRouter.post("/explain-code", verifyUser, async (req, res, next) => {
 
                 const savedResponse = await response.save();
                 curUser.responses.push(savedResponse);
-                curUser.save();
+                curUser.canUseToolbox = false;
+                await curUser.save();
 
                 res.json({
                     id: savedResponse.id,
@@ -117,7 +118,8 @@ codexRouter.post("/answer-question", verifyUser, async (req, res, next) => {
 
                 const savedResponse = await response.save();
                 curUser.responses.push(savedResponse);
-                curUser.save();
+                curUser.canUseToolbox = false;
+                await curUser.save();
 
                 res.json({
                     query,
@@ -162,9 +164,11 @@ codexRouter.post(
                     `// [follow-up-answer]: ${answer}`,
                 ].join("\n");
                 const curResponse = await ResponseModel.findById(id);
+                const curUser = await UserModel.findById(userId);
+
                 const followUpId = uuid();
 
-                if (curResponse) {
+                if (curResponse && curUser) {
                     curResponse.followUps.push({
                         time: Date(),
                         query,
@@ -174,6 +178,9 @@ codexRouter.post(
                     });
 
                     curResponse.save();
+
+                    curUser.canUseToolbox = false;
+                    await curUser.save();
 
                     res.json({
                         query,
@@ -229,7 +236,8 @@ codexRouter.post("/break-down-task", verifyUser, async (req, res, next) => {
 
                 const savedResponse = await response.save();
                 curUser.responses.push(savedResponse);
-                curUser.save();
+                curUser.canUseToolbox = false;
+                await curUser.save();
 
                 res.json({
                     id: savedResponse.id,
@@ -256,7 +264,7 @@ codexRouter.post("/question-from-code", verifyUser, async (req, res, next) => {
         const result = await openai.createCompletion({
             model: "code-davinci-002",
             prompt: prompt.prompt,
-            temperature: 0.1,
+            temperature: 0.3,
             max_tokens: 500,
             stop: prompt.stopTokens,
             user: userId,
@@ -279,7 +287,8 @@ codexRouter.post("/question-from-code", verifyUser, async (req, res, next) => {
 
                 const savedResponse = await response.save();
                 curUser.responses.push(savedResponse);
-                curUser.save();
+                curUser.canUseToolbox = false;
+                await curUser.save();
 
                 res.json({
                     id: savedResponse.id,
@@ -296,6 +305,277 @@ codexRouter.post("/question-from-code", verifyUser, async (req, res, next) => {
         }
     }
 });
+
+codexRouter.post("/help-fix-code", verifyUser, async (req, res, next) => {
+    const { code } = req.body;
+    const userId = (req.user as IUser)._id;
+
+    if (code !== undefined) {
+        const prompt = helpFixCodePrompt(code);
+
+        const result = await openai.createCompletion({
+            model: "code-davinci-002",
+            prompt: prompt.prompt,
+            temperature: 0.3,
+            max_tokens: 500,
+            stop: prompt.stopTokens,
+            user: userId,
+        });
+
+        const curUser = await UserModel.findById(userId);
+
+        if (result.data.choices && result.data.choices?.length > 0) {
+            const answer = result.data.choices[0].text?.trim() || "";
+
+            if (curUser) {
+                const response = new ResponseModel({
+                    type: "help-fix-code",
+                    data: {
+                        code,
+                        answer,
+                    },
+                });
+
+                const savedResponse = await response.save();
+                curUser.responses.push(savedResponse);
+                curUser.canUseToolbox = false;
+                await curUser.save();
+
+                res.json({
+                    id: savedResponse.id,
+                    code,
+                    answer,
+                    success: true,
+                });
+            }
+        } else {
+            res.json({
+                success: false,
+            });
+        }
+    }
+});
+
+codexRouter.post(
+    "/keyword-usage-example",
+    verifyUser,
+    async (req, res, next) => {
+        const { keyword } = req.body;
+        const userId = (req.user as IUser)._id;
+
+        if (keyword !== undefined) {
+            const prompt = generateExampleCodePrompt(keyword);
+
+            const result = await openai.createCompletion({
+                model: "code-davinci-002",
+                prompt: prompt.prompt,
+                temperature: 0.3,
+                max_tokens: 500,
+                stop: prompt.stopTokens,
+                user: userId,
+            });
+
+            const curUser = await UserModel.findById(userId);
+
+            if (result.data.choices && result.data.choices?.length > 0) {
+                const answer = result.data.choices[0].text?.trim() || "";
+
+                const [code, description] = answer.split(
+                    "// [short-explanation]: "
+                );
+
+                if (curUser) {
+                    const response = new ResponseModel({
+                        type: "keyword-example",
+                        data: {
+                            code,
+                            description,
+                            answer,
+                        },
+                    });
+
+                    const savedResponse = await response.save();
+                    curUser.responses.push(savedResponse);
+                    curUser.canUseToolbox = false;
+                    await curUser.save();
+
+                    res.json({
+                        id: savedResponse.id,
+                        code,
+                        description,
+                        success: true,
+                    });
+                }
+            } else {
+                res.json({
+                    success: false,
+                });
+            }
+        }
+    }
+);
+
+const generateExampleCodePrompt = (keyword: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c provide example codes for keywords:`,
+            `// [prompt]: generate a comprehensive c programming example that uses "fork" and shows its different usages:`,
+            `#include <sys/types.h>`,
+            `#include <stdio.h>`,
+            `#include <unistd.h>`,
+            `#include <sys/wait.h>`,
+            `#include <stdlib.h>`,
+            `int main(int argc, char *argv[])`,
+            `{`,
+            `    printf("I am: %d\n", (int) getpid());`,
+            ``,
+            `    pid_t pid = fork();`,
+            `    printf("fork returned: %d\n", (int) pid);`,
+            ``,
+            `    if (pid < 0) { // error occurred`,
+            `        perror("Fork failed");`,
+            `    }`,
+            ``,
+            `    if (pid == 0) { // child process`,
+            `        printf("I am the child with pid %d\n", (int) getpid());`,
+            `        printf("Child process is exiting\n");`,
+            `        exit(0);`,
+            `    }`,
+            ``,
+            `    // parent process`,
+            `    printf("I am the parent waiting for the child process to end\n");`,
+            `    wait(NULL);`,
+            `    printf("parent process is exiting\n");`,
+            ``,
+            `    return(0);`,
+            `}`,
+            `// [short-explanation]: the \`fork\` function creates a copy of the current process. the parent process and the child process will run the same code. the child process will have a different pid (process id) than the parent process. the parent process will wait for the child process using \`wait\` and the child process will exit using \`exit\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [prompt]: generate a comprehensive c programming example that uses "signal" and shows its different usages:`,
+            `#include <stdio.h>`,
+            `#include <stdlib.h>`,
+            `#include <signal.h>`,
+            `#include <unistd.h>`,
+            ``,
+            `void handler(int signum) {`,
+            `    printf("Caught signal %d, coming out...\n", signum);`,
+            `    exit(1);`,
+            `}`,
+            ``,
+            `int main(int argc, char *argv[]) {`,
+            `    signal(SIGINT, handler);`,
+            ``,
+            `    while(1) {`,
+            `        printf("Going to sleep for a second...\n");`,
+            `        sleep(1);`,
+            `    }`,
+            ``,
+            `    return 0;`,
+            `}`,
+            `// [short-explanation]: the \`signal\` function allows you to register a function to be called when a signal is received. in this example the \`handler\` function will be called when the \`SIGINT\` signal is received. the \`SIGINT\` signal is sent when the user presses \`ctrl+c\`. the while is just used to keep the program running. the \`sleep\` function is used to pause the program for a given number of seconds.`,
+            ``,
+            ``,
+            `// [prompt]: generate a comprehensive c programming example that uses "socket" and shows its different usages:`,
+            `#include <stdio.h>`,
+            `#include <sys/socket.h>`,
+            `#include <netinet/in.h>`,
+            `#include <string.h>`,
+            ``,
+            `int main(){`,
+            `    int welcomeSocket, newSocket;`,
+            `    char buffer[1024];`,
+            `    struct sockaddr_in serverAddr;`,
+            `    struct sockaddr_storage serverStorage;`,
+            `    socklen_t addr_size;`,
+            ``,
+            `    // create the socket.`,
+            `    welcomeSocket = socket(PF_INET, SOCK_STREAM, 0);`,
+            ``,
+            `    // configure settings of the server address struct`,
+            `    // Address family = Internet`,
+            `    serverAddr.sin_family = AF_INET;`,
+            ``,
+            `    // Set port number, using htons function to use proper byte order`,
+            `    serverAddr.sin_port = htons(7891);`,
+            ``,
+            `    // Set IP address to localhost`,
+            `    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");`,
+            ``,
+            `    // Set all bits of the padding field to 0`,
+            `    memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);`,
+            ``,
+            `    // bind the address struct to the socket`,
+            `    bind(welcomeSocket, (struct sockaddr *) &serverAddr, sizeof(serverAddr));`,
+            ``,
+            `    // listen on the socket, with 5 max connection requests queued`,
+            `    if(listen(welcomeSocket,5)==0)`,
+            `        printf("Listening on port 7891 \\n");`,
+            `    else`,
+            `        printf("Error \\n");`,
+            ``,
+            `    while(1){`,
+            `        // accept call creates a new socket for the incoming connection`,
+            `        addr_size = sizeof serverStorage;`,
+            `        newSocket = accept(welcomeSocket, (struct sockaddr *) &serverStorage, &addr_size);`,
+            ``,
+            `        // send the message`,
+            `        strcpy(buffer,"Hello World\\n");`,
+            `        send(newSocket,buffer,13,0);`,
+            `    }`,
+            ``,
+            `    return 0;`,
+            `}`,
+            `// [short-explanation]: the \`socket\` function creates a socket. the \`bind\` function binds the socket to a given address. the \`listen\` function starts listening on the socket. the \`accept\` function accepts a connection on the socket. the \`send\` function sends data on a connected socket.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [prompt]: generate a comprehensive c programming example that uses "${keyword}" and shows its different usages:`,
+            ``,
+        ].join("\n"),
+        stopTokens: ["// [end]"],
+    };
+};
+
+const helpFixCodePrompt = (code: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c help fix given code. all fixes should be written in plain english without any code. Use the following format:`,
+            `// [code]:`,
+            `// todo include the right library`,
+            ``,
+            `float square_root(int num){`,
+            `    //todo: implement the function`,
+            `}`,
+            `// [fix-steps]: in plain English`,
+            `// 1. include the \`<math.h>\` library`,
+            `// 2. calculate square_root using \`sqrt(num)\``,
+            `// 3. make sure to link the math library when compiling using \`-lm\`. like this: \`gcc -o main main.c -lm\``,
+            `// [end]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `// todo include the right library`,
+            ``,
+            `float square_root(int num){`,
+            `    //todo: implement the function`,
+            `}`,
+            `// [fix-steps]: in plain English`,
+            `// 1. include the \`<math.h>\` library`,
+            `// 2. calculate square_root using \`sqrt(num)\``,
+            `// 3. make sure to link the math library when compiling using \`-lm\`. like this: \`gcc -o main main.c -lm\``,
+            `// [end]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `${code}`,
+            `// [fix-steps]: in plain English`,
+            `// 1. `,
+        ].join("\n"),
+        stopTokens: ["// [end]"],
+    };
+};
 
 const questionFromCodePrompt = (code: string, question: string) => {
     return {

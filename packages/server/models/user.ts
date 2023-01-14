@@ -18,6 +18,7 @@ export interface IUser extends mongoose.Document {
     lastName: string;
     role: string;
     responses: Array<IResponse>;
+    canUseToolbox: boolean;
     refreshToken: Array<{ refreshToken: string }>;
 }
 
@@ -29,6 +30,7 @@ export const getUserData = (user: IUser) => {
         lastName: user.lastName,
         role: user.role,
         responses: user.responses,
+        canUseToolbox: user.canUseToolbox,
     };
 };
 
@@ -52,6 +54,10 @@ const UserSchema = new Schema({
         default: "user",
     },
     responses: [ResponseSchema],
+    canUseToolbox: {
+        type: Boolean,
+        default: true,
+    },
     refreshToken: {
         type: [Session],
     },

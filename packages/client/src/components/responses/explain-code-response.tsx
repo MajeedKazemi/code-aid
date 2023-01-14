@@ -7,6 +7,8 @@ import { ResponseFeedback } from "../response-feedback";
 import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
+    canUseToolbox: boolean;
+    onSubmitFeedback: () => void;
     data: {
         code: string;
         steps: string[];
@@ -87,6 +89,7 @@ export const ExplainCodeResponse = (props: IProps) => {
             <ResponseFeedback
                 priorData={props.data.feedback}
                 responseId={props.data.id}
+                onSubmitFeedback={props.onSubmitFeedback}
             />
         </div>
     );

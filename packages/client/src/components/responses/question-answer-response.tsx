@@ -8,6 +8,8 @@ import { ResponseFeedback } from "../response-feedback";
 import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
+    canUseToolbox: boolean;
+    onSubmitFeedback: () => void;
     data: {
         question: string;
         answer: string;
@@ -104,10 +106,11 @@ export const QuestionAnswerResponse = (props: IProps) => {
                                     </Fragment>
                                 </div>
 
-                                {/* <ResponseFeedback
+                                <ResponseFeedback
                                     responseId={props.data.id}
                                     followUpId={f.id}
-                                /> */}
+                                    onSubmitFeedback={props.onSubmitFeedback}
+                                />
                             </div>
                         );
                     })}
@@ -123,7 +126,8 @@ export const QuestionAnswerResponse = (props: IProps) => {
                         value={followUpQuestion}
                     ></textarea>
 
-                    <div
+                    <button
+                        disabled={props.canUseToolbox ? false : true}
                         className="follow-up-question-button"
                         onClick={() => {
                             let prevQuestions =
@@ -157,7 +161,7 @@ export const QuestionAnswerResponse = (props: IProps) => {
                         }}
                     >
                         ask
-                    </div>
+                    </button>
                 </div>
 
                 <div>{status !== StatusMessage.OK ? status : null}</div>
@@ -165,6 +169,7 @@ export const QuestionAnswerResponse = (props: IProps) => {
                 <ResponseFeedback
                     priorData={props.data.feedback}
                     responseId={props.data.id}
+                    onSubmitFeedback={props.onSubmitFeedback}
                 />
             </div>
         </div>

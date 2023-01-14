@@ -11,7 +11,7 @@ interface IProps {
     };
     responseId: string;
     followUpId?: string;
-    onSubmit?: () => void;
+    onSubmitFeedback: () => void;
 }
 
 export const ResponseFeedback = (props: IProps) => {
@@ -149,6 +149,8 @@ export const ResponseFeedback = (props: IProps) => {
                         ).then(async (res) => {
                             if (res.status === 200) {
                                 setSubmitted(true);
+
+                                props.onSubmitFeedback();
                             }
                         });
                     }}

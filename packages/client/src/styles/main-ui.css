@@ -131,7 +131,8 @@
 
 .home-container {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    align-items: center;
     padding: 24px;
 }
 

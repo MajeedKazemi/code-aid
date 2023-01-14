@@ -35,10 +35,12 @@ responseRouter.get("/latest", verifyUser, async (req, res, next) => {
 
 responseRouter.post("/set-feedback", verifyUser, async (req, res, next) => {
     const { rating, reason, responseId } = req.body;
+    const userId = (req.user as IUser)._id;
 
     const response = await ResponseModel.findById(responseId);
+    const user = await UserModel.findById(userId);
 
-    if (response) {
+    if (response && user) {
         response.feedback = {
             rating,
             reason,
@@ -47,8 +49,27 @@ responseRouter.post("/set-feedback", verifyUser, async (req, res, next) => {
 
         await response.save();
 
+        user.canUseToolbox = true;
+        await user.save();
+
         res.json({
             success: true,
+        });
+    }
+});
+
+responseRouter.get("/can-use-toolbox", verifyUser, async (req, res, next) => {
+    const userId = (req.user as IUser)._id;
+    const user = await UserModel.findById(userId);
+
+    if (user) {
+        res.json({
+            success: true,
+            canUseToolbox: user.canUseToolbox,
+        });
+    } else {
+        res.json({
+            success: false,
         });
     }
 });

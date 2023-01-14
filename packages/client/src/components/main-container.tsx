@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import {
     apiAnswerQuestion,
     apiBreakDownTask,
+    apiCheckCanUseToolbox,
     apiExplainCode,
     apiHelpFixCode,
     apiQuestionFromCode,
@@ -54,6 +55,9 @@ export const MainComponent = () => {
 
     const [responses, setResponses] = useState<any[]>([]);
 
+    const [canUseToolbox, setCanUseToolbox] = useState<boolean>(false);
+    // useEffect(()) => get awaiting feedback count from server [check both at the beginning, and check whwever a new response is added]
+
     useEffect(() => {
         // load latest responses on first load
         apiRecentResponses(context?.token).then(async (res) => {
@@ -71,6 +75,14 @@ export const MainComponent = () => {
                         };
                     })
                 );
+            }
+        });
+
+        apiCheckCanUseToolbox(context?.token).then(async (res) => {
+            const data = await res.json();
+
+            if (data.success) {
+                setCanUseToolbox(data.canUseToolbox);
             }
         });
     }, []);
@@ -290,6 +302,16 @@ export const MainComponent = () => {
         }
     };
 
+    const checkCanUseToolbox = () => {
+        apiCheckCanUseToolbox(context?.token).then(async (res) => {
+            const data = await res.json();
+
+            if (data.success) {
+                setCanUseToolbox(data.canUseToolbox);
+            }
+        });
+    };
+
     return (
         <main className="home-container">
             <div className="ai-assistant">
@@ -397,12 +419,13 @@ export const MainComponent = () => {
                                     }
                                 />
                             </div>
-                            <div
+                            <button
+                                disabled={canUseToolbox ? false : true}
                                 className="button-primary-full-width"
                                 onClick={performQuery}
                             >
                                 {buttonText}
-                            </div>
+                            </button>
                         </div>
                     </div>
                     <div>
@@ -419,6 +442,10 @@ export const MainComponent = () => {
                                         <QuestionAnswerResponse
                                             key={response.id}
                                             data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
                                         />
                                     );
 
@@ -427,6 +454,10 @@ export const MainComponent = () => {
                                         <BreakDownStepsResponse
                                             key={response.id}
                                             data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
                                         />
                                     );
 
@@ -435,6 +466,10 @@ export const MainComponent = () => {
                                         <ExplainCodeResponse
                                             key={response.id}
                                             data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
                                         />
                                     );
 
@@ -443,6 +478,10 @@ export const MainComponent = () => {
                                         <QuestionFromCodeResponse
                                             key={response.id}
                                             data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
                                         />
                                     );
 

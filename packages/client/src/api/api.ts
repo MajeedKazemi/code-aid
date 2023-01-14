@@ -189,3 +189,13 @@ export const apiSetFeedback = (
             reason,
         }),
     });
+
+export const apiCheckCanUseToolbox = (token: string | null | undefined) =>
+    fetch(env.API_URL + "/api/responses/can-use-toolbox", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
