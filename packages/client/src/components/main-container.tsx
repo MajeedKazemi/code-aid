@@ -20,6 +20,8 @@ import { QuestionFromCodeResponse } from "./responses/question-from-code-respons
 import { SelectableOption } from "./selectable-option";
 import { DisclaimerComponent } from "./utils/disclaimer";
 
+const disclaimerNotShowDays = 3;
+
 export enum HintOption {
     AskQuestion = "ask question",
     QuestionFromCode = "ask question from code",
@@ -64,25 +66,56 @@ export const MainComponent = () => {
     };
 
     useEffect(() => {
+        // check last time disclaimer was accepted
+        let showDisclaimer = true;
+
+        try {
+            const lastTimeAcceptedDisclaimer = localStorage.getItem(
+                "disclaimer-accepted-timestamp"
+            );
+
+            if (
+                lastTimeAcceptedDisclaimer &&
+                parseInt(lastTimeAcceptedDisclaimer) >
+                    Date.now() - disclaimerNotShowDays * 24 * 60 * 60 * 1000
+            ) {
+                showDisclaimer = false;
+            }
+        } catch (e) {}
+
         // load latest responses on first load
         apiRecentResponses(context?.token).then(async (res) => {
             const data = await res.json();
 
             if (data.success) {
-                setResponses([
-                    {
-                        type: "disclaimer",
-                    },
-                    ...data.responses.map((it: any) => {
-                        return {
-                            ...it.data,
-                            type: it.type,
-                            id: it.id,
-                            followUps: it.followUps,
-                            feedback: it.feedback,
-                        };
-                    }),
-                ]);
+                if (!showDisclaimer) {
+                    setResponses(
+                        data.responses.map((it: any) => {
+                            return {
+                                ...it.data,
+                                type: it.type,
+                                id: it.id,
+                                followUps: it.followUps,
+                                feedback: it.feedback,
+                            };
+                        })
+                    );
+                } else {
+                    setResponses([
+                        {
+                            type: "disclaimer",
+                        },
+                        ...data.responses.map((it: any) => {
+                            return {
+                                ...it.data,
+                                type: it.type,
+                                id: it.id,
+                                followUps: it.followUps,
+                                feedback: it.feedback,
+                            };
+                        }),
+                    ]);
+                }
             }
         });
 

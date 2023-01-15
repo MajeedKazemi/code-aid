@@ -26,6 +26,11 @@ export const DisclaimerComponent = () => {
                 className="disclaimer-button"
                 onClick={() => {
                     setShowDisclaimer(false);
+
+                    const lastTimeAcceptedDisclaimer = localStorage.setItem(
+                        "disclaimer-accepted-timestamp",
+                        Date.now().toString()
+                    );
                 }}
             >
                 I understand
