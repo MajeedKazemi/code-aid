@@ -11,7 +11,7 @@
 
     border-radius: 12px;
     background-color: #132f4c;
-    margin-top: 16px;
+    margin-top: 32px;
     border: 1px solid #1e4976;
 }
 
@@ -103,7 +103,7 @@
 
     border-radius: 12px;
     background-color: #132f4c;
-    margin-top: 16px;
+    margin-top: 32px;
     border: 1px solid #1e4976;
 }
 
@@ -131,12 +131,12 @@
 
     border-radius: 12px;
     background-color: #132f4c;
-    margin-top: 16px;
+    margin-top: 32px;
     border: 1px solid #1e4976;
 }
 
 .question-code {
-    margin: 16px;
+    margin: 16px 16px 0 16px;
     padding: 16px;
 
     border-radius: 12px;
@@ -152,7 +152,7 @@
 
     border-radius: 12px;
     background-color: #132f4c;
-    margin-top: 16px;
+    margin-top: 32px;
     border: 1px solid #1e4976;
 }
 
@@ -343,4 +343,55 @@
 .feedback-button-disabled {
     background-color: #a8a5ff;
     cursor: not-allowed;
+}
+
+.submitted-feedback-value {
+    background-color: #000000;
+    color: #fff;
+    display: inline-block;
+    padding: 6px 20px;
+    margin-top: 16px;
+    border-radius: 6px;
+}
+
+/* disclaimer-component.tsx */
+
+.disclaimer-container {
+    padding: 16px;
+    border-radius: 12px;
+    background-color: #aaa;
+    margin-top: 32px;
+}
+
+.disclaimer-title {
+    margin: 0;
+    color: #000;
+    font-size: 24px;
+}
+
+.disclaimer-message {
+    font-size: 16px;
+    color: #000;
+}
+
+.disclaimer-message li {
+    margin: 4px 0;
+}
+
+.disclaimer-button {
+    background-color: #037fff;
+    color: #fff;
+    border-radius: 8px;
+    border: none;
+    padding: 8px 20px;
+
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+
+    transition: background-color 0.5s;
+}
+
+.disclaimer-button:hover {
+    background-color: #333;
 }

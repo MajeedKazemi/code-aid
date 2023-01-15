@@ -13,6 +13,7 @@ import {
 } from "../api/api";
 import { AuthContext } from "../context";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
+import { DisclaimerComponent } from "./responses/disclaimer";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
 import { KeywordExampleResponse } from "./responses/keyword-example-response";
 import { QuestionAnswerResponse } from "./responses/question-answer-response";
@@ -63,8 +64,11 @@ export const MainComponent = () => {
             const data = await res.json();
 
             if (data.success) {
-                setResponses(
-                    data.responses.map((it: any) => {
+                setResponses([
+                    {
+                        type: "disclaimer",
+                    },
+                    ...data.responses.map((it: any) => {
                         return {
                             ...it.data,
                             type: it.type,
@@ -72,8 +76,8 @@ export const MainComponent = () => {
                             followUps: it.followUps,
                             feedback: it.feedback,
                         };
-                    })
-                );
+                    }),
+                ]);
             }
         });
 
@@ -500,6 +504,9 @@ export const MainComponent = () => {
                     <div className="responses-container">
                         {responses.map((response) => {
                             switch (response.type) {
+                                case "disclaimer":
+                                    return <DisclaimerComponent />;
+
                                 case "question-answer":
                                     return (
                                         <QuestionAnswerResponse
