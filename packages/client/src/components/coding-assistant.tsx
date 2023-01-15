@@ -11,15 +11,14 @@ import {
     apiQuestionFromCode,
     apiRecentResponses,
 } from "../api/api";
-import { Layout } from "../components/layout";
-import { BreakDownStepsResponse } from "../components/responses/break-down-task-response";
-import { ExplainCodeResponse } from "../components/responses/explain-code-response";
-import { KeywordExampleResponse } from "../components/responses/keyword-example-response";
-import { QuestionAnswerResponse } from "../components/responses/question-answer-response";
-import { QuestionFromCodeResponse } from "../components/responses/question-from-code-response";
-import { SelectableOption } from "../components/selectable-option";
-import { DisclaimerComponent } from "../components/utils/disclaimer";
 import { AuthContext } from "../context";
+import { BreakDownStepsResponse } from "./responses/break-down-task-response";
+import { ExplainCodeResponse } from "./responses/explain-code-response";
+import { KeywordExampleResponse } from "./responses/keyword-example-response";
+import { QuestionAnswerResponse } from "./responses/question-answer-response";
+import { QuestionFromCodeResponse } from "./responses/question-from-code-response";
+import { SelectableOption } from "./selectable-option";
+import { DisclaimerComponent } from "./utils/disclaimer";
 
 const disclaimerNotShowDays = 3;
 
@@ -36,7 +35,7 @@ export enum StatusMessage {
     Loading = "Generating response...",
 }
 
-export const HomePage = () => {
+export const CodingAssistant = () => {
     const { context } = useContext(AuthContext);
 
     const editorEl = useRef<HTMLDivElement>(null);
@@ -458,93 +457,87 @@ export const HomePage = () => {
     };
 
     return (
-        <Layout>
-            <main className="home-container">
-                <div className="ai-assistant">
-                    <div className="assistant-toolbox-container">
-                        <div className="toolbox-container">
-                            <div className="main-editor-container">
-                                <div className="main-editor-header">Code: </div>
-                                <div
-                                    className="main-editor"
-                                    ref={editorEl}
-                                ></div>
+        <main className="home-container">
+            <div className="ai-assistant">
+                <div className="assistant-toolbox-container">
+                    <div className="toolbox-container">
+                        <div className="main-editor-container">
+                            <div className="main-editor-header">Code: </div>
+                            <div className="main-editor" ref={editorEl}></div>
+                            <div
+                                className={
+                                    showEditor
+                                        ? "dummy-editor-enabled"
+                                        : "dummy-editor-disabled"
+                                }
+                            ></div>
+                        </div>
+
+                        <div className="toolbox-right-container">
+                            <div className="main-question-container">
+                                <div className="main-question-header">
+                                    Question:{" "}
+                                </div>
+                                <textarea
+                                    className="main-question-input"
+                                    onChange={(e) => {
+                                        setQuestion(e.target.value);
+                                    }}
+                                    value={question}
+                                    placeholder={"type question..."}
+                                ></textarea>
                                 <div
                                     className={
-                                        showEditor
-                                            ? "dummy-editor-enabled"
-                                            : "dummy-editor-disabled"
+                                        showPrompt
+                                            ? "dummy-question-enabled"
+                                            : "dummy-question-disabled"
                                     }
                                 ></div>
                             </div>
 
-                            <div className="toolbox-right-container">
-                                <div className="main-question-container">
-                                    <div className="main-question-header">
-                                        Question:{" "}
-                                    </div>
-                                    <textarea
-                                        className="main-question-input"
-                                        onChange={(e) => {
-                                            setQuestion(e.target.value);
-                                        }}
-                                        value={question}
-                                        placeholder={"type question..."}
-                                    ></textarea>
-                                    <div
-                                        className={
-                                            showPrompt
-                                                ? "dummy-question-enabled"
-                                                : "dummy-question-disabled"
-                                        }
-                                    ></div>
-                                </div>
-
-                                <div className="selectable-options-container">
-                                    <SelectableOption
-                                        icon="question"
-                                        option={HintOption.AskQuestion}
-                                        example="how can I generate a 2D array using malloc?"
-                                        selected={
-                                            selectedOption ==
+                            <div className="selectable-options-container">
+                                <SelectableOption
+                                    icon="question"
+                                    option={HintOption.AskQuestion}
+                                    example="how can I generate a 2D array using malloc?"
+                                    selected={
+                                        selectedOption == HintOption.AskQuestion
+                                    }
+                                    onClick={() =>
+                                        setSelectedOption(
                                             HintOption.AskQuestion
-                                        }
-                                        onClick={() =>
-                                            setSelectedOption(
-                                                HintOption.AskQuestion
-                                            )
-                                        }
-                                    />
-                                    <SelectableOption
-                                        icon="question"
-                                        option={HintOption.QuestionFromCode}
-                                        example="am I using pointers correctly?"
-                                        selected={
-                                            selectedOption ==
+                                        )
+                                    }
+                                />
+                                <SelectableOption
+                                    icon="question"
+                                    option={HintOption.QuestionFromCode}
+                                    example="am I using pointers correctly?"
+                                    selected={
+                                        selectedOption ==
+                                        HintOption.QuestionFromCode
+                                    }
+                                    onClick={() =>
+                                        setSelectedOption(
                                             HintOption.QuestionFromCode
-                                        }
-                                        onClick={() =>
-                                            setSelectedOption(
-                                                HintOption.QuestionFromCode
-                                            )
-                                        }
-                                        codeIcon
-                                    />
-                                    <SelectableOption
-                                        icon="magnifying-glass"
-                                        option={HintOption.ExplainCode}
-                                        selected={
-                                            selectedOption ==
+                                        )
+                                    }
+                                    codeIcon
+                                />
+                                <SelectableOption
+                                    icon="magnifying-glass"
+                                    option={HintOption.ExplainCode}
+                                    selected={
+                                        selectedOption == HintOption.ExplainCode
+                                    }
+                                    onClick={() =>
+                                        setSelectedOption(
                                             HintOption.ExplainCode
-                                        }
-                                        onClick={() =>
-                                            setSelectedOption(
-                                                HintOption.ExplainCode
-                                            )
-                                        }
-                                        codeIcon
-                                    />
-                                    {/* <SelectableOption
+                                        )
+                                    }
+                                    codeIcon
+                                />
+                                {/* <SelectableOption
                                     icon="wrench"
                                     option={HintOption.HelpFix}
                                     selected={
@@ -555,150 +548,137 @@ export const HomePage = () => {
                                     }
                                     codeIcon
                                 /> */}
-                                    <SelectableOption
-                                        icon="bullet"
-                                        option={HintOption.BreakDownSteps}
-                                        example="how can I write binary numbers to a file?"
-                                        selected={
-                                            selectedOption ==
-                                            HintOption.BreakDownSteps
-                                        }
-                                        onClick={() =>
-                                            setSelectedOption(
-                                                HintOption.BreakDownSteps
-                                            )
-                                        }
-                                    />
-                                </div>
-                                <button
-                                    // disabled={canUseToolbox ? false : true}
-                                    className={
-                                        "button-primary-full-width" +
-                                        (canUseToolbox
-                                            ? " button-primary-enabled"
-                                            : " button-primary-disabled")
+                                <SelectableOption
+                                    icon="bullet"
+                                    option={HintOption.BreakDownSteps}
+                                    example="how can I write binary numbers to a file?"
+                                    selected={
+                                        selectedOption ==
+                                        HintOption.BreakDownSteps
                                     }
-                                    onClick={performQuery}
-                                >
-                                    {buttonText}
-                                </button>
+                                    onClick={() =>
+                                        setSelectedOption(
+                                            HintOption.BreakDownSteps
+                                        )
+                                    }
+                                />
                             </div>
-                        </div>
-                        <div>
-                            {status !== StatusMessage.OK ? (
-                                <div className="status-message-container">
-                                    {status}
-                                </div>
-                            ) : null}
-                        </div>
-
-                        <div className="responses-container">
-                            {responses.map((response) => {
-                                switch (response.type) {
-                                    case "disclaimer":
-                                        return <DisclaimerComponent />;
-
-                                    case "question-answer":
-                                        return (
-                                            <QuestionAnswerResponse
-                                                key={response.id}
-                                                data={response}
-                                                canUseToolbox={canUseToolbox}
-                                                onSubmitFeedback={
-                                                    checkCanUseToolbox
-                                                }
-                                                generateExample={
-                                                    generateExample
-                                                }
-                                                askQuestion={askQuestion}
-                                                setCanUseToolbox={
-                                                    setCanUseToolbox
-                                                }
-                                            />
-                                        );
-
-                                    case "break-down-steps":
-                                        return (
-                                            <BreakDownStepsResponse
-                                                key={response.id}
-                                                data={response}
-                                                canUseToolbox={canUseToolbox}
-                                                onSubmitFeedback={
-                                                    checkCanUseToolbox
-                                                }
-                                                generateExample={
-                                                    generateExample
-                                                }
-                                                askQuestion={askQuestion}
-                                            />
-                                        );
-
-                                    case "explain-code":
-                                        return (
-                                            <ExplainCodeResponse
-                                                key={response.id}
-                                                data={response}
-                                                canUseToolbox={canUseToolbox}
-                                                onSubmitFeedback={
-                                                    checkCanUseToolbox
-                                                }
-                                                generateExample={
-                                                    generateExample
-                                                }
-                                                askQuestion={askQuestion}
-                                            />
-                                        );
-
-                                    case "question-from-code":
-                                        return (
-                                            <QuestionFromCodeResponse
-                                                key={response.id}
-                                                data={response}
-                                                canUseToolbox={canUseToolbox}
-                                                onSubmitFeedback={
-                                                    checkCanUseToolbox
-                                                }
-                                                generateExample={
-                                                    generateExample
-                                                }
-                                                askQuestion={askQuestion}
-                                            />
-                                        );
-
-                                    case "keyword-example":
-                                        return (
-                                            <KeywordExampleResponse
-                                                key={response.id}
-                                                data={response}
-                                                canUseToolbox={canUseToolbox}
-                                                onSubmitFeedback={
-                                                    checkCanUseToolbox
-                                                }
-                                                generateExample={
-                                                    generateExample
-                                                }
-                                                askQuestion={askQuestion}
-                                            />
-                                        );
-
-                                    default:
-                                        return null;
+                            <button
+                                // disabled={canUseToolbox ? false : true}
+                                className={
+                                    "button-primary-full-width" +
+                                    (canUseToolbox
+                                        ? " button-primary-enabled"
+                                        : " button-primary-disabled")
                                 }
-                            })}
+                                onClick={performQuery}
+                            >
+                                {buttonText}
+                            </button>
                         </div>
                     </div>
-                </div>
+                    <div>
+                        {status !== StatusMessage.OK ? (
+                            <div className="status-message-container">
+                                {status}
+                            </div>
+                        ) : null}
+                    </div>
 
-                {/* <div className="home-column">
+                    <div className="responses-container">
+                        {responses.map((response) => {
+                            switch (response.type) {
+                                case "disclaimer":
+                                    return <DisclaimerComponent />;
+
+                                case "question-answer":
+                                    return (
+                                        <QuestionAnswerResponse
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                            setCanUseToolbox={setCanUseToolbox}
+                                        />
+                                    );
+
+                                case "break-down-steps":
+                                    return (
+                                        <BreakDownStepsResponse
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                        />
+                                    );
+
+                                case "explain-code":
+                                    return (
+                                        <ExplainCodeResponse
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                        />
+                                    );
+
+                                case "question-from-code":
+                                    return (
+                                        <QuestionFromCodeResponse
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                        />
+                                    );
+
+                                case "keyword-example":
+                                    return (
+                                        <KeywordExampleResponse
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                        />
+                                    );
+
+                                default:
+                                    return null;
+                            }
+                        })}
+                    </div>
+                </div>
+            </div>
+
+            {/* <div className="home-column">
                 <Documentation />
             </div> */}
 
-                {errorMessage && (
-                    <div className="error-container">
-                        <div className="error-message">{errorMessage}</div>
-                    </div>
-                )}
-            </main>
-        </Layout>
+            {errorMessage && (
+                <div className="error-container">
+                    <div className="error-message">{errorMessage}</div>
+                </div>
+            )}
+        </main>
     );
 };
