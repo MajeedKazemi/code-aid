@@ -162,6 +162,7 @@ export const QuestionAnswerResponse = (props: IProps) => {
                                     setFollowUps([...followUps, { ...data }]);
                                     setStatus(StatusMessage.OK);
                                     props.setCanUseToolbox(false);
+                                    setFollowUpQuestion("");
                                 })
                                 .catch(() => {
                                     setStatus(StatusMessage.Failed);

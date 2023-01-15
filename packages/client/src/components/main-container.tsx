@@ -54,7 +54,7 @@ export const MainComponent = () => {
     const [editor, setEditor] =
         useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [selectedOption, setSelectedOption] = useState<HintOption | null>(
-        HintOption.QuestionFromCode
+        null
     );
 
     useEffect(() => {
@@ -190,6 +190,9 @@ export const MainComponent = () => {
                         ]);
                         setStatus(StatusMessage.OK);
                         setCanUseToolbox(false);
+                        setSelectedOption(null);
+                        setQuestion("");
+                        setCode("");
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
@@ -216,6 +219,9 @@ export const MainComponent = () => {
                         ]);
                         setStatus(StatusMessage.OK);
                         setCanUseToolbox(false);
+                        setSelectedOption(null);
+                        setQuestion("");
+                        setCode("");
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
@@ -242,6 +248,9 @@ export const MainComponent = () => {
                         ]);
                         setStatus(StatusMessage.OK);
                         setCanUseToolbox(false);
+                        setSelectedOption(null);
+                        setQuestion("");
+                        setCode("");
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
@@ -270,6 +279,9 @@ export const MainComponent = () => {
                         ]);
                         setStatus(StatusMessage.OK);
                         setCanUseToolbox(false);
+                        setSelectedOption(null);
+                        setQuestion("");
+                        setCode("");
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
@@ -294,6 +306,9 @@ export const MainComponent = () => {
                         ]);
                         setStatus(StatusMessage.OK);
                         setCanUseToolbox(false);
+                        setSelectedOption(null);
+                        setQuestion("");
+                        setCode("");
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
