@@ -38,8 +38,10 @@ interface IProps {
 
 export const QuestionAnswerResponse = (props: IProps) => {
     const { context } = useContext(AuthContext);
-    const [status, setStatus] = useState<StatusMessage>(StatusMessage.OK);
 
+    const [status, setStatus] = useState<StatusMessage>(StatusMessage.OK);
+    const [followUpQuestion, setFollowUpQuestion] = useState<string>("");
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [followUps, setFollowUps] = useState<
         Array<{
             time: Date;
@@ -53,7 +55,14 @@ export const QuestionAnswerResponse = (props: IProps) => {
             };
         }>
     >(props.data.followUps || []);
-    const [followUpQuestion, setFollowUpQuestion] = useState<string>("");
+
+    const displayError = (message: string) => {
+        setErrorMessage(message);
+
+        setTimeout(() => {
+            setErrorMessage(null);
+        }, 5000);
+    };
 
     return (
         <div className="question-answer-main-container">
@@ -159,8 +168,10 @@ export const QuestionAnswerResponse = (props: IProps) => {
                                     ? followUps[followUps.length - 1].query
                                     : props.data.query;
 
-                            if (followUpQuestion === "") {
-                                setStatus(StatusMessage.QuestionEmpty);
+                            if (followUpQuestion.length < 3) {
+                                displayError(
+                                    "Please specify your follow-up question more clearly."
+                                );
 
                                 return;
                             }
@@ -182,7 +193,9 @@ export const QuestionAnswerResponse = (props: IProps) => {
                                     setFollowUpQuestion("");
                                 })
                                 .catch(() => {
-                                    setStatus(StatusMessage.Failed);
+                                    displayError(
+                                        "Failed to generate example. Please try again or reload the page."
+                                    );
                                 });
                         }}
                     >
@@ -200,6 +213,12 @@ export const QuestionAnswerResponse = (props: IProps) => {
                     onSubmitFeedback={props.onSubmitFeedback}
                 />
             </div>
+
+            {errorMessage && (
+                <div className="error-container">
+                    <div className="error-message">{errorMessage}</div>
+                </div>
+            )}
         </div>
     );
 };

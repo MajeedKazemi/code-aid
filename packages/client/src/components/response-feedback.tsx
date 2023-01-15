@@ -21,14 +21,20 @@ export const ResponseFeedback = (props: IProps) => {
     const [hoveredNumber, setHoveredNumber] = useState(0);
     const [reason, setReason] = useState("");
     const [submitted, setSubmitted] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    if (props.priorData?.rating || submitted)
-        return null;
-        // <div className="submitted-feedback-value">
-        //     rating: <b>{props.priorData?.rating || selectedNumber} / 5</b>
-        // </div>
-    // return <div>{props.priorData?.rating || selectedNumber}</div>;
-    // TODO: display submitted rating and a thank you message instead of null.
+    const displayError = (message: string) => {
+        setErrorMessage(message);
+
+        setTimeout(() => {
+            setErrorMessage(null);
+        }, 5000);
+    };
+
+    if (props.priorData?.rating || submitted) return null;
+    // <div className="submitted-feedback-value">
+    //     rating: <b>{props.priorData?.rating || selectedNumber} / 5</b>
+    // </div>
 
     return (
         <div className="response-feedback-container">
@@ -145,24 +151,42 @@ export const ResponseFeedback = (props: IProps) => {
                         (selectedNumber == 0 ? "feedback-button-disabled" : "")
                     }
                     onClick={() => {
+                        if (selectedNumber == 0) {
+                            displayError("Please select a rating");
+
+                            return;
+                        }
+
                         apiSetFeedback(
                             context?.token,
                             props.responseId,
                             props.followUpId ? props.followUpId : null,
                             selectedNumber,
                             reason
-                        ).then(async (res) => {
-                            if (res.status === 200) {
-                                setSubmitted(true);
+                        )
+                            .then(async (res) => {
+                                if (res.status === 200) {
+                                    setSubmitted(true);
 
-                                props.onSubmitFeedback();
-                            }
-                        });
+                                    props.onSubmitFeedback();
+                                }
+                            })
+                            .catch((err) => {
+                                displayError(
+                                    "Error submitting feedback. Please try again or reload the page."
+                                );
+                            });
                     }}
                 >
                     submit
                 </span>
             </div>
+
+            {errorMessage && (
+                <div className="error-container">
+                    <div className="error-message">{errorMessage}</div>
+                </div>
+            )}
         </div>
     );
 };

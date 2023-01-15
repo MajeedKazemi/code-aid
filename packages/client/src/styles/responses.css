@@ -406,3 +406,20 @@
 .disclaimer-button:hover {
     background-color: #333;
 }
+
+/* error-message.tsx */
+
+.error-container {
+    position: fixed;
+    bottom: 100px;
+    right: 100px;
+
+    background-color: #ff0000;
+    color: #fff;
+    padding: 32px;
+    font-size: 22px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px,
+        rgba(0, 0, 0, 0.22) 0px 10px 10px;
+}

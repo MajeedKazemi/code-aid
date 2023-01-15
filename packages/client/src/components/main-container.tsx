@@ -13,12 +13,12 @@ import {
 } from "../api/api";
 import { AuthContext } from "../context";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
-import { DisclaimerComponent } from "./responses/disclaimer";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
 import { KeywordExampleResponse } from "./responses/keyword-example-response";
 import { QuestionAnswerResponse } from "./responses/question-answer-response";
 import { QuestionFromCodeResponse } from "./responses/question-from-code-response";
 import { SelectableOption } from "./selectable-option";
+import { DisclaimerComponent } from "./utils/disclaimer";
 
 export enum HintOption {
     AskQuestion = "ask question",
@@ -30,11 +30,7 @@ export enum HintOption {
 
 export enum StatusMessage {
     OK = "",
-    Loading = "loading",
-    Failed = "server error, please retry, or refresh",
-    QuestionEmpty = "question cannot be empty",
-    CodeEmpty = "code cannot be empty",
-    QuestionAndCodeEmpty = "please enter both code and question",
+    Loading = "Generating response...",
 }
 
 export const MainComponent = () => {
@@ -42,6 +38,7 @@ export const MainComponent = () => {
 
     const editorEl = useRef<HTMLDivElement>(null);
 
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [status, setStatus] = useState<StatusMessage>(StatusMessage.OK);
     const [buttonText, setButtonText] = useState<string>("ask");
     const [question, setQuestion] = useState<string>("");
@@ -57,6 +54,14 @@ export const MainComponent = () => {
     const [selectedOption, setSelectedOption] = useState<HintOption | null>(
         null
     );
+
+    const displayError = (message: string) => {
+        setErrorMessage(message);
+
+        setTimeout(() => {
+            setErrorMessage(null);
+        }, 5000);
+    };
 
     useEffect(() => {
         // load latest responses on first load
@@ -172,12 +177,29 @@ export const MainComponent = () => {
     }, [selectedOption]);
 
     const performQuery = () => {
-        if (!selectedOption) return;
+        if (!selectedOption) {
+            displayError("Please select an option");
+
+            return;
+        }
+
+        if (!canUseToolbox) {
+            displayError("Please rate the last response before asking again");
+
+            return;
+        }
 
         switch (selectedOption) {
             case HintOption.AskQuestion:
                 if (!question) {
-                    setStatus(StatusMessage.QuestionEmpty);
+                    // setStatus(StatusMessage.QuestionEmpty);
+                    displayError("Please enter a question to ask.");
+
+                    return;
+                }
+
+                if (question.length < 10) {
+                    displayError("Please specify your question more clearly.");
 
                     return;
                 }
@@ -198,9 +220,12 @@ export const MainComponent = () => {
                         setSelectedOption(null);
                         setQuestion("");
                         setCode("");
+                        setButtonText("ask");
                     })
                     .catch(() => {
-                        setStatus(StatusMessage.Failed);
+                        displayError(
+                            "Failed to generate example. Please try again or reload the page."
+                        );
                         setButtonText("ask");
                     });
 
@@ -208,7 +233,15 @@ export const MainComponent = () => {
 
             case HintOption.BreakDownSteps:
                 if (!question) {
-                    setStatus(StatusMessage.QuestionEmpty);
+                    displayError("Please explain the functionality you want.");
+
+                    return;
+                }
+
+                if (question.length < 10) {
+                    displayError(
+                        "Please specify the functionality more clearly."
+                    );
 
                     return;
                 }
@@ -229,9 +262,12 @@ export const MainComponent = () => {
                         setSelectedOption(null);
                         setQuestion("");
                         setCode("");
+                        setButtonText("assist");
                     })
                     .catch(() => {
-                        setStatus(StatusMessage.Failed);
+                        displayError(
+                            "Failed to generate example. Please try again or reload the page."
+                        );
                         setButtonText("assist");
                     });
 
@@ -239,7 +275,7 @@ export const MainComponent = () => {
 
             case HintOption.ExplainCode:
                 if (!code) {
-                    setStatus(StatusMessage.CodeEmpty);
+                    displayError("Please enter some code to explain.");
 
                     return;
                 }
@@ -260,9 +296,12 @@ export const MainComponent = () => {
                         setSelectedOption(null);
                         setQuestion("");
                         setCode("");
+                        setButtonText("ask");
                     })
                     .catch(() => {
-                        setStatus(StatusMessage.Failed);
+                        displayError(
+                            "Failed to generate example. Please try again or reload the page."
+                        );
                         setButtonText("ask");
                     });
 
@@ -270,11 +309,13 @@ export const MainComponent = () => {
 
             case HintOption.QuestionFromCode:
                 if (!question && !code) {
-                    setStatus(StatusMessage.QuestionAndCodeEmpty);
+                    displayError(
+                        "Please enter a code and a question from the code."
+                    );
                 } else if (!question) {
-                    setStatus(StatusMessage.QuestionEmpty);
+                    displayError("Please enter a question from the code.");
                 } else if (!code) {
-                    setStatus(StatusMessage.CodeEmpty);
+                    displayError("Please enter a code to ask a question from.");
                 }
 
                 setStatus(StatusMessage.Loading);
@@ -293,9 +334,12 @@ export const MainComponent = () => {
                         setSelectedOption(null);
                         setQuestion("");
                         setCode("");
+                        setButtonText("ask");
                     })
                     .catch(() => {
-                        setStatus(StatusMessage.Failed);
+                        displayError(
+                            "Failed to generate example. Please try again or reload the page."
+                        );
                         setButtonText("ask");
                     });
 
@@ -303,7 +347,9 @@ export const MainComponent = () => {
 
             case HintOption.HelpFix:
                 if (!code) {
-                    setStatus(StatusMessage.CodeEmpty);
+                    displayError(
+                        "Please enter some code so that I could help you fix."
+                    );
                 }
 
                 setStatus(StatusMessage.Loading);
@@ -322,9 +368,12 @@ export const MainComponent = () => {
                         setSelectedOption(null);
                         setQuestion("");
                         setCode("");
+                        setButtonText("assist");
                     })
                     .catch(() => {
-                        setStatus(StatusMessage.Failed);
+                        displayError(
+                            "Failed to generate example. Please try again or reload the page."
+                        );
                         setButtonText("assist");
                     });
 
@@ -368,7 +417,9 @@ export const MainComponent = () => {
                 }
             })
             .catch(() => {
-                setStatus(StatusMessage.Failed);
+                displayError(
+                    "Failed to generate example. Please try again or reload the page."
+                );
             });
     };
 
@@ -480,7 +531,7 @@ export const MainComponent = () => {
                                 />
                             </div>
                             <button
-                                disabled={canUseToolbox ? false : true}
+                                // disabled={canUseToolbox ? false : true}
                                 className={
                                     "button-primary-full-width" +
                                     (canUseToolbox
@@ -589,6 +640,12 @@ export const MainComponent = () => {
             {/* <div className="home-column">
                 <Documentation />
             </div> */}
+
+            {errorMessage && (
+                <div className="error-container">
+                    <div className="error-message">{errorMessage}</div>
+                </div>
+            )}
         </main>
     );
 };
