@@ -22,8 +22,8 @@ export const ResponseFeedback = (props: IProps) => {
     const [reason, setReason] = useState("");
     const [submitted, setSubmitted] = useState(false);
 
-    if (props.priorData?.rating || submitted)
-        return <div>{props.priorData?.rating || selectedNumber}</div>;
+    if (props.priorData?.rating || submitted) return null;
+    // return <div>{props.priorData?.rating || selectedNumber}</div>;
     // TODO: display submitted rating and a thank you message instead of null.
 
     return (

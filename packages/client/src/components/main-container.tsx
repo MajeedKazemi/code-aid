@@ -179,6 +179,7 @@ export const MainComponent = () => {
                 }
 
                 setStatus(StatusMessage.Loading);
+                setButtonText("loading");
 
                 apiAnswerQuestion(context?.token, question)
                     .then(async (res) => {
@@ -196,6 +197,7 @@ export const MainComponent = () => {
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
+                        setButtonText("ask");
                     });
 
                 break;
@@ -208,6 +210,7 @@ export const MainComponent = () => {
                 }
 
                 setStatus(StatusMessage.Loading);
+                setButtonText("loading");
 
                 apiBreakDownTask(context?.token, question)
                     .then(async (res) => {
@@ -225,6 +228,7 @@ export const MainComponent = () => {
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
+                        setButtonText("assist");
                     });
 
                 break;
@@ -237,6 +241,7 @@ export const MainComponent = () => {
                 }
 
                 setStatus(StatusMessage.Loading);
+                setButtonText("loading");
 
                 apiExplainCode(context?.token, code)
                     .then(async (res) => {
@@ -254,6 +259,7 @@ export const MainComponent = () => {
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
+                        setButtonText("ask");
                     });
 
                 break;
@@ -268,6 +274,7 @@ export const MainComponent = () => {
                 }
 
                 setStatus(StatusMessage.Loading);
+                setButtonText("loading");
 
                 apiQuestionFromCode(context?.token, code, question)
                     .then(async (res) => {
@@ -285,6 +292,7 @@ export const MainComponent = () => {
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
+                        setButtonText("ask");
                     });
 
                 break;
@@ -295,6 +303,7 @@ export const MainComponent = () => {
                 }
 
                 setStatus(StatusMessage.Loading);
+                setButtonText("loading");
 
                 apiHelpFixCode(context?.token, code)
                     .then(async (res) => {
@@ -312,6 +321,7 @@ export const MainComponent = () => {
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
+                        setButtonText("assist");
                     });
 
                 break;
@@ -467,7 +477,12 @@ export const MainComponent = () => {
                             </div>
                             <button
                                 disabled={canUseToolbox ? false : true}
-                                className="button-primary-full-width"
+                                className={
+                                    "button-primary-full-width" +
+                                    (canUseToolbox
+                                        ? " button-primary-enabled"
+                                        : " button-primary-disabled")
+                                }
                                 onClick={performQuery}
                             >
                                 {buttonText}
@@ -475,9 +490,11 @@ export const MainComponent = () => {
                         </div>
                     </div>
                     <div>
-                        <div className="status-message-container">
-                            {status !== StatusMessage.OK ? status : null}
-                        </div>
+                        {status !== StatusMessage.OK ? (
+                            <div className="status-message-container">
+                                {status}
+                            </div>
+                        ) : null}
                     </div>
 
                     <div className="responses-container">

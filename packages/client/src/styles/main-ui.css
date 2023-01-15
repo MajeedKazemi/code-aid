@@ -111,20 +111,29 @@
 
 /* button */
 .button-primary-full-width {
-    background-color: #037fff;
-    color: #fff;
     border-radius: 8px;
+    border: none;
     padding: 8px;
-    width: calc(100% - 16px);
+    width: 100%;
     text-align: center;
     cursor: pointer;
     font-weight: bold;
-
-    transition: background-color 0.2s;
+    font-size: 22px;
 }
 
-.button-primary-full-width:hover {
-    background-color: #0059b2;
+.button-primary-enabled {
+    background-color: #037fff;
+    color: #fff;
+    transition: background-color 0.5s;
+}
+
+.button-primary-enabled:hover {
+    background-color: #9724da;
+}
+
+.button-primary-disabled {
+    background-color: #10263d;
+    color: rgb(155, 155, 155);
 }
 
 /* home layout */
@@ -203,4 +212,15 @@
 
 .hidden-component {
     display: none;
+}
+
+.status-message-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 16px;
+    padding: 8px;
+    background-color: #87007ecf;
+    border-radius: 8px;
 }

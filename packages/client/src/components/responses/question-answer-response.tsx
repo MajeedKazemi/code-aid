@@ -75,7 +75,10 @@ export const QuestionAnswerResponse = (props: IProps) => {
                 <div className="follow-up-responses">
                     {followUps.map((f) => {
                         return (
-                            <div key={f.id}>
+                            <div
+                                key={f.id}
+                                className="follow-up-response-container"
+                            >
                                 <div className="follow-up-question">
                                     <div>
                                         {getIconSVG(
@@ -135,7 +138,12 @@ export const QuestionAnswerResponse = (props: IProps) => {
 
                     <button
                         disabled={props.canUseToolbox ? false : true}
-                        className="follow-up-question-button"
+                        className={
+                            "follow-up-question-button " +
+                            (props.canUseToolbox
+                                ? "follow-up-question-button-enabled"
+                                : "follow-up-question-button-disabled")
+                        }
                         onClick={() => {
                             let prevQuestions =
                                 followUps.length > 0
@@ -173,7 +181,9 @@ export const QuestionAnswerResponse = (props: IProps) => {
                     </button>
                 </div>
 
-                <div>{status !== StatusMessage.OK ? status : null}</div>
+                {status !== StatusMessage.OK ? (
+                    <div className="status-message-container">{status}</div>
+                ) : null}
 
                 <ResponseFeedback
                     priorData={props.data.feedback}
