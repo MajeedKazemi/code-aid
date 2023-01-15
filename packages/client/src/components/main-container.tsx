@@ -189,6 +189,7 @@ export const MainComponent = () => {
                             ...responses,
                         ]);
                         setStatus(StatusMessage.OK);
+                        setCanUseToolbox(false);
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
@@ -214,6 +215,7 @@ export const MainComponent = () => {
                             ...responses,
                         ]);
                         setStatus(StatusMessage.OK);
+                        setCanUseToolbox(false);
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
@@ -239,6 +241,7 @@ export const MainComponent = () => {
                             ...responses,
                         ]);
                         setStatus(StatusMessage.OK);
+                        setCanUseToolbox(false);
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
@@ -266,6 +269,7 @@ export const MainComponent = () => {
                             ...responses,
                         ]);
                         setStatus(StatusMessage.OK);
+                        setCanUseToolbox(false);
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
@@ -289,6 +293,7 @@ export const MainComponent = () => {
                             ...responses,
                         ]);
                         setStatus(StatusMessage.OK);
+                        setCanUseToolbox(false);
                     })
                     .catch(() => {
                         setStatus(StatusMessage.Failed);
@@ -474,6 +479,7 @@ export const MainComponent = () => {
                                             }
                                             generateExample={generateExample}
                                             askQuestion={askQuestion}
+                                            setCanUseToolbox={setCanUseToolbox}
                                         />
                                     );
 

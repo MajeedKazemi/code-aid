@@ -8,6 +8,7 @@ import { ResponseFeedback } from "../response-feedback";
 import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
+    setCanUseToolbox: (canUseToolbox: boolean) => void;
     canUseToolbox: boolean;
     onSubmitFeedback: () => void;
     generateExample: (keyword: string) => void;
@@ -160,6 +161,7 @@ export const QuestionAnswerResponse = (props: IProps) => {
 
                                     setFollowUps([...followUps, { ...data }]);
                                     setStatus(StatusMessage.OK);
+                                    props.setCanUseToolbox(false);
                                 })
                                 .catch(() => {
                                     setStatus(StatusMessage.Failed);
