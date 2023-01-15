@@ -410,14 +410,17 @@
 /* error-message.tsx */
 
 .error-container {
+    z-index: 9999;
     position: fixed;
     bottom: 100px;
     right: 100px;
+    width: 25%;
 
-    background-color: #ff0000;
+    background-color: #d74f00;
     color: #fff;
     padding: 32px;
     font-size: 22px;
+    line-height: 36px;
     border-radius: 8px;
     font-weight: bold;
     box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px,
