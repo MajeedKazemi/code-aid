@@ -49,7 +49,7 @@ export const QuestionFromCodeResponse = (props: IProps) => {
                 {props.data.code}
             </div>
             <div className="main-answer">
-                <Fragment>
+                <div>
                     {responseToArrayWithKeywords(
                         props.data.answer,
                         props.canUseToolbox,
@@ -62,14 +62,13 @@ export const QuestionFromCodeResponse = (props: IProps) => {
 
                         return item;
                     })}
-                </Fragment>
+                </div>
+                <ResponseFeedback
+                    priorData={props.data.feedback}
+                    responseId={props.data.id}
+                    onSubmitFeedback={props.onSubmitFeedback}
+                />
             </div>
-
-            <ResponseFeedback
-                priorData={props.data.feedback}
-                responseId={props.data.id}
-                onSubmitFeedback={props.onSubmitFeedback}
-            />
         </div>
     );
 };

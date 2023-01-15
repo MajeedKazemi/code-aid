@@ -28,7 +28,7 @@ export const DisclaimerComponent = () => {
                     setShowDisclaimer(false);
                 }}
             >
-                I understand, close
+                I understand
             </button>
         </div>
     );
