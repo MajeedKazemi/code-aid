@@ -2,8 +2,8 @@ import { Fragment, useContext, useState } from "react";
 
 import { apiReplyAnswerQuestion } from "../../api/api";
 import { AuthContext } from "../../context";
+import { StatusMessage } from "../../routes/main-container";
 import { getIconSVG } from "../../utils/icons";
-import { StatusMessage } from "../main-container";
 import { ResponseFeedback } from "../response-feedback";
 import { responseToArrayWithKeywords } from "./keyword";
 

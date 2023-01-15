@@ -8,7 +8,8 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 import { authRefresh } from "./api/api";
 import { AuthContext } from "./context";
 import { AdminPage } from "./routes/admin-page";
-import { HomePage } from "./routes/home-page";
+import { LoginPage } from "./routes/login-page";
+import { HomePage } from "./routes/main-container";
 
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("[index.html] missing root element");
@@ -54,7 +55,7 @@ function RequireAuth({
 
     if (loading && !context?.token) return <h1>Loading</h1>;
     else if (!context?.token) {
-        return <Navigate to="/" state={{ from: location }} replace />;
+        return <Navigate to="/login" state={{ from: location }} replace />;
     } else return children;
 }
 
@@ -69,7 +70,15 @@ function App() {
         <AuthContext.Provider value={value}>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<HomePage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route
+                        path="/"
+                        element={
+                            <RequireAuth role="any">
+                                <HomePage />
+                            </RequireAuth>
+                        }
+                    />
                     <Route
                         path="/admin"
                         element={

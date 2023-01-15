@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { authLogin } from "../api/api";
 import { AuthContext } from "../context";
@@ -12,6 +13,9 @@ export const Login = () => {
     const [password, setPassword] = useState("");
 
     const { setContext } = useContext(AuthContext);
+
+    const navigate = useNavigate();
+    const handleLogin = () => navigate("/");
 
     const formSubmitHandler = (e: any) => {
         e.preventDefault();
@@ -30,6 +34,7 @@ export const Login = () => {
                     const data = await response.json();
 
                     setContext({ token: data.token, user: data.user });
+                    handleLogin();
                 }
             })
             .catch((error) => {
