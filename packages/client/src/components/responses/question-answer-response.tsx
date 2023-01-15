@@ -24,6 +24,10 @@ interface IProps {
             id: string;
             question: string;
             answer: string;
+            feedback?: {
+                reason: string;
+                rating: number;
+            };
         }>;
         feedback?: {
             reason: string;
@@ -43,6 +47,10 @@ export const QuestionAnswerResponse = (props: IProps) => {
             id: string;
             question: string;
             answer: string;
+            feedback?: {
+                reason: string;
+                rating: number;
+            };
         }>
     >(props.data.followUps || []);
     const [followUpQuestion, setFollowUpQuestion] = useState<string>("");
@@ -117,6 +125,7 @@ export const QuestionAnswerResponse = (props: IProps) => {
                                 </div>
 
                                 <ResponseFeedback
+                                    priorData={f.feedback}
                                     responseId={props.data.id}
                                     followUpId={f.id}
                                     onSubmitFeedback={props.onSubmitFeedback}

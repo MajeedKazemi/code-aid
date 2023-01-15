@@ -170,7 +170,7 @@ codexRouter.post(
 
                 if (curResponse && curUser) {
                     curResponse.followUps.push({
-                        time: Date(),
+                        time: new Date(),
                         query,
                         id: followUpId,
                         question,

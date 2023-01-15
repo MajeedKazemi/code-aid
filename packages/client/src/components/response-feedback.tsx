@@ -22,7 +22,11 @@ export const ResponseFeedback = (props: IProps) => {
     const [reason, setReason] = useState("");
     const [submitted, setSubmitted] = useState(false);
 
-    if (props.priorData?.rating || submitted) return null;
+    if (props.priorData?.rating || submitted)
+        return null;
+        // <div className="submitted-feedback-value">
+        //     rating: <b>{props.priorData?.rating || selectedNumber} / 5</b>
+        // </div>
     // return <div>{props.priorData?.rating || selectedNumber}</div>;
     // TODO: display submitted rating and a thank you message instead of null.
 
@@ -144,6 +148,7 @@ export const ResponseFeedback = (props: IProps) => {
                         apiSetFeedback(
                             context?.token,
                             props.responseId,
+                            props.followUpId ? props.followUpId : null,
                             selectedNumber,
                             reason
                         ).then(async (res) => {

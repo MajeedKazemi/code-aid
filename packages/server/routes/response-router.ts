@@ -34,18 +34,39 @@ responseRouter.get("/latest", verifyUser, async (req, res, next) => {
 });
 
 responseRouter.post("/set-feedback", verifyUser, async (req, res, next) => {
-    const { rating, reason, responseId } = req.body;
+    const { rating, reason, responseId, followUpId } = req.body;
     const userId = (req.user as IUser)._id;
 
     const response = await ResponseModel.findById(responseId);
     const user = await UserModel.findById(userId);
 
     if (response && user) {
-        response.feedback = {
-            rating,
-            reason,
-            time: new Date(),
-        };
+        if (followUpId) {
+            const followUps = response.followUps;
+
+            const followUpIndex = followUps.findIndex(
+                (f) => f.id === followUpId
+            );
+
+            if (followUpIndex !== -1) {
+                followUps[followUpIndex] = {
+                    ...followUps[followUpIndex],
+                    feedback: {
+                        rating,
+                        reason,
+                        time: new Date(),
+                    },
+                };
+            }
+
+            response.followUps = followUps;
+        } else {
+            response.feedback = {
+                rating,
+                reason,
+                time: new Date(),
+            };
+        }
 
         await response.save();
 

@@ -173,6 +173,7 @@ export const apiRecentResponses = (token: string | null | undefined) =>
 export const apiSetFeedback = (
     token: string | null | undefined,
     responseId: string,
+    followUpId: string | null,
     rating: number,
     reason: string
 ) =>
@@ -184,6 +185,7 @@ export const apiSetFeedback = (
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
+            followUpId,
             responseId,
             rating,
             reason,
