@@ -145,7 +145,7 @@
 }
 
 .question-code {
-    margin: 16px 16px 0 16px;
+    margin: 0 16px 0 16px;
     padding: 16px;
 
     border-radius: 12px;
@@ -167,6 +167,10 @@
     border: 1px solid #1e4976;
 }
 
+.explain-code-container .content-margin {
+    margin: 0 16px 16px 16px;
+}
+
 .explain-code-header {
     border-radius: 12px 12px 0 0;
     background-color: #1e4976;
@@ -177,17 +181,24 @@
 }
 
 .explained-code {
-    margin: 16px;
+    margin: 0 16px 0 16px;
     padding: 16px;
 
     border-radius: 12px;
     border: 1px solid #1e4976;
 
-    background-color: #001e3c;
+    background-color: #1e0041;
+}
+
+.explain-code-content {
+    padding: 16px;
+    color: #00ffe9;
+    font-weight: bold;
+    font-size: 22px;
 }
 
 .short-explanation-text {
-    margin: 16px;
+    margin: 0 16px 16px 16px;
     padding: 16px;
     border-radius: 12px;
     border: 1px solid #1e4976;
@@ -497,4 +508,43 @@
     color: #fff;
     border-radius: 6px;
     margin-left: 8px;
+}
+
+/* hoverable-line-code.tsx */
+
+.hoverable-code-line-container {
+    position: relative;
+}
+
+.hoverable-code-line-explanation {
+    z-index: 99;
+    position: absolute;
+    top: 30px;
+    right: 0;
+    background-color: #00f2ff;
+    color: #000;
+    padding: 12px;
+    line-height: 30px;
+    border-radius: 0 0 6px 6px;
+
+    width: 55%;
+}
+
+.hoverable-code-line-container .hoverable-code {
+    line-height: 30px;
+    cursor: pointer;
+    display: block;
+}
+
+.hoverable-code-line-container:hover {
+    background-color: #003b75;
+}
+
+.hoverable-code-line-container .exp-inline-code {
+    font-family: "Courier New", Courier, monospace;
+    padding: 2px 8px;
+    background-color: #00538c;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 4px;
 }

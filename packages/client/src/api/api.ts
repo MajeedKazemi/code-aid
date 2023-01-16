@@ -126,6 +126,22 @@ export const apiExplainCode = (
         }),
     });
 
+export const apiExplainCodeHover = (
+    token: string | null | undefined,
+    code: string
+) =>
+    fetch(env.API_URL + "/api/codex/explain-code-hover", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            code,
+        }),
+    });
+
 export const apiQuestionFromCode = (
     token: string | null | undefined,
     code: string,

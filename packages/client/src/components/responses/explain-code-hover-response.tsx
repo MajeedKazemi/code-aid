@@ -1,9 +1,9 @@
-import * as monaco from "monaco-editor";
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { v4 as uuid } from "uuid";
 
-import { AuthContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
 import { ResponseFeedback } from "../response-feedback";
+import { HoverableCodeLine } from "./hoverable-line-code";
 import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
@@ -12,10 +12,12 @@ interface IProps {
     generateExample: (keyword: string) => void;
     askQuestion: (question: string) => void;
     data: {
+        annotatedCode: Array<{
+            code: string;
+            explanation: string | null;
+        }>;
+        explanation: string;
         id: string;
-        keyword: string;
-        code: string;
-        description: string;
         feedback?: {
             reason: string;
             rating: number;
@@ -23,39 +25,34 @@ interface IProps {
     };
 }
 
-export const KeywordExampleResponse = (props: IProps) => {
-    const { context } = useContext(AuthContext);
-    const codeEl = useRef(null);
-
-    useEffect(() => {
-        if (codeEl.current) {
-            monaco.editor.colorizeElement(codeEl.current as HTMLElement, {
-                theme: "dark",
-                mimeType: "c",
-                tabSize: 4,
-            });
-        }
-    }, [codeEl]);
-
+export const ExplainCodeHoverResponse = (props: IProps) => {
     return (
-        <div className="question-from-code-container">
-            <div className="main-question">
+        <div className="explain-code-container">
+            <div className="explain-code-header">
                 <Fragment>
-                    {getIconSVG("command-line", "response-header-icon")}
-                    {"example usage of: "}
-                    <span className="header-inline-code">
-                        {props.data.keyword}
-                    </span>
+                    {getIconSVG("magnifying-glass", "response-header-icon")}
+                    {" explain code"}
                 </Fragment>
             </div>
-            <div className="explain-code-content">Generated example code:</div>
-            <div className="question-code" ref={codeEl}>
-                {props.data.code}
+            <div className="explain-code-content">
+                Hover over each line to see detailed explanation:
             </div>
-            <div className="main-answer">
-                <div>
+            <div className="explained-code">
+                {props.data.annotatedCode.map((line, index) => {
+                    return (
+                        <HoverableCodeLine
+                            code={line.code}
+                            explanation={line.explanation}
+                            key={"hoverable-line-code-" + index + "-" + uuid()}
+                        />
+                    );
+                })}
+            </div>
+            <div className="explain-code-content">Summary of the code:</div>
+            <div className="short-explanation-text">
+                <Fragment>
                     {responseToArrayWithKeywords(
-                        props.data.description,
+                        props.data.explanation,
                         props.canUseToolbox,
                         props.askQuestion,
                         props.generateExample
@@ -66,7 +63,10 @@ export const KeywordExampleResponse = (props: IProps) => {
 
                         return item;
                     })}
-                </div>
+                </Fragment>
+            </div>
+
+            <div className="content-margin">
                 <ResponseFeedback
                     priorData={props.data.feedback}
                     responseId={props.data.id}

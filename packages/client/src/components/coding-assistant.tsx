@@ -5,7 +5,7 @@ import {
     apiAnswerQuestion,
     apiBreakDownTask,
     apiCheckCanUseToolbox,
-    apiExplainCode,
+    apiExplainCodeHover,
     apiHelpFixCode,
     apiKeywordUsageExample,
     apiQuestionFromCode,
@@ -13,6 +13,7 @@ import {
 } from "../api/api";
 import { AuthContext } from "../context";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
+import { ExplainCodeHoverResponse } from "./responses/explain-code-hover-response";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
 import { KeywordExampleResponse } from "./responses/keyword-example-response";
 import { QuestionAnswerResponse } from "./responses/question-answer-response";
@@ -316,12 +317,12 @@ export const CodingAssistant = () => {
                 setStatus(StatusMessage.Loading);
                 setButtonText("loading");
 
-                apiExplainCode(context?.token, code)
+                apiExplainCodeHover(context?.token, code)
                     .then(async (res) => {
                         const data = await res.json();
 
                         setResponses([
-                            { ...data, type: "explain-code" },
+                            { ...data, type: "explain-code-hover" },
                             ...responses,
                         ]);
                         setStatus(StatusMessage.OK);
@@ -624,6 +625,20 @@ export const CodingAssistant = () => {
                                 case "explain-code":
                                     return (
                                         <ExplainCodeResponse
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                        />
+                                    );
+
+                                case "explain-code-hover":
+                                    return (
+                                        <ExplainCodeHoverResponse
                                             key={response.id}
                                             data={response}
                                             canUseToolbox={canUseToolbox}

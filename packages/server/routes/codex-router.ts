@@ -416,6 +416,337 @@ codexRouter.post(
     }
 );
 
+codexRouter.post("/explain-code-hover", verifyUser, async (req, res, next) => {
+    const { code } = req.body;
+    const userId = (req.user as IUser)._id;
+
+    if (code !== undefined) {
+        const promptHoverExplain = explainCodeHoverPrompt(code);
+        const promptSummaryExplain = explainCodeShortPrompt(code);
+
+        const expHoverRes = await openai.createCompletion({
+            model: "code-davinci-002",
+            prompt: promptHoverExplain.prompt,
+            temperature: 0.3,
+            max_tokens: 2000,
+            stop: promptHoverExplain.stopTokens,
+            user: userId,
+        });
+
+        const expShortRes = await openai.createCompletion({
+            model: "code-davinci-002",
+            prompt: promptSummaryExplain.prompt,
+            temperature: 0.3,
+            max_tokens: 500,
+            stop: promptSummaryExplain.stopTokens,
+            user: userId,
+        });
+
+        const curUser = await UserModel.findById(userId);
+
+        if (
+            expHoverRes.data.choices &&
+            expHoverRes.data.choices?.length > 0 &&
+            expShortRes.data.choices &&
+            expShortRes.data.choices?.length > 0
+        ) {
+            const explanation = expShortRes.data.choices[0].text?.trim();
+            const annotatedCode =
+                expHoverRes.data.choices[0].text?.trim() || "";
+
+            const annotatedCodeLines = new Array<{
+                code: string;
+                explanation: string | null;
+            }>();
+
+            annotatedCode.split("\n").forEach((line) => {
+                const parts = line.split("// [explain]:");
+
+                if (parts.length == 2) {
+                    annotatedCodeLines.push({
+                        code: parts[0],
+                        explanation: parts[1],
+                    });
+                } else {
+                    annotatedCodeLines.push({
+                        code: line,
+                        explanation: null,
+                    });
+                }
+            });
+
+            if (curUser) {
+                const response = new ResponseModel({
+                    type: "explain-code-hover",
+                    data: {
+                        code,
+                        explanation,
+                        annotatedCode: annotatedCodeLines,
+                    },
+                });
+
+                const savedResponse = await response.save();
+                curUser.responses.push(savedResponse);
+                curUser.canUseToolbox = false;
+                await curUser.save();
+
+                res.json({
+                    id: savedResponse.id,
+                    code,
+                    explanation,
+                    annotatedCode: annotatedCodeLines,
+                    success: true,
+                });
+            }
+        } else {
+            res.json({
+                success: false,
+            });
+        }
+    }
+});
+
+const explainCodeHoverPrompt = (code: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c help fix given code. all fixes should be written in plain english without any code. Use the following format:`,
+            `// [code]:`,
+            `#include <stdio.h>
+#include <stdlib.h>
+
+/*
+    * This function interprets score_card as an array of pointers with size elements.
+    * Return the sum of the values pointed to by the elements of score_card.
+    */
+int sum_card(int **score_card, int size) {
+    // TODO: write the body of sum_card according to its description.
+}
+
+
+/*
+    * NOTE: don't change the main function!
+    * The command line arguments are a sequence of integers that will be
+    * used to initialize the array score_card.
+    *
+    * Sample usage:
+    * $ gcc -Wall -std=gnu99 -g -o score_card score_card.c
+    * $ ./score_card 10 -3 4
+    * Sum: 11
+    */
+int main(int argc, char **argv) {
+    int size = argc - 1;
+    int *score_card[size];
+
+    for (int i = 0; i < size; i++) {
+        // NOTE: We haven't covered malloc yet, so don't worry about this line.
+        score_card[i] = malloc(sizeof(int));
+        *(score_card[i]) = strtol(argv[i + 1], NULL, 10);
+    }
+
+    printf("Sum: %d\n", sum_card(score_card, size));
+
+    return 0;
+}`,
+            `// [annotated code]: annotate the above code with comments that explain what each line does.`,
+            `#include <stdio.h> // [explain]: stdio.h includes basic input and output functions like \`printf\`, \`scanf\`, etc.
+#include <stdlib.h> // [explain]: stdlib.h includes functions like \`malloc\`, \`free\`, etc.
+
+/*
+    * This function interprets score_card as an array of pointers with size elements.
+    * Return the sum of the values pointed to by the elements of score_card.
+    */
+int sum_card(int **score_card, int size) { // [explain]: the \`sum_card\` function takes in an array of pointers and the size of the array
+    // TODO: write the body of sum_card according to its description.
+}
+
+
+/*
+    * NOTE: don't change the main function!
+    * The command line arguments are a sequence of integers that will be
+    * used to initialize the array score_card.
+    *
+    * Sample usage:
+    * $ gcc -Wall -std=gnu99 -g -o score_card score_card.c
+    * $ ./score_card 10 -3 4
+    * Sum: 11
+    */
+int main(int argc, char **argv) { // [explain]: the main starts the program. \`argc\` is the number of command line arguments, and \`argv\` is an array of strings containing the command line arguments
+    int size = argc - 1; // [explain]: the size of the array is the number of command line arguments minus 1
+    int *score_card[size]; // [explain]: the array is initialized as an array of pointers (each element is a pointer to an integer) with a fixed size
+
+    for (int i = 0; i < size; i++) { // [explain]: iterates through each element of the array
+        // NOTE: We haven't covered malloc yet, so don't worry about this line.
+        score_card[i] = malloc(sizeof(int)); // [explain]: allocates memory for an integer and stores the address of the integer in the array
+        *(score_card[i]) = strtol(argv[i + 1], NULL, 10); // [explain]: converts the command line argument in \`argv\` to an integer and stores it in the memory allocated for the integer
+    }
+
+    printf("Sum: %d\n", sum_card(score_card, size)); // [explain]: prints the sum of the integers in the array
+
+    return 0; // [explain]: returns 0 to indicate that the program ran successfully
+}`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `#include <stdio.h>
+#include <stdlib.h>
+
+/* Return a pointer to an array of two dynamically allocated arrays of ints.
+   The first array contains the elements of the input array s that are
+   at even indices.  The second array contains the elements of the input
+   array that are at odd indices.
+
+   Do not allocate any more memory than necessary.
+*/
+int **split_array(const int *s, int length) {
+
+   int **result = malloc(sizeof(int *) * 2);
+   result[0] = malloc(sizeof(int) * ((length - 1) / 2 + 1));
+   result[1] = malloc(sizeof(int) * (length / 2));
+
+   for (int i=0; i<length; i++){
+       if (i % 2 == 0) {
+            //printf("%d, %d\n",i, (i%2));
+            result[0][i / 2] = s[i];
+       } else {
+            result[1][i / 2] = s[i];
+       }
+   }
+   return result;
+}
+
+/* Return a pointer to an array of size ints.
+   - strs is an array of strings where each element is the string
+     representation of an integer.
+   - size is the size of the array
+ */
+
+int *build_array(char **strs, int size) {
+    int* arr = malloc(sizeof(int) * size);
+    for (int i=0; i<size; i++) {
+        arr[i] = strtol(strs[i], NULL, 10);
+    }
+    return arr;
+}
+
+
+int main(int argc, char **argv) {
+    /* Replace the comments in the next two lines with the appropriate
+       arguments.  Do not add any additional lines of code to the main
+       function.
+     */
+    int *full_array = build_array(&argv[1], argc - 1);
+    int **result = split_array(full_array, argc - 1);
+
+    printf("Original array:\n");
+    for (int i = 0; i < argc - 1; i++) {
+        printf("%d ", full_array[i]);
+    }
+    printf("\n");
+
+    printf("result[0]:\n");
+    for (int i = 0; i < argc / 2; i++) {
+        printf("%d ", result[0][i]);
+    }
+    printf("\n");
+
+    printf("result[1]:\n");
+    for (int i = 0; i < (argc - 1) / 2; i++) {
+        printf("%d ", result[1][i]);
+    }
+    printf("\n");
+    free(full_array);
+    free(result[0]);
+    free(result[1]);
+    free(result);
+    return 0;
+}`,
+            `// [annotated code]: annotate the above code with comments that explain what each line does.`,
+            `#include <stdio.h> // [explain]: stdio.h includes functions like \`printf\`, \`scanf\`, etc.
+#include <stdlib.h> // [explain]: stdlib.h includes functions like \`malloc\`, \`free\`, etc.
+
+/* Return a pointer to an array of two dynamically allocated arrays of ints.
+   The first array contains the elements of the input array s that are
+   at even indices.  The second array contains the elements of the input
+   array that are at odd indices.
+
+   Do not allocate any more memory than necessary.
+*/
+int **split_array(const int *s, int length) { // [explain]: \`split_array\` takes an array of integers and the length of the array as arguments
+
+   int **result = malloc(sizeof(int *) * 2); // [explain]: \`result\` is a pointer to an array of two pointers to integers (a two-dimensional array)
+   result[0] = malloc(sizeof(int) * ((length - 1) / 2 + 1)); // [explain]: \`result[0]\` is a pointer to an array of integers with a size of half the length of the input array rounded up
+   result[1] = malloc(sizeof(int) * (length / 2)); // [explain]: \`result[1]\` is a pointer to an array of integers with a size of half the length of the input array rounded down
+
+   for (int i=0; i<length; i++){ // [explain]: iterates through each element of the input array
+       if (i % 2 == 0) { // [explain]: checks if the index is even
+            //printf("%d, %d\n",i, (i%2)); // [explain]: prints the index and the remainder of the index divided by 2
+            result[0][i / 2] = s[i]; // [explain]: stores the element of the input array at index \`i\` in the array pointed to by \`result[0]\` at index \`i / 2\`
+       } else { // [explain]: if the index is odd
+            result[1][i / 2] = s[i]; // [explain]: stores the element of the input array at index \`i\` in the array pointed to by \`result[1]\` at index \`i / 2\`
+       }
+   }
+   return result; // [explain]: returns the pointer to the two-dimensional array
+}
+
+/* Return a pointer to an array of size ints.
+   - strs is an array of strings where each element is the string
+     representation of an integer.
+   - size is the size of the array
+ */
+
+int *build_array(char **strs, int size) { // [explain]: \`build_array\` takes an array of strings and the size of the array as arguments
+    int* arr = malloc(sizeof(int) * size); // [explain]: \`arr\` is a pointer to an array of integers with a size of \`size\`
+    for (int i=0; i<size; i++) { // [explain]: iterates through each element of the input array
+        arr[i] = strtol(strs[i], NULL, 10); // [explain]: stores the integer representation of the string at index \`i\` in the array pointed to by \`arr\` at index \`i\`
+    }
+    return arr; // [explain]: returns the pointer to the array
+}
+
+
+int main(int argc, char **argv) { // [explain]: \`main\` takes the number of command line arguments and an array of strings as arguments
+    /* Replace the comments in the next two lines with the appropriate
+       arguments.  Do not add any additional lines of code to the main
+       function.
+     */
+    int *full_array = build_array(&argv[1], argc - 1); // [explain]: \`full_array\` is a pointer to an array of integers with a size of \`argc - 1\`
+    int **result = split_array(full_array, argc - 1); // [explain]: \`result\` is a pointer to an array of two pointers to integers (a two-dimensional array)
+
+    printf("Original array:\n"); // [explain]: prints the string "Original array:"
+    for (int i = 0; i < argc - 1; i++) { // [explain]: iterates through each element of the input array
+        printf("%d ", full_array[i]); // [explain]: prints the element of the input array at index \`i\`
+    }
+    printf("\n"); // [explain]: prints a newline
+
+    printf("result[0]:\n"); // [explain]: prints the string "result[0]:"
+    for (int i = 0; i < argc / 2; i++) { // [explain]: iterates through each element of the input array
+        printf("%d ", result[0][i]); // [explain]: prints the element of the array pointed to by \`result[0]\` at index \`i\`
+    }
+    printf("\n"); // [explain]: prints a newline
+
+    printf("result[1]:\n"); // [explain]: prints the string "result[1]:"
+    for (int i = 0; i < (argc - 1) / 2; i++) { // [explain]: iterates through each element of the input array
+        printf("%d ", result[1][i]); // [explain]: prints the element of the array pointed to by \`result[1]\` at index \`i\`
+    }
+    printf("\n"); // [explain]: prints a newline
+    free(full_array); // [explain]: frees the memory allocated to \`full_array\`
+    free(result[0]); // [explain]: frees the memory allocated to \`result[0]\` (the first element of the two-dimensional array)
+    free(result[1]); // [explain]: frees the memory allocated to \`result[1]\` (the second element of the two-dimensional array)
+    free(result); // [explain]: frees the memory allocated to \`result\` (the two-dimensional array)
+    return 0; // [explain]: returns 0 to the operating system, indicating that the program ran successfully
+}`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `${code}`,
+            `// [annotated code]: annotate the above code with comments that explain what each line does.`,
+            ``,
+        ].join("\n"),
+        stopTokens: ["// [end]", `// [annotated code]:`, `// [code]:`],
+    };
+};
+
 const helpFixCodePrompt = (code: string) => {
     return {
         prompt: [
@@ -719,7 +1050,7 @@ const answerQuestionPrompt = (question: string) => {
             `// [question]: ${question} (in plain english)`,
             `// [answer]: `,
         ].join("\n"),
-        stopTokens: ["// [question]:", "// [answer]"],
+        stopTokens: ["// [question]:", "// [answer]", "// "],
     };
 };
 
@@ -761,6 +1092,7 @@ const replyAnswerQuestionPrompt = (
             "// [end]",
             "// [follow-up-question]",
             "// [follow-up-answer]",
+            "// ",
         ],
     };
 };
