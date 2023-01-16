@@ -429,6 +429,7 @@ export const CodingAssistant = () => {
 
     const askQuestion = (question: string) => {
         setQuestion(question);
+        setSelectedOption(HintOption.AskQuestion);
 
         window.scrollTo(0, 0);
     };

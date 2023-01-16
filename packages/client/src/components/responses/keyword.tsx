@@ -1,7 +1,7 @@
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 
-import { AuthContext } from "../../context";
+import { getIconSVG } from "../../utils/icons";
 
 interface IProps {
     keyword: string;
@@ -11,73 +11,143 @@ interface IProps {
 }
 
 export const HoverableKeyword = (props: IProps) => {
-    const { context } = useContext(AuthContext);
-
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [hovering, setHovering] = useState(false);
+
+    const displayError = (message: string) => {
+        setErrorMessage(message);
+
+        setTimeout(() => {
+            setErrorMessage(null);
+        }, 5000);
+    };
 
     return (
         <Fragment>
             <div
                 className="hoverable-keyword-container"
-                onMouseOver={() => {
+                onMouseEnter={() => {
                     setHovering(true);
                 }}
-                onMouseOut={() => {
+                onMouseLeave={() => {
                     setHovering(false);
                 }}
             >
                 <span
-                    onMouseOver={() => {
+                    onMouseEnter={() => {
                         setHovering(true);
                     }}
-                    onMouseOut={() => {
-                        setHovering(false);
-                    }}
-                    className="inline-code"
+                    className="inline-hoverable-keyword"
                 >
                     {props.keyword}
                 </span>
                 {hovering && (
-                    <div className="keyword-hovered-container">
-                        <span>
-                            show me example usages of{" "}
-                            <span className="keyword-inline-code">
-                                {props.keyword}
-                            </span>
-                            :{" "}
-                        </span>
-                        <button
-                            className="keyword-ask-button"
-                            disabled={!props.canUseToolbox}
-                            onClick={() => {
-                                props.generateExample(props.keyword);
-                            }}
-                        >
-                            ask
-                        </button>
+                    <div
+                        onMouseEnter={() => {
+                            setHovering(true);
+                        }}
+                        onMouseLeave={() => {
+                            setHovering(false);
+                        }}
+                        className="keyword-hovered-container"
+                    >
+                        <div className="keyword-hovered-header">
+                            {"> more about this keyword:"}
+                        </div>
 
-                        <br />
-                        <br />
+                        <div className="keyword-hovered-buttons">
+                            <button
+                                className={
+                                    "keyword-ask-button " +
+                                    (props.canUseToolbox
+                                        ? "keyword-ask-button-enabled"
+                                        : "keyword-ask-button-disabled")
+                                }
+                                onClick={() => {
+                                    if (!props.canUseToolbox) {
+                                        displayError(
+                                            "Please rate the last response before asking again"
+                                        );
 
-                        <span>
-                            explain{" "}
-                            <span className="keyword-inline-code">
-                                {props.keyword}
-                            </span>{" "}
-                            or ask questions about it:{" "}
-                        </span>
-                        <button
-                            className="keyword-ask-button"
-                            disabled={!props.canUseToolbox}
-                            onClick={() => {
-                                props.askQuestion(props.keyword);
-                            }}
-                        >
-                            ask
-                        </button>
+                                        return;
+                                    }
+
+                                    props.generateExample(props.keyword);
+                                }}
+                            >
+                                {getIconSVG(
+                                    "command-line",
+                                    "keyword-hover-icon"
+                                )}
+                                generate example code
+                            </button>
+
+                            <button
+                                className={
+                                    "keyword-ask-button " +
+                                    (props.canUseToolbox
+                                        ? "keyword-ask-button-enabled"
+                                        : "keyword-ask-button-disabled")
+                                }
+                                onClick={() => {
+                                    if (!props.canUseToolbox) {
+                                        displayError(
+                                            "Please rate the last response before asking again"
+                                        );
+
+                                        return;
+                                    }
+
+                                    props.askQuestion(
+                                        "generate a detailed documentation of `" +
+                                            props.keyword +
+                                            "` with usage examples and explanations"
+                                    );
+                                }}
+                            >
+                                {getIconSVG(
+                                    "magnifying-glass",
+                                    "keyword-hover-icon"
+                                )}
+                                generate documentation
+                            </button>
+
+                            <button
+                                className={
+                                    "keyword-ask-button " +
+                                    (props.canUseToolbox
+                                        ? "keyword-ask-button-enabled"
+                                        : "keyword-ask-button-disabled")
+                                }
+                                onClick={() => {
+                                    if (!props.canUseToolbox) {
+                                        displayError(
+                                            "Please rate the last response before asking again"
+                                        );
+
+                                        return;
+                                    }
+
+                                    props.askQuestion(
+                                        "how can I use `" +
+                                            props.keyword +
+                                            "` ?"
+                                    );
+                                }}
+                            >
+                                {getIconSVG("question", "keyword-hover-icon")}
+                                ask question
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>
+
+            {errorMessage && (
+                <div className="error-container">
+                    <div className="error-message">{errorMessage}</div>
+                </div>
+            )}
         </Fragment>
     );
 };

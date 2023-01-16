@@ -205,6 +205,17 @@
 
 /* hoverable keyword */
 
+.inline-hoverable-keyword {
+    font-family: "Courier New", Courier, monospace;
+    padding: 1px 8px;
+    background-color: #780682;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 6px;
+
+    cursor: pointer;
+}
+
 .hoverable-keyword-container {
     display: inline-block;
     position: relative;
@@ -215,27 +226,71 @@
     z-index: 999;
     background-color: #1f144b;
     border-radius: 8px;
-    padding: 8px;
-    border: 1px solid #1e4976;
+    border: 2px solid #780682;
 
     width: 400px;
 
     box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px,
         rgba(0, 0, 0, 0.22) 0px 10px 10px;
+
+    overflow: hidden;
+    margin-top: -1px;
+}
+
+.keyword-hovered-header {
+    background-color: #780682;
+    color: #fff;
+    padding: 0px 12px;
+    font-size: 15px;
+}
+
+.keyword-hovered-buttons {
+    padding: 12px;
+}
+
+.keyword-hovered-buttons button {
+    margin-top: 12px;
+}
+
+.keyword-hovered-buttons button:first-child {
+    margin-top: 0;
 }
 
 .keyword-ask-button {
+    font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono,
+        DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace,
+        serif;
+
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+
     cursor: pointer;
-    background-color: #037fff;
-    color: #fff;
     border-radius: 8px;
-    padding: 4px 12px;
+    padding: 6px 12px;
+    /* margin: 12px; */
+    font-size: 18px;
+    border: none;
+    border: 1px solid #fff;
+
+    width: 100%;
 
     text-align: center;
     cursor: pointer;
-    font-weight: bold;
 
-    transition: background-color 0.2s;
+    transition: background-color 0.5s;
+}
+
+.keyword-ask-button-enabled {
+    background-color: #1f144b;
+    color: #fff;
+}
+
+.keyword-ask-button-disabled {
+    background-color: #140d30;
+    color: #777;
+    cursor: not-allowed;
+    border: 1px solid #777;
 }
 
 .keyword-ask-button:hover {
@@ -249,6 +304,11 @@
     font-weight: 600;
     color: #00f2ff;
     border-radius: 6px;
+}
+
+.keyword-hover-icon {
+    height: 24px;
+    margin-right: 12px;
 }
 
 /* response-feedback */
@@ -425,4 +485,16 @@
     font-weight: bold;
     box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px,
         rgba(0, 0, 0, 0.22) 0px 10px 10px;
+}
+
+/* keyword-example-response */
+
+.header-inline-code {
+    font-family: "Courier New", Courier, monospace;
+    padding: 1px 8px;
+    background-color: #132e4a;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 6px;
+    margin-left: 8px;
 }

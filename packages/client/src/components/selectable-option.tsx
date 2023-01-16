@@ -16,9 +16,8 @@ export const SelectableOption = (props: ISelectableOptionProps) => {
         <div
             onClick={props.onClick}
             className={
-                props.selected
-                    ? "selectable-option option-selected"
-                    : "selectable-option"
+                "selectable-option " +
+                (props.selected ? " option-selected" : "")
             }
         >
             <div className="icon-and-text">

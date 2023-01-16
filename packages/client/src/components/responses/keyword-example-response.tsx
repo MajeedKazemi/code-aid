@@ -42,7 +42,10 @@ export const KeywordExampleResponse = (props: IProps) => {
             <div className="main-question">
                 <Fragment>
                     {getIconSVG("command-line", "response-header-icon")}
-                    {props.data.keyword}
+                    {"example usage of: "}
+                    <span className="header-inline-code">
+                        {props.data.keyword}
+                    </span>
                 </Fragment>
             </div>
             <div className="question-code" ref={codeEl}>
