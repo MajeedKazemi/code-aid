@@ -12,7 +12,7 @@ export const LoginPage = () => {
 
     return (
         <Layout>
-            <div className="container">
+            <div className="login-container">
                 <main className="card">
                     <div className="card-row">
                         <div className="left">
@@ -34,7 +34,7 @@ export const LoginPage = () => {
                             ) : (
                                 <div className="vertical-space-between">
                                     <Login />
-                                    <div>
+                                    {/* <div>
                                         Need an account?
                                         <Button
                                             type="link"
@@ -44,7 +44,7 @@ export const LoginPage = () => {
                                         >
                                             Register
                                         </Button>
-                                    </div>
+                                    </div> */}
                                 </div>
                             )}
                         </div>
@@ -83,14 +83,6 @@ export const LoginPage = () => {
                                 </a>
                                 . If you have any questions or concerns, please
                                 contact us.
-                            </p>
-                            <br />
-                            <p className="text-sm">
-                                Powered by{" "}
-                                <a href="https://openai.com/blog/openai-codex/">
-                                    OpenAI Codex
-                                </a>
-                                .
                             </p>
                         </section>
                     </div>

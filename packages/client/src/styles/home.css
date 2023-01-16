@@ -1,13 +1,15 @@
-.container {
+.login-container {
     max-width: 1024px;
     margin: 0 auto;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+
+    font-family: "Poppins", sans-serif;
 }
 
-.container .card {
+.login-container .card {
     border: 1px solid #78999480;
     border-radius: 24px;
     background-color: #fff;
