@@ -1,9 +1,22 @@
 import "./index.css";
 import "./userWorker";
 
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import ReactGA from "react-ga4";
+import {
+    BrowserRouter,
+    Navigate,
+    Route,
+    Routes,
+    useLocation,
+} from "react-router-dom";
 
 import { authRefresh } from "./api/api";
 import { Loader } from "./components/loader";
@@ -15,6 +28,9 @@ import { LoginPage } from "./routes/login-page";
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("[index.html] missing root element");
 const root = ReactDOM.createRoot(rootEl);
+
+ReactGA.initialize("G-QFEEEEVZ6D", { testMode: true });
+ReactGA.send("pageview");
 
 function RequireAuth({
     children,
