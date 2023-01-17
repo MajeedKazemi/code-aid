@@ -361,10 +361,16 @@ export const CodingAssistant = () => {
                     displayError(
                         "Please enter a code and a question from the code."
                     );
+
+                    return;
                 } else if (!question) {
                     displayError("Please enter a question from the code.");
+
+                    return;
                 } else if (!code) {
                     displayError("Please enter a code to ask a question from.");
+
+                    return;
                 }
 
                 setStatus(StatusMessage.Loading);
@@ -399,6 +405,8 @@ export const CodingAssistant = () => {
                     displayError(
                         "Please enter some code so that I could help you fix."
                     );
+
+                    return;
                 }
 
                 setStatus(StatusMessage.Loading);
