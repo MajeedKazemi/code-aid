@@ -10,16 +10,17 @@ export const DisclaimerComponent = () => {
             <h1 className="disclaimer-title">Disclaimer</h1>
             <ul className="disclaimer-message">
                 <li>
-                    We are not promising that the responses are 100% correct.
-                    Sometimes the tool is over-confident.
+                    Please note that the tool may at times generate responses
+                    with excessive confidence or be slightly incorrect.
                 </li>
                 <li>
                     Usage data is being collected from all students to improve
                     the system over time.
                 </li>
                 <li>
-                    Data collected from students that consent will also be used
-                    in research after the course is completed.
+                    Only data collected from students who have provided informed
+                    consent to participate in the research study will be used
+                    for research purposes.
                 </li>
             </ul>
             <button
