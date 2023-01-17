@@ -54,7 +54,7 @@ export const HelpFixCodeResponse = (props: IProps) => {
             </div>
 
             <div className="short-explanation-text">
-                <ul>
+                <ul className="all-fixes-list">
                     {props.data.fixes.map((fix, index) => {
                         return (
                             <li

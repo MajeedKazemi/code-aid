@@ -554,3 +554,17 @@
 .code-intention {
     margin: 16px;
 }
+
+.all-fixes-list li {
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.fix-inline-code {
+    background-color: #2c1977;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 0.5px solid #fff;
+    font-size: 16px;
+}
