@@ -15,6 +15,7 @@ import { AuthContext } from "../context";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { ExplainCodeHoverResponse } from "./responses/explain-code-hover-response";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
+import { HelpFixCodeResponse } from "./responses/help-fix-code-response";
 import { KeywordExampleResponse } from "./responses/keyword-example-response";
 import { QuestionAnswerResponse } from "./responses/question-answer-response";
 import { QuestionFromCodeResponse } from "./responses/question-from-code-response";
@@ -47,6 +48,9 @@ export const CodingAssistant = () => {
     const [question, setQuestion] = useState<string>("");
     const [code, setCode] = useState<string>("");
     const [questionHeader, setQuestionHeader] = useState<string>("Question:");
+    const [questionPlaceholder, setQuestionPlaceholder] = useState<string>(
+        "type your question here..."
+    );
     const [codeHeader, setCodeHeader] = useState<string>("Code:");
     const [showPrompt, setShowPrompt] = useState<boolean>(false);
     const [showEditor, setShowEditor] = useState<boolean>(false);
@@ -163,48 +167,59 @@ export const CodingAssistant = () => {
     useEffect(() => {
         switch (selectedOption) {
             case HintOption.AskQuestion:
-                setQuestionHeader("Question:");
-                setCodeHeader("");
+                setQuestionHeader("General question:");
+                setQuestionPlaceholder("type your question here...");
+                setCodeHeader(" ‌ ");
+                setButtonText("ask");
                 setShowPrompt(true);
                 setShowEditor(false);
-                setButtonText("ask");
                 editor?.updateOptions({ readOnly: true });
 
                 break;
 
+            case HintOption.QuestionFromCode:
+                setQuestionHeader("Question from code:");
+                setQuestionPlaceholder("type your question here...");
+                setCodeHeader("Code to ask about:");
+                setButtonText("ask");
+                setShowPrompt(true);
+                setShowEditor(true);
+
+                editor?.updateOptions({ readOnly: false });
+                break;
+
             case HintOption.ExplainCode:
-                setQuestionHeader("");
-                setCodeHeader("Code:");
+                setQuestionHeader(" ‌ ");
+                setQuestionPlaceholder(" ‌ ");
+                setCodeHeader("Code to explain:");
+                setButtonText("explain");
                 setShowPrompt(false);
                 setShowEditor(true);
-                setButtonText("ask");
                 editor?.updateOptions({ readOnly: false });
                 break;
 
             case HintOption.BreakDownSteps:
-                setQuestionHeader("Question:");
-                setCodeHeader("");
+                setQuestionHeader("Task description");
+                setQuestionPlaceholder(
+                    "enter task description to break down..."
+                );
+                setCodeHeader(" ‌ ");
+                setButtonText("assist");
+
                 setShowPrompt(true);
                 setShowEditor(false);
-                setButtonText("assist");
                 editor?.updateOptions({ readOnly: true });
                 break;
 
-            // case HintOption.HelpFix:
-            //     setQuestionHeader("");
-            //     setCodeHeader("Code:");
-            //     setShowPrompt(false);
-            //     setShowEditor(true);
-            //     setButtonText("assist");
-            //     editor?.updateOptions({ readOnly: false });
-            //     break;
+            case HintOption.HelpFix:
+                setQuestionHeader("Intended behavior:");
+                setQuestionPlaceholder("enter intended behavior of code...");
+                setCodeHeader("Code to fix:");
+                setButtonText("fix");
 
-            case HintOption.QuestionFromCode:
-                setQuestionHeader("Question:");
-                setCodeHeader("Code:");
                 setShowPrompt(true);
                 setShowEditor(true);
-                setButtonText("ask");
+
                 editor?.updateOptions({ readOnly: false });
                 break;
         }
@@ -389,7 +404,7 @@ export const CodingAssistant = () => {
                 setStatus(StatusMessage.Loading);
                 setButtonText("loading");
 
-                apiHelpFixCode(context?.token, code)
+                apiHelpFixCode(context?.token, code, question)
                     .then(async (res) => {
                         const data = await res.json();
 
@@ -464,7 +479,9 @@ export const CodingAssistant = () => {
                 <div className="assistant-toolbox-container">
                     <div className="toolbox-container">
                         <div className="main-editor-container">
-                            <div className="main-editor-header">Code: </div>
+                            <div className="main-editor-header">
+                                {codeHeader}
+                            </div>
                             <div className="main-editor" ref={editorEl}></div>
                             <div
                                 className={
@@ -478,7 +495,7 @@ export const CodingAssistant = () => {
                         <div className="toolbox-right-container">
                             <div className="main-question-container">
                                 <div className="main-question-header">
-                                    Question:{" "}
+                                    {questionHeader}
                                 </div>
                                 <textarea
                                     className="main-question-input"
@@ -486,7 +503,7 @@ export const CodingAssistant = () => {
                                         setQuestion(e.target.value);
                                     }}
                                     value={question}
-                                    placeholder={"type question..."}
+                                    placeholder={questionPlaceholder}
                                 ></textarea>
                                 <div
                                     className={
@@ -539,7 +556,7 @@ export const CodingAssistant = () => {
                                     }
                                     codeIcon
                                 />
-                                {/* <SelectableOption
+                                <SelectableOption
                                     icon="wrench"
                                     option={HintOption.HelpFix}
                                     selected={
@@ -549,7 +566,7 @@ export const CodingAssistant = () => {
                                         setSelectedOption(HintOption.HelpFix)
                                     }
                                     codeIcon
-                                /> */}
+                                />
                                 <SelectableOption
                                     icon="bullet"
                                     option={HintOption.BreakDownSteps}
@@ -611,6 +628,20 @@ export const CodingAssistant = () => {
                                 case "break-down-steps":
                                     return (
                                         <BreakDownStepsResponse
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                        />
+                                    );
+
+                                case "help-fix-code":
+                                    return (
+                                        <HelpFixCodeResponse
                                             key={response.id}
                                             data={response}
                                             canUseToolbox={canUseToolbox}

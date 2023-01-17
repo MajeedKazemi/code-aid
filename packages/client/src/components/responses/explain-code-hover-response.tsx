@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 
 import { getIconSVG } from "../../utils/icons";
 import { ResponseFeedback } from "../response-feedback";
-import { HoverableCodeLine } from "./hoverable-line-code";
+import { HoverableExplainCode } from "./hoverable-explain-code";
 import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
@@ -40,7 +40,7 @@ export const ExplainCodeHoverResponse = (props: IProps) => {
             <div className="explained-code">
                 {props.data.annotatedCode.map((line, index) => {
                     return (
-                        <HoverableCodeLine
+                        <HoverableExplainCode
                             code={line.code}
                             explanation={line.explanation}
                             key={"hoverable-line-code-" + index + "-" + uuid()}

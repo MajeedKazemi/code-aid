@@ -96,7 +96,8 @@ export const apiBreakDownTask = (
 
 export const apiHelpFixCode = (
     token: string | null | undefined,
-    code: string
+    code: string,
+    question: string
 ) =>
     fetch(env.API_URL + "/api/codex/help-fix-code", {
         method: "POST",
@@ -107,6 +108,7 @@ export const apiHelpFixCode = (
         },
         body: JSON.stringify({
             code,
+            intention: question,
         }),
     });
 

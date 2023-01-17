@@ -548,3 +548,9 @@
     color: #fff;
     border-radius: 4px;
 }
+
+/* help-fix-code-response */
+
+.code-intention {
+    margin: 16px;
+}

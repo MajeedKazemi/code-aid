@@ -33,22 +33,19 @@ export const jwtPassport = passport.use(
             secretOrKey: env.JWT_SECRET,
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         },
-        (jwt_payload, done) => {
+        (jwtPayload, done) => {
             // Search the user with jwt.payload ID field
-            UserModel.findOne(
-                { _id: jwt_payload._id },
-                (err: any, user: any) => {
-                    if (err) {
-                        return done(err, false);
-                    } else if (user) {
-                        // User exist
-                        return done(null, user);
-                    } else {
-                        // User doesn't exist
-                        return done(null, false);
-                    }
+            UserModel.findById(jwtPayload._id, (err: any, user: any) => {
+                if (err) {
+                    return done(err, false);
+                } else if (user) {
+                    // User exist
+                    return done(null, user);
+                } else {
+                    // User doesn't exist
+                    return done(null, false);
                 }
-            );
+            });
         }
     )
 );

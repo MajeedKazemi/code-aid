@@ -8,7 +8,7 @@ interface IProps {
     explanation: string | null;
 }
 
-export const HoverableCodeLine = (props: IProps) => {
+export const HoverableExplainCode = (props: IProps) => {
     const [hovering, setHovering] = useState(false);
     const codeEl = useRef(null);
 

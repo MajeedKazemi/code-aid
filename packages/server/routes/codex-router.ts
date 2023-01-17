@@ -307,17 +307,17 @@ codexRouter.post("/question-from-code", verifyUser, async (req, res, next) => {
 });
 
 codexRouter.post("/help-fix-code", verifyUser, async (req, res, next) => {
-    const { code } = req.body;
+    const { code, intention } = req.body;
     const userId = (req.user as IUser)._id;
 
     if (code !== undefined) {
-        const prompt = helpFixCodePrompt(code);
+        const prompt = helpFixCodePromptV2(code, intention);
 
         const result = await openai.createCompletion({
             model: "code-davinci-002",
             prompt: prompt.prompt,
-            temperature: 0.3,
-            max_tokens: 500,
+            temperature: 0.4,
+            max_tokens: 2000,
             stop: prompt.stopTokens,
             user: userId,
         });
@@ -326,16 +326,26 @@ codexRouter.post("/help-fix-code", verifyUser, async (req, res, next) => {
 
         if (result.data.choices && result.data.choices?.length > 0) {
             const answer = result.data.choices[0].text?.trim() || "";
+            const changes = answer.split("// [changes]:")[1];
+            const fixes = (
+                changes?.split("\n").filter((it) => it !== "") || []
+            ).map((it) => {
+                return it
+                    .replace(/\/\/ \d+\.\s/, "")
+                    .replace("[your-code]: ", "")
+                    .replace("[fixed-code]: ", "-> ")
+                    .trim();
+            });
 
             if (curUser) {
                 const response = new ResponseModel({
                     type: "help-fix-code",
                     data: {
                         code,
-                        answer,
+                        intention,
+                        fixes,
                     },
                 });
-
                 const savedResponse = await response.save();
                 curUser.responses.push(savedResponse);
                 curUser.canUseToolbox = false;
@@ -344,7 +354,8 @@ codexRouter.post("/help-fix-code", verifyUser, async (req, res, next) => {
                 res.json({
                     id: savedResponse.id,
                     code,
-                    answer,
+                    intention,
+                    fixes,
                     success: true,
                 });
             }
@@ -506,6 +517,211 @@ codexRouter.post("/explain-code-hover", verifyUser, async (req, res, next) => {
     }
 });
 
+const helpFixCodePromptV2 = (code: string, intention: string) => {
+    return {
+        prompt: [
+            `<|endoftext|>// blank .c help fix given code. all fixes should be written in plain english without any code. Use the following format:`,
+            `// [your-code]:`,
+            `void invest(double* principal, double rate) { 
+    principal = &principal * rate;
+    
+    return principal;
+}`,
+            `// [intention]: a function that takes in a pointer to a double and multiplies it by a rate`,
+            `// [fixed-code]:`,
+            `void invest(double* principal, double rate) {
+    *principal = *principal * rate;
+            }`,
+            `// [changes]:`,
+            `// 1. [your-code]: The pointer \`principal\` is not properly dereferenced (the \`&\` returns the address of a variable, not the value). [fixed-code]: This is fixed by adding the asterisk \`*\` before \`principal\`.`,
+            `// 2. [your-code]: The pointer \`principal\` is not properly dereferenced when assigning the value to itself. [fixed-code]: This is fixed by adding the asterisk \`*\` before \`principal\`.`,
+            `// 3. [your-code]: The function returns the value of \`principal\`, however, the function should return \`void\`. [fixed-code]: This is fixed by removing the return statement.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [your-code]:`,
+            `void invest(double *principal, double rate) {
+    principal *= rate;
+}`,
+            `// [intention]: a function that takes in a pointer to a double and multiplies it by a rate`,
+            `// [fixed-code]:`,
+            `void invest(double *principal, double rate) {
+    *principal *= rate; // [fixed]: dereference the pointer to get the value
+}`,
+            `// [changes]:`,
+            `// 1. [your-code]: The pointer \`principal\` is not properly dereferenced. [fixed-code]: This is fixed by adding the asterisk \`*\` before \`principal\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [your-code]:`,
+            `void fib(int *fib_seq_ptr, int count) {
+    int a[count];
+    a[0] = 0;
+    if (count == 1) return;
+    a[1] = 1;
+    if (count == 2) return;
+    for (int i=2; i < count; i++) {
+        a[i] = a[i-1] + a[i-2];
+    }
+}`,
+            `// [intention]: a function that generates fibonacci sequence using dynamic memory allocation size of count. the values should be returned through a pointer parameter passed in as the first argument.`,
+            `// [fixed-code]:`,
+            `void fib(int *fib_seq_ptr, int count) {
+    int *a = (int *)malloc(count * sizeof(int));
+    a[0] = 0;
+    if (count == 1) return;
+    a[1] = 1;
+    if (count == 2) return;
+    for (int i=2; i < count; i++) {
+        a[i] = a[i-1] + a[i-2];
+    }
+    for (int i=0; i < count; i++) {
+        fib_seq_ptr[i] = a[i];
+    }
+    free(a);
+}`,
+            `// [changes]:`,
+            `// 1. [your-code]: The array \`a\` is not dynamically allocated. [fixed-code]: This is fixed by using \`malloc()\` and \`sizeof()\` to allocate memory for \`a\`.`,
+            `// 2. [your-code]: The values of \`a\` are not returned through the pointer parameter \`fib_seq_ptr\`. [fixed-code]: This is fixed by copying the values of \`a\` to \`fib_seq_ptr\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [your-code]:`,
+            `int sum_card(int **score_card, int size) {
+    int sum = 0;
+
+    for (int i = 0; i < size; i++) {
+        sum += (score_card[i]);
+    }
+
+    return sum;
+}`,
+            `// [intention]: sum the values pointed to by the elements of score_card and return it`,
+            `// [fixed-code]:`,
+            `int sum_card(int **score_card, int size) {
+    int sum = 0;
+
+    for (int i = 0; i < size; i++) {
+        sum += (*score_card[i]);
+    }   
+
+    return sum;
+}`,
+            `// [changes]:`,
+            `// 1. [your-code]: The values pointed to by the elements of \`score_card\` are not dereferenced. [fixed-code]: This is fixed by adding \`*\` before \`score_card[i]\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [your-code]:`,
+            `int truncate(char s[], int n) {
+    int retval = strlen(s);
+    
+    if (n > strlen(s))
+        return 0;
+
+    retval -= strlen(s);
+
+    return retval;
+}
+
+int main(int argc, char **argv) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: truncate number string\\n");
+        exit(1);
+    }
+    int amt = strtol(argv[1], NULL, 10);
+
+    char *target = argv[2];
+
+    int soln_val = truncate(target, amt);
+    printf("%d %s\\n", soln_val, target);
+
+    return 0;
+}`,
+            `// [intention]: write a function that truncates a string to a given length and returns the number of characters that were removed`,
+            `// [fixed-code]:`,
+            `int truncate(char s[], int n) {
+    int retval = strlen(s);
+
+    if (n > strlen(s))
+        return 0;
+
+    s[n] = '\\0';    
+    retval -= strlen(s);
+
+    return retval;
+}
+
+int main(int argc, char **argv) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: truncate number string\\n");
+        exit(1);
+    }
+    int amt = strtol(argv[1], NULL, 10);
+
+    char *target = argv[2];
+
+    int soln_val = truncate(target, amt);
+    printf("%d %s\\n", soln_val, target);
+
+    return 0;
+}`,
+            `// [changes]:`,
+            `// 1. [your-code]: The string is not properly terminated with a null character. [fixed-code]: This is fixed by adding \`\\0\` to the end of the string.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [your-code]:`,
+            `int **split_array(const int *s, int length) {
+
+    int *result = malloc(sizeof(int) * 2);
+    result[0] = malloc(sizeof(int) * (length) / 2));
+    result[1] = malloc(sizeof(int) * (length / 2));
+    
+    for (int i=0; i<length; i++){
+        if (i % 2 == 0) {
+            *result[0][i / 2] = s[i];
+        } else {
+            *result[1][i / 2] = s[i];
+        }
+    }
+    
+    return result;
+}`,
+            `// [intention]: Split an array into two arrays of odd and even indices. do not allocate any more memory than necessary. Return a pointer to the array of two arrays.`,
+            `// [fixed-code]:`,
+            `int **split_array(const int *s, int length) {
+
+    int **result = malloc(sizeof(int*) * 2);
+    result[0] = malloc(sizeof(int) * (length) / 2));
+    result[1] = malloc(sizeof(int) * (length / 2));
+
+    for (int i=0; i<length; i++){
+        if (i % 2 == 0) {
+            result[0][i / 2] = s[i];
+        } else {
+            result[1][i / 2] = s[i];
+        }
+    }
+
+    return result;
+}`,
+            `// [changes]:`,
+            `// 1. [your-code]: The array \`result\` is allocated with \`sizeof(int)\`, however an array of pointers is being returned. [fixed-code]: This is fixed by allocating \`sizeof(int*)\` instead.`,
+            `// 2. [your-code]: The values of \`s\` are not properly copied into the arrays. [fixed-code]: This is fixed by removing the \`*\` before \`result[0][i / 2]\` and \`result[1][i / 2]\`.`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [your-code]:`,
+            `${code}`,
+            `// [intention]: ${intention}`,
+            `// [fixed-code]:`,
+            ``,
+        ].join("\n"),
+        stopTokens: ["// [end]"],
+    };
+};
+
 const explainCodeHoverPrompt = (code: string) => {
     return {
         prompt: [
@@ -543,7 +759,7 @@ int main(int argc, char **argv) {
         *(score_card[i]) = strtol(argv[i + 1], NULL, 10);
     }
 
-    printf("Sum: %d\n", sum_card(score_card, size));
+    printf("Sum: %d\\n", sum_card(score_card, size));
 
     return 0;
 }`,
@@ -580,7 +796,7 @@ int main(int argc, char **argv) { // [explain]: the main starts the program. \`a
         *(score_card[i]) = strtol(argv[i + 1], NULL, 10); // [explain]: converts the command line argument in \`argv\` to an integer and stores it in the memory allocated for the integer
     }
 
-    printf("Sum: %d\n", sum_card(score_card, size)); // [explain]: prints the sum of the integers in the array
+    printf("Sum: %d\\n", sum_card(score_card, size)); // [explain]: prints the sum of the integers in the array
 
     return 0; // [explain]: returns 0 to indicate that the program ran successfully
 }`,
@@ -606,7 +822,7 @@ int **split_array(const int *s, int length) {
 
    for (int i=0; i<length; i++){
        if (i % 2 == 0) {
-            //printf("%d, %d\n",i, (i%2));
+            //printf("%d, %d\\n",i, (i%2));
             result[0][i / 2] = s[i];
        } else {
             result[1][i / 2] = s[i];
@@ -638,23 +854,23 @@ int main(int argc, char **argv) {
     int *full_array = build_array(&argv[1], argc - 1);
     int **result = split_array(full_array, argc - 1);
 
-    printf("Original array:\n");
+    printf("Original array:\\n");
     for (int i = 0; i < argc - 1; i++) {
         printf("%d ", full_array[i]);
     }
-    printf("\n");
+    printf("\\n");
 
-    printf("result[0]:\n");
+    printf("result[0]:\\n");
     for (int i = 0; i < argc / 2; i++) {
         printf("%d ", result[0][i]);
     }
-    printf("\n");
+    printf("\\n");
 
-    printf("result[1]:\n");
+    printf("result[1]:\\n");
     for (int i = 0; i < (argc - 1) / 2; i++) {
         printf("%d ", result[1][i]);
     }
-    printf("\n");
+    printf("\\n");
     free(full_array);
     free(result[0]);
     free(result[1]);
@@ -680,7 +896,7 @@ int **split_array(const int *s, int length) { // [explain]: \`split_array\` take
 
    for (int i=0; i<length; i++){ // [explain]: iterates through each element of the input array
        if (i % 2 == 0) { // [explain]: checks if the index is even
-            //printf("%d, %d\n",i, (i%2)); // [explain]: prints the index and the remainder of the index divided by 2
+            //printf("%d, %d\\n",i, (i%2)); // [explain]: prints the index and the remainder of the index divided by 2
             result[0][i / 2] = s[i]; // [explain]: stores the element of the input array at index \`i\` in the array pointed to by \`result[0]\` at index \`i / 2\`
        } else { // [explain]: if the index is odd
             result[1][i / 2] = s[i]; // [explain]: stores the element of the input array at index \`i\` in the array pointed to by \`result[1]\` at index \`i / 2\`
@@ -712,23 +928,23 @@ int main(int argc, char **argv) { // [explain]: \`main\` takes the number of com
     int *full_array = build_array(&argv[1], argc - 1); // [explain]: \`full_array\` is a pointer to an array of integers with a size of \`argc - 1\`
     int **result = split_array(full_array, argc - 1); // [explain]: \`result\` is a pointer to an array of two pointers to integers (a two-dimensional array)
 
-    printf("Original array:\n"); // [explain]: prints the string "Original array:"
+    printf("Original array:\\n"); // [explain]: prints the string "Original array:"
     for (int i = 0; i < argc - 1; i++) { // [explain]: iterates through each element of the input array
         printf("%d ", full_array[i]); // [explain]: prints the element of the input array at index \`i\`
     }
-    printf("\n"); // [explain]: prints a newline
+    printf("\\n"); // [explain]: prints a newline
 
-    printf("result[0]:\n"); // [explain]: prints the string "result[0]:"
+    printf("result[0]:\\n"); // [explain]: prints the string "result[0]:"
     for (int i = 0; i < argc / 2; i++) { // [explain]: iterates through each element of the input array
         printf("%d ", result[0][i]); // [explain]: prints the element of the array pointed to by \`result[0]\` at index \`i\`
     }
-    printf("\n"); // [explain]: prints a newline
+    printf("\\n"); // [explain]: prints a newline
 
-    printf("result[1]:\n"); // [explain]: prints the string "result[1]:"
+    printf("result[1]:\\n"); // [explain]: prints the string "result[1]:"
     for (int i = 0; i < (argc - 1) / 2; i++) { // [explain]: iterates through each element of the input array
         printf("%d ", result[1][i]); // [explain]: prints the element of the array pointed to by \`result[1]\` at index \`i\`
     }
-    printf("\n"); // [explain]: prints a newline
+    printf("\\n"); // [explain]: prints a newline
     free(full_array); // [explain]: frees the memory allocated to \`full_array\`
     free(result[0]); // [explain]: frees the memory allocated to \`result[0]\` (the first element of the two-dimensional array)
     free(result[1]); // [explain]: frees the memory allocated to \`result[1]\` (the second element of the two-dimensional array)
@@ -747,40 +963,139 @@ int main(int argc, char **argv) { // [explain]: \`main\` takes the number of com
     };
 };
 
-const helpFixCodePrompt = (code: string) => {
+const helpFixCodePrompt = (code: string, intention: string, error: string) => {
     return {
         prompt: [
             `<|endoftext|>// blank .c help fix given code. all fixes should be written in plain english without any code. Use the following format:`,
             `// [code]:`,
-            `// todo include the right library`,
-            ``,
-            `float square_root(int num){`,
-            `    //todo: implement the function`,
-            `}`,
-            `// [fix-steps]: in plain English`,
-            `// 1. include the \`<math.h>\` library`,
-            `// 2. calculate square_root using \`sqrt(num)\``,
-            `// 3. make sure to link the math library when compiling using \`-lm\`. like this: \`gcc -o main main.c -lm\``,
+            `void invest(double *principal, double rate) {
+    principal *= rate;
+}`,
+            `// [intention]: I want to write a void function invest that takes your money and multiplies it by the rate`,
+            `// [error]: segmenation fault`,
+            `// [annotated-code]: annotate the incorrect lines of the above code with potential fixes`,
+            `void invest(double *principal, double rate) {
+                principal *= rate; // [fix]: 1. \`principal\` is a pointer to a double, so you need to dereference it before accessing or modifying the value it points to
+            }`,
             `// [end]`,
             ``,
             ``,
             `// [code]:`,
-            `// todo include the right library`,
+            `void fib(int *fib_seq_ptr, int count) {
+
+    int a[count];
+    a[0] = 0;
+    if (count == 1) return;
+    a[1] = 1;
+    if (count == 2) return;
+    for (int i=2; i < count; i++) {
+        a[i] = a[i-1] + a[i-2];
+    }
+}`,
+            `// [intention]: a function that generates fibonacci sequence using dynamic memory allocation size of count. the values should be returned through a pointer parameter passed in as the first argument.`,
+            `// [error]: segmentation fault`,
+            `// [annotated-code]: annotate the incorrect lines of the above code with potential fixes`,
+            `void fib(int *arr, int count) { // [fix]: 1. the function should take a pointer to an array of integers as its first argument
+    arr = malloc(count); // [fix]: 1. malloc receives the number of bytes to allocate, so you need to multiply \`count\` by the size of an integer, 2. you need to cast the result of malloc to an integer pointer as \`malloc\` returns a pointer
+    arr[0] = 0; // [fix]: 1. dereference \`arr\` before accessing its elements
+    if (count == 1) return;
+    arr[1] = 1; // [fix]: 1. dereference \`arr\` before accessing its elements
+    if (count == 2) return;
+    for (int i=2; i < count; i++) {
+        arr[i] = arr[i-1] + arr[i-2]; // [fix]: 1. dereference \`arr\` before accessing or setting its elements
+    }
+}`,
+            `// [end]`,
             ``,
-            `float square_root(int num){`,
-            `    //todo: implement the function`,
-            `}`,
-            `// [fix-steps]: in plain English`,
-            `// 1. include the \`<math.h>\` library`,
-            `// 2. calculate square_root using \`sqrt(num)\``,
-            `// 3. make sure to link the math library when compiling using \`-lm\`. like this: \`gcc -o main main.c -lm\``,
+            ``,
+            `// [code]:`,
+            `int sum_card(int **score_card, int size) {
+    int sum = 0;
+
+    for (int i = 0; i < size; i++) {
+        sum += (score_card[i]);
+    }
+
+    return sum;
+}`,
+            `// [intention]: sum the values pointed to by the elements of score_card and return it`,
+            `// [error]: N/A`,
+            `// [annotated-code]: annotate the incorrect lines of the above code with potential fixes`,
+            `int sum_card(int **score_card, int size) {
+    int sum = 0;
+
+    for (int i = 0; i < size; i++) {
+        sum += (score_card[i]); // [fix]: 1. \`score_card\` is a pointer to an array of pointers, so you need to dereference it before you can access its elements
+    }
+
+    return sum;
+}`,
+            `// [end]`,
+            ``,
+            ``,
+            `// [code]:`,
+            `int truncate(char s[], int n) {
+    int retval = strlen(s);
+    
+    if (n > strlen(s))
+        return 0;
+
+    retval -= strlen(s);
+
+    return retval;
+}
+
+int main(int argc, char **argv) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: truncate number string\\n");
+        exit(1);
+    }
+    int amt = strtol(argv[1], NULL, 10);
+
+    char *target = argv[2];
+
+    int soln_val = truncate(target, amt);
+    printf("%d %s\\n", soln_val, target);
+
+    return 0;
+}`,
+            `// [intention]: write a function that truncates a string to a given length and returns the number of characters that were removed`,
+            `// [error]: N/A`,
+            `// [annotated-code]: annotate the incorrect lines of the above code with potential fixes`,
+            `int truncate(char s[], int n) { // [fix]: 1. the truncate function is called with a pointer to a string as its first argument, so \`s\` should be a pointer to a character
+    int retval = strlen(s);
+    
+    if (n > strlen(s))
+        return 0;
+
+    retval -= strlen(s); // [fix]: 1. before you get the length of \`s\`, you need to terminate the string at the \`n\`th character with a null byte (\`\\0\`)
+
+    return retval;
+}
+
+int main(int argc, char **argv) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: truncate number string\\n");
+        exit(1);
+    }
+    int amt = strtol(argv[1], NULL, 10);
+
+    char *target = argv[2];
+
+    int soln_val = truncate(target, amt);
+    printf("%d %s\\n", soln_val, target);
+
+    return 0;
+}`,
             `// [end]`,
             ``,
             ``,
             `// [code]:`,
             `${code}`,
-            `// [fix-steps]: in plain English`,
-            `// 1. `,
+            `// [intention]: ${intention}`,
+            `// [error]: ${error ? error : "N/A"}`,
+            `// [annotated-code]: annotate the incorrect lines of the above code with potential fixes`,
+            ``,
         ].join("\n"),
         stopTokens: ["// [end]"],
     };
@@ -833,7 +1148,7 @@ const explainCodeShortPrompt = (code: string) => {
             `        perror("fork");`,
             `        exit(1);`,
             `    }`,
-            `    printf("ppid = %d, pid = %d, i = %d\n", getppid(), getpid(), i);`,
+            `    printf("ppid = %d, pid = %d, i = %d\\n", getppid(), getpid(), i);`,
             `}`,
             `// [explanation]: explain the gist of the above code in plain english:`,
             `// [answer]: for each new process that is successfully forked, prints 0 in the child process and the child's PID in the parent process.`,
@@ -842,15 +1157,15 @@ const explainCodeShortPrompt = (code: string) => {
             ``,
             `// [code]:`,
             `char *copy(char *dest, const char *src, int capacity) {`,
-            `    dest[0] = '\0';`,
+            `    dest[0] = '\\0';`,
             `    for (int i = 0; i < capacity - 1; i++) {`,
             `        dest[i] = src[i];`,
-            `        if (src[i] == '\0') {`,
+            `        if (src[i] == '\\0') {`,
             `            break;`,
             `        }`,
             `    }`,
             ``,
-            `    dest[capacity - 1] = '\0';`,
+            `    dest[capacity - 1] = '\\0';`,
             ``,
             `    return dest;`,
             `}`,
@@ -889,7 +1204,7 @@ const explainCodeStepsPrompt = (code: string) => {
             `        perror("fork");`,
             `        exit(1);`,
             `    }`,
-            `    printf("ppid = %d, pid = %d, i = %d\n", getppid(), getpid(), i);`,
+            `    printf("ppid = %d, pid = %d, i = %d\\n", getppid(), getpid(), i);`,
             `}`,
             `// [explanation]: explain what the code above does in plain english and steps:`,
             `// 1. create a for loop that iterates from 0 to \`iterations - 1\``,
@@ -901,15 +1216,15 @@ const explainCodeStepsPrompt = (code: string) => {
             ``,
             `// [code]:`,
             `char *copy(char *dest, const char *src, int capacity) {`,
-            `    dest[0] = '\0';`,
+            `    dest[0] = '\\0';`,
             `    for (int i = 0; i < capacity - 1; i++) {`,
             `        dest[i] = src[i];`,
-            `        if (src[i] == '\0') {`,
+            `        if (src[i] == '\\0') {`,
             `            break;`,
             `        }`,
             `    }`,
             ``,
-            `    dest[capacity - 1] = '\0';`,
+            `    dest[capacity - 1] = '\\0';`,
             ``,
             `    return dest;`,
             `}`,
@@ -931,7 +1246,7 @@ const explainCodeStepsPrompt = (code: string) => {
             `        perror("fork");`,
             `        exit(1);`,
             `    }`,
-            `    printf("ppid = %d, pid = %d, i = %d\n", getppid(), getpid(), i);`,
+            `    printf("ppid = %d, pid = %d, i = %d\\n", getppid(), getpid(), i);`,
             `}`,
             `// [explanation]: explain what the code above does in plain english and steps:`,
             `// 1. loop for \`iterations\` times`,
@@ -1080,7 +1395,7 @@ const replyAnswerQuestionPrompt = (
             `// [follow-up-question]: and how to do it without using the \`strcat\` function?`,
             `// [follow-up-answer]: Do the same thing, but use a for loop to go through each character of the second string and copy it to the end of the first string. then add a null terminator to the end of the first string.`,
             `// [follow-up-question]: How can I get the length of a string without using the \`strlen\` function?`,
-            `// [follow-up-answer]: You have to go through each character of the string and count them before you reach the null terminator (\`'\0'\`).`,
+            `// [follow-up-answer]: You have to go through each character of the string and count them before you reach the null terminator (\`'\\0'\`).`,
             `// [end]`,
             ``,
             ``,
@@ -1141,7 +1456,7 @@ const questionFromCodePrompt = (code: string, question: string) => {
             `{`,
             `    double x = 0.5;`,
             `    double result = sqrt(x);`,
-            `    printf("The square root of %lf is %lf\n", x, result);`,
+            `    printf("The square root of %lf is %lf\\n", x, result);`,
             `    return 0;`,
             `}`,
             `// [question]: Why am I getting "undefined reference to sqrt" error even though I include math.h header?`,

@@ -103,7 +103,7 @@ loginRouter.post("/refreshToken", (req: any, res: any, next) => {
             env.REFRESH_TOKEN_SECRET
         ) as jwt.JwtPayload;
         const userId = payload._id;
-        UserModel.findOne({ _id: userId }).then(
+        UserModel.findById(userId).then(
             (user: any) => {
                 if (user) {
                     // Find the refresh token against the user record in database
