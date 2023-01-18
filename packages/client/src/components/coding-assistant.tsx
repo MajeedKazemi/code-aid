@@ -62,6 +62,12 @@ export const CodingAssistant = () => {
         null
     );
 
+    const executeUseCase = () => {
+        // first set code
+        // then set question
+        // then run with "example" param (should update codex-router)
+    };
+
     const displayError = (message: string) => {
         setErrorMessage(message);
 
