@@ -1,6 +1,7 @@
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig } from "vite";
+import ViteRadar from "vite-plugin-radar";
 
 export default defineConfig({
     resolve: {
@@ -14,5 +15,15 @@ export default defineConfig({
             },
         ],
     },
-    plugins: [react()],
+    plugins: [
+        react(),
+        ViteRadar({
+            analytics: {
+                id: "G-QFEEEEVZ6D",
+                config: {
+                    send_page_view: true,
+                },
+            },
+        }),
+    ],
 });

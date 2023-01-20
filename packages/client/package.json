@@ -41,7 +41,8 @@
         "react-router-dom": "^6.3.0",
         "react-scripts": "5.0.1",
         "typescript": "^4.4.2",
-        "vite": "^2.9.10"
+        "vite": "^2.9.10",
+        "vite-plugin-radar": "^0.7.0"
     },
     "proxy": "http://localhost:3001"
 }
