@@ -269,7 +269,6 @@ export const CodingAssistant = () => {
                         setCanUseToolbox(false);
                         setSelectedOption(null);
                         setQuestion("");
-                        setCode("");
                         setButtonText("ask");
                     })
                     .catch(() => {
@@ -311,7 +310,6 @@ export const CodingAssistant = () => {
                         setCanUseToolbox(false);
                         setSelectedOption(null);
                         setQuestion("");
-                        setCode("");
                         setButtonText("assist");
                     })
                     .catch(() => {
@@ -345,7 +343,6 @@ export const CodingAssistant = () => {
                         setCanUseToolbox(false);
                         setSelectedOption(null);
                         setQuestion("");
-                        setCode("");
                         setButtonText("ask");
                     })
                     .catch(() => {
@@ -389,7 +386,6 @@ export const CodingAssistant = () => {
                         setCanUseToolbox(false);
                         setSelectedOption(null);
                         setQuestion("");
-                        setCode("");
                         setButtonText("ask");
                     })
                     .catch(() => {
@@ -425,7 +421,6 @@ export const CodingAssistant = () => {
                         setCanUseToolbox(false);
                         setSelectedOption(null);
                         setQuestion("");
-                        setCode("");
                         setButtonText("assist");
                     })
                     .catch(() => {
