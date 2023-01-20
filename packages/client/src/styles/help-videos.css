@@ -85,7 +85,7 @@
 }
 
 .inline-video-buttons-container::-webkit-scrollbar {
-    height: 6px;
+    height: 4px;
 }
 
 .inline-video-buttons-container::-webkit-scrollbar-track {
@@ -107,23 +107,54 @@
 .video-button-inline {
     display: inline-flex;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     margin-right: 12px;
     cursor: pointer;
 
-    background-color: #3531a4;
-    padding: 4px 6px;
-    border-radius: 8px;
-    font-size: 20px;
+    background-color: #166cbd;
+    padding: 4px 12px 4px 6px;
+    border-radius: 30px;
+    font-size: 16px;
 
     transition: background-color 0.5s;
 }
 
 .video-button-inline:hover {
-    background-color: #156cbd;
+    background-color: #15afbd;
 }
 
 .video-button-icon-inline {
     height: 24px;
-    margin-right: 6px;
+    margin-right: 5px;
+}
+
+.help-videos-main-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.inline-video-scroll-gradient {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10%;
+    height: 100px;
+    background-color: #000005;
+    background: rgb(0, 0, 0);
+    background: -moz-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(11, 25, 42, 1) 100%
+    );
+    background: -webkit-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(11, 25, 42, 1) 100%
+    );
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(11, 25, 42, 1) 100%
+    );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000",endColorstr="#0b192a",GradientType=1);
 }

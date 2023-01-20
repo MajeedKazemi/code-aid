@@ -122,13 +122,13 @@
 }
 
 .button-primary-enabled {
-    background-color: #037fff;
-    color: #fff;
+    background-color: #00ffe9;
+    color: #0b192a;
     transition: background-color 0.5s;
 }
 
 .button-primary-enabled:hover {
-    background-color: #9724da;
+    background-color: #0080ff;
 }
 
 .button-primary-disabled {

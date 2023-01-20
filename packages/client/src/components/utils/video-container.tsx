@@ -54,6 +54,7 @@ export const VideoContainer = () => {
                     );
                 })}
             </div>
+            <div className="inline-video-scroll-gradient"></div>
             {selectedVideo && (
                 <Fragment>
                     <div
