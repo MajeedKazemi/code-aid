@@ -21,6 +21,7 @@ import { QuestionAnswerResponse } from "./responses/question-answer-response";
 import { QuestionFromCodeResponse } from "./responses/question-from-code-response";
 import { SelectableOption } from "./selectable-option";
 import { DisclaimerComponent } from "./utils/disclaimer";
+import { VideoContainer } from "./utils/video-container";
 
 const disclaimerNotShowDays = 3;
 
@@ -484,6 +485,7 @@ export const CodingAssistant = () => {
     return (
         <main className="home-container">
             <div className="ai-assistant">
+                <VideoContainer />
                 <div className="assistant-toolbox-container">
                     <div className="toolbox-container">
                         <div className="main-editor-container">

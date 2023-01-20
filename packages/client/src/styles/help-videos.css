@@ -1,0 +1,129 @@
+.video-buttons-container {
+    margin-top: 24px;
+    margin-left: 24px;
+    background-color: #000;
+}
+
+.selected-video-button {
+    background-color: #156cbd !important;
+}
+
+.video-button {
+    font-size: 18px;
+    background-color: #15afbd;
+    padding: 4px 8px;
+    margin-right: 24px;
+    border-radius: 8px;
+
+    display: inline-flex;
+
+    align-items: center;
+    margin-bottom: 20px;
+
+    transition: background-color 0.5s;
+    cursor: pointer;
+}
+
+.video-button:hover {
+    background-color: #156cbd;
+}
+
+.video-button-icon {
+    height: 24px;
+    margin-right: 6px;
+}
+
+.video-overlay-background {
+    overflow: hidden;
+
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff15;
+    position: fixed;
+    z-index: 120;
+}
+
+.video-player-open-container {
+    box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+    background-color: #000;
+    position: fixed;
+    width: calc(60% - 24px);
+    z-index: 999999;
+    left: 20%;
+    top: 60px;
+
+    border-radius: 12px;
+    /* overflow: hidden; */
+    padding: 12px;
+}
+
+.help-video-button {
+    border: 1px solid #15afbd;
+    border-radius: 8px;
+    padding: 24px 24px 0 24px;
+    margin-bottom: 24px;
+
+    cursor: pointer;
+}
+
+.help-video-button h2 {
+    margin: 0 0 24px 0;
+}
+
+.video-player-iframe {
+    width: 100%;
+    height: calc(50vw * 9 / 16);
+    border: none;
+}
+
+.help-videos-inline-header {
+    margin-bottom: 6px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.inline-video-buttons-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.inline-video-buttons-container::-webkit-scrollbar-track {
+    background: #002655;
+}
+
+.inline-video-buttons-container::-webkit-scrollbar-thumb {
+    background: #004aa4;
+    border-radius: 10px;
+}
+
+.inline-video-buttons-container {
+    display: block;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.video-button-inline {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 12px;
+    margin-right: 12px;
+    cursor: pointer;
+
+    background-color: #3531a4;
+    padding: 4px 6px;
+    border-radius: 8px;
+    font-size: 20px;
+
+    transition: background-color 0.5s;
+}
+
+.video-button-inline:hover {
+    background-color: #156cbd;
+}
+
+.video-button-icon-inline {
+    height: 24px;
+    margin-right: 6px;
+}
