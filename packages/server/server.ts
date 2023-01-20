@@ -9,6 +9,7 @@ import Session from "express-session";
 import mongoose from "mongoose";
 import passport from "passport";
 
+import { adminRouter } from "./routes/admin-router";
 import { codexRouter } from "./routes/codex-router";
 import { loginRouter } from "./routes/login-router";
 import { responseRouter } from "./routes/response-router";
@@ -61,6 +62,7 @@ mongoose
         app.use("/api/auth/", loginRouter);
         app.use("/api/codex/", codexRouter);
         app.use("/api/responses/", responseRouter);
+        app.use("/api/admin/", adminRouter);
 
         const server = app.listen(
             env.PORT_PREFIX + env.NODE_APP_INSTANCE,
