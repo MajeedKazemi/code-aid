@@ -18,6 +18,9 @@ export default defineConfig({
     plugins: [
         react(),
         ViteRadar({
+            hotjar: {
+                id: 3330462,
+            },
             analytics: {
                 id: "G-QFEEEEVZ6D",
                 config: {
