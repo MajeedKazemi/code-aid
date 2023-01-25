@@ -8,6 +8,7 @@ import {
     apiGetResponseAverage,
     apiGetResponseCount,
     apiGetResponseCountHistogram,
+    apiGetResponseTypeHistogram,
 } from "../api/admin-api";
 import { Layout } from "../components/layout";
 import { AuthContext } from "../context";
@@ -107,6 +108,24 @@ export const AdminPage = () => {
                         Get
                     </button>
                 </div>
+
+                <div className="admin-dashboard-column">
+                    <h2>Response Types Histogram</h2>
+                    <button
+                        onClick={() => {
+                            apiGetResponseTypeHistogram(context?.token).then(
+                                async (res) => {
+                                    const data = await res.json();
+
+                                    console.log(data);
+                                }
+                            );
+                        }}
+                    >
+                        Get
+                    </button>
+                </div>
+
                 <div className="admin-dashboard-column">
                     <h2>Negative Feedback</h2>
                     <button

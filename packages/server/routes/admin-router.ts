@@ -200,3 +200,26 @@ adminRouter.get(
         });
     }
 );
+
+adminRouter.get("/type-count-histogram", verifyUser, async (req, res, next) => {
+    const histogram = await ResponseModel.aggregate([
+        {
+            $group: {
+                _id: "$type",
+                count: { $sum: 1 },
+            },
+        },
+        {
+            $sort: {
+                _id: 1,
+            },
+        },
+    ]);
+
+    if (histogram) {
+        res.json({
+            histogram,
+            success: true,
+        });
+    }
+});

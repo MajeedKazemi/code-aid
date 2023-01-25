@@ -81,3 +81,13 @@ export const apiGetResponseCountHistogram = (
             Authorization: `Bearer ${token}`,
         },
     });
+
+export const apiGetResponseTypeHistogram = (token: string | null | undefined) =>
+    fetch(env.API_URL + `/api/admin/type-count-histogram`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
