@@ -398,10 +398,20 @@ export const CodingAssistant = () => {
                 break;
 
             case HintOption.HelpFix:
-                if (!code) {
+                if (!question && !code) {
                     displayError(
-                        "Please enter some code so that I could help you fix."
+                        "Please enter a code and its intended behaviour so that I could help you fix it."
                     );
+
+                    return;
+                } else if (!question) {
+                    displayError(
+                        "Please enter the intended behaviour of the code."
+                    );
+
+                    return;
+                } else if (!code) {
+                    displayError("Please enter the code to fix.");
 
                     return;
                 }
