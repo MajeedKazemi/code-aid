@@ -91,3 +91,13 @@ export const apiGetResponseTypeHistogram = (token: string | null | undefined) =>
             Authorization: `Bearer ${token}`,
         },
     });
+
+export const apiGetLastWeekHistogram = (token: string | null | undefined) =>
+    fetch(env.API_URL + `/api/admin/last-week-histogram`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });

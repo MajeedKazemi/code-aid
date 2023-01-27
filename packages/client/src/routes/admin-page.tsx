@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import {
     apiGetActiveUsers,
+    apiGetLastWeekHistogram,
     apiGetRecentResponses,
     apiGetRecentResponsesWithNegativeFeedback,
     apiGetRecentResponsesWithPositiveFeedback,
@@ -114,6 +115,23 @@ export const AdminPage = () => {
                     <button
                         onClick={() => {
                             apiGetResponseTypeHistogram(context?.token).then(
+                                async (res) => {
+                                    const data = await res.json();
+
+                                    console.log(data);
+                                }
+                            );
+                        }}
+                    >
+                        Get
+                    </button>
+                </div>
+
+                <div className="admin-dashboard-column">
+                    <h2>Last Week Histogram</h2>
+                    <button
+                        onClick={() => {
+                            apiGetLastWeekHistogram(context?.token).then(
                                 async (res) => {
                                     const data = await res.json();
 

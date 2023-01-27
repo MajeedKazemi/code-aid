@@ -88,11 +88,24 @@ adminRouter.get(
 );
 
 adminRouter.get("/response-count", verifyUser, async (req, res, next) => {
-    const count = await ResponseModel.countDocuments({});
+    const countJustRating = await ResponseModel.countDocuments({
+        feedback: { $ne: {} },
+        "feedback.rating": { $ne: null },
+    });
 
-    if (count) {
+    const countWithReason = await ResponseModel.countDocuments({
+        feedback: { $ne: {} },
+        "feedback.rating": { $ne: null },
+        "feedback.reason": { $ne: "" },
+    });
+
+    const totalCount = await ResponseModel.countDocuments({});
+
+    if (totalCount) {
         res.json({
-            count,
+            countJustRating,
+            countWithReason,
+            totalCount,
             success: true,
         });
     }
@@ -220,6 +233,52 @@ adminRouter.get("/type-count-histogram", verifyUser, async (req, res, next) => {
         res.json({
             histogram,
             success: true,
+        });
+    }
+});
+
+adminRouter.get("/last-week-histogram", verifyUser, async (req, res, next) => {
+    // for the last seven days, get the number of responses per day
+    // then, for each day, group by $type (total number of responses per day per type)
+    // then inside each type, group by $feedback.rating (either 1, 2, 3, 4, or 5)
+
+    const histogram = await ResponseModel.aggregate([
+        {
+            $match: {
+                time: {
+                    $gte: new Date(
+                        new Date().getTime() - 10 * 24 * 60 * 60 * 1000
+                    ),
+                },
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    $dateToString: {
+                        format: "%Y-%m-%d",
+                        date: "$time",
+                    },
+                },
+                count: { $sum: 1 },
+            },
+        },
+        {
+            $sort: {
+                _id: 1,
+            },
+        },
+    ]);
+
+    if (histogram) {
+        res.json({
+            histogram,
+            success: true,
+        });
+    } else {
+        res.status(500).json({
+            message: "error getting histogram",
+            success: false,
         });
     }
 });
