@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import {
     apiGetActiveUsers,
+    apiGetAverageRatingByType,
     apiGetLastWeekHistogram,
     apiGetRecentResponses,
     apiGetRecentResponsesWithNegativeFeedback,
@@ -171,6 +172,22 @@ export const AdminPage = () => {
 
                                 console.log(data);
                             });
+                        }}
+                    >
+                        Get
+                    </button>
+                </div>
+                <div className="admin-dashboard-column">
+                    <h2>Average Rating by Type</h2>
+                    <button
+                        onClick={() => {
+                            apiGetAverageRatingByType(context?.token).then(
+                                async (res) => {
+                                    const data = await res.json();
+
+                                    console.log(data);
+                                }
+                            );
                         }}
                     >
                         Get

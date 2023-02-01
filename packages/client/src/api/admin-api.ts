@@ -101,3 +101,13 @@ export const apiGetLastWeekHistogram = (token: string | null | undefined) =>
             Authorization: `Bearer ${token}`,
         },
     });
+
+export const apiGetAverageRatingByType = (token: string | null | undefined) =>
+    fetch(env.API_URL + `/api/admin/average-rating-type`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });

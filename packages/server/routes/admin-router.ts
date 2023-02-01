@@ -282,3 +282,41 @@ adminRouter.get("/last-week-histogram", verifyUser, async (req, res, next) => {
         });
     }
 });
+
+adminRouter.get("/average-rating-type", verifyUser, async (req, res, next) => {
+    // for each type, get the average rating in the last seven days
+    const average = await ResponseModel.aggregate([
+        {
+            $match: {
+                time: {
+                    $gte: new Date(
+                        new Date().getTime() - 10 * 24 * 60 * 60 * 1000
+                    ),
+                },
+            },
+        },
+        {
+            $group: {
+                _id: "$type",
+                average: { $avg: "$feedback.rating" },
+            },
+        },
+        {
+            $sort: {
+                _id: 1,
+            },
+        },
+    ]);
+
+    if (average) {
+        res.json({
+            average,
+            success: true,
+        });
+    } else {
+        res.status(500).json({
+            message: "error getting average",
+            success: false,
+        });
+    }
+});
