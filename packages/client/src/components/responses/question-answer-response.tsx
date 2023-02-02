@@ -8,11 +8,12 @@ import { ResponseFeedback } from "../response-feedback";
 import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
-    setCanUseToolbox: (canUseToolbox: boolean) => void;
-    canUseToolbox: boolean;
-    onSubmitFeedback: () => void;
-    generateExample: (keyword: string) => void;
-    askQuestion: (question: string) => void;
+    admin?: boolean;
+    setCanUseToolbox?: (canUseToolbox: boolean) => void;
+    canUseToolbox?: boolean;
+    onSubmitFeedback?: () => void;
+    generateExample?: (keyword: string) => void;
+    askQuestion?: (question: string) => void;
     data: {
         question: string;
         answer: string;
@@ -134,6 +135,7 @@ export const QuestionAnswerResponse = (props: IProps) => {
                                 </div>
 
                                 <ResponseFeedback
+                                    admin={props.admin}
                                     priorData={f.feedback}
                                     responseId={props.data.id}
                                     followUpId={f.id}
@@ -189,8 +191,11 @@ export const QuestionAnswerResponse = (props: IProps) => {
 
                                     setFollowUps([...followUps, { ...data }]);
                                     setStatus(StatusMessage.OK);
-                                    props.setCanUseToolbox(false);
                                     setFollowUpQuestion("");
+
+                                    if (props.setCanUseToolbox) {
+                                        props.setCanUseToolbox(false);
+                                    }
                                 })
                                 .catch(() => {
                                     displayError(
@@ -208,6 +213,7 @@ export const QuestionAnswerResponse = (props: IProps) => {
                 ) : null}
 
                 <ResponseFeedback
+                    admin={props.admin}
                     priorData={props.data.feedback}
                     responseId={props.data.id}
                     onSubmitFeedback={props.onSubmitFeedback}

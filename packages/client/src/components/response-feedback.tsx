@@ -5,13 +5,14 @@ import { AuthContext } from "../context";
 import { getIconSVG } from "../utils/icons";
 
 interface IProps {
+    admin?: boolean;
     priorData?: {
         rating: number;
         reason: string;
     };
     responseId: string;
     followUpId?: string;
-    onSubmitFeedback: () => void;
+    onSubmitFeedback?: () => void;
 }
 
 export const ResponseFeedback = (props: IProps) => {
@@ -31,10 +32,20 @@ export const ResponseFeedback = (props: IProps) => {
         }, 5000);
     };
 
+    if (props.admin && (props.priorData?.rating || submitted))
+        return (
+            <div>
+                <br />
+                <hr />
+                <div>user rating: {props.priorData?.rating}</div>
+                {props.priorData?.reason && (
+                    <div>reason: {props.priorData?.reason}</div>
+                )}
+            </div>
+        );
+    else if (props.admin) return null;
+
     if (props.priorData?.rating || submitted) return null;
-    // <div className="submitted-feedback-value">
-    //     rating: <b>{props.priorData?.rating || selectedNumber} / 5</b>
-    // </div>
 
     return (
         <div className="response-feedback-container">
@@ -168,7 +179,9 @@ export const ResponseFeedback = (props: IProps) => {
                                 if (res.status === 200) {
                                     setSubmitted(true);
 
-                                    props.onSubmitFeedback();
+                                    if (props.onSubmitFeedback) {
+                                        props.onSubmitFeedback();
+                                    }
                                 }
                             })
                             .catch((err) => {

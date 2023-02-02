@@ -50,7 +50,7 @@ const UserSchema = new Schema({
     },
     role: {
         type: String,
-        enum: ["admin", "user"],
+        enum: ["admin", "user", "student"],
         default: "user",
     },
     responses: [ResponseSchema],

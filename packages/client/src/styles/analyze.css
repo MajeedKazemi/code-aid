@@ -1,0 +1,53 @@
+.analyze-data-main-container {
+    padding: 50px;
+
+    display: flex;
+    flex-direction: row;
+}
+
+.analyze-data-new-data-form {
+    padding: 12px;
+    border-radius: 12px;
+    border: solid 1px #e0e0e0;
+    min-width: 300px;
+    margin-right: 50px;
+}
+
+.analyze-data-new-data-form h4 {
+    margin: 12px 0 12px 0;
+}
+
+.analyze-response-container {
+    padding: 12px;
+    border-radius: 12px;
+    border: solid 1px #e0e0e0;
+}
+
+.likert-component {
+    padding: 12px;
+    border-radius: 12px;
+    border: solid 1px #e0e0e0;
+    margin: 12px 0 12px 0;
+}
+
+.likert-component h4 {
+    margin: 0 0 12px 0;
+}
+
+.likert-options-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.likert-options-container .likert-option {
+    margin-right: 20px;
+}
+
+.analysis-notes-textarea {
+    border-radius: 12px;
+    padding: 8px;
+    width: calc(100% - 16px);
+    height: 75px;
+    margin: 12px 0 12px 0;
+    resize: none;
+}

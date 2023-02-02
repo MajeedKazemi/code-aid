@@ -19,6 +19,17 @@ export interface IResponse extends mongoose.Document {
             time: Date;
         };
     }>;
+    analysis: {
+        time: Date;
+        admin: string;
+        likertScales: {
+            relevance: number;
+            correctness: number;
+            helpfulness: number;
+            directness: number;
+        };
+        notes: string;
+    };
 }
 
 export const ResponseSchema = new Schema({
@@ -41,6 +52,10 @@ export const ResponseSchema = new Schema({
     followUps: {
         type: Array,
         default: [],
+    },
+    analysis: {
+        type: JSON,
+        default: {},
     },
 });
 

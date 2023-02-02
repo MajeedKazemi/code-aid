@@ -136,16 +136,6 @@ export const CodingAssistant = () => {
 
     useEffect(() => {
         if (editorEl && !editor) {
-            monaco.editor.defineTheme("dark", {
-                base: "vs-dark",
-                inherit: true,
-                rules: [{ background: "001e3c", token: "" }],
-                colors: {
-                    "editor.background": "#001e3c",
-                },
-            });
-            monaco.editor.setTheme("myTheme");
-
             const monacoEditor = monaco.editor.create(editorEl.current!, {
                 value: code,
                 language: "c",

@@ -7,10 +7,11 @@ import { HoverableExplainCode } from "./hoverable-explain-code";
 import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
-    canUseToolbox: boolean;
-    onSubmitFeedback: () => void;
-    generateExample: (keyword: string) => void;
-    askQuestion: (question: string) => void;
+    admin?: boolean;
+    canUseToolbox?: boolean;
+    onSubmitFeedback?: () => void;
+    generateExample?: (keyword: string) => void;
+    askQuestion?: (question: string) => void;
     data: {
         annotatedCode: Array<{
             code: string;
@@ -68,6 +69,7 @@ export const ExplainCodeHoverResponse = (props: IProps) => {
 
             <div className="content-margin">
                 <ResponseFeedback
+                    admin={props.admin}
                     priorData={props.data.feedback}
                     responseId={props.data.id}
                     onSubmitFeedback={props.onSubmitFeedback}

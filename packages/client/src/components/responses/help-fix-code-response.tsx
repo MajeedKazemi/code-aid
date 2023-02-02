@@ -6,10 +6,11 @@ import { highlightCode } from "../../utils/utils";
 import { ResponseFeedback } from "../response-feedback";
 
 interface IProps {
-    canUseToolbox: boolean;
-    onSubmitFeedback: () => void;
-    generateExample: (keyword: string) => void;
-    askQuestion: (question: string) => void;
+    admin?: boolean;
+    canUseToolbox?: boolean;
+    onSubmitFeedback?: () => void;
+    generateExample?: (keyword: string) => void;
+    askQuestion?: (question: string) => void;
     data: {
         code: string;
         intention: string;
@@ -73,6 +74,7 @@ export const HelpFixCodeResponse = (props: IProps) => {
 
             <div className="content-margin">
                 <ResponseFeedback
+                    admin={props.admin}
                     priorData={props.data.feedback}
                     responseId={props.data.id}
                     onSubmitFeedback={props.onSubmitFeedback}

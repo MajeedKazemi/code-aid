@@ -6,10 +6,11 @@ import { ResponseFeedback } from "../response-feedback";
 import { responseToArrayWithKeywords } from "./keyword";
 
 interface IProps {
-    canUseToolbox: boolean;
-    onSubmitFeedback: () => void;
-    generateExample: (keyword: string) => void;
-    askQuestion: (question: string) => void;
+    admin?: boolean;
+    canUseToolbox?: boolean;
+    onSubmitFeedback?: () => void;
+    generateExample?: (keyword: string) => void;
+    askQuestion?: (question: string) => void;
     data: {
         task: string;
         steps: string[];
@@ -65,6 +66,7 @@ export const BreakDownStepsResponse = (props: IProps) => {
             </div>
 
             <ResponseFeedback
+                admin={props.admin}
                 priorData={props.data.feedback}
                 responseId={props.data.id}
                 onSubmitFeedback={props.onSubmitFeedback}

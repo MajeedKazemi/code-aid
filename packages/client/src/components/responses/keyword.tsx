@@ -5,9 +5,9 @@ import { getIconSVG } from "../../utils/icons";
 
 interface IProps {
     keyword: string;
-    askQuestion: (question: string) => void;
-    generateExample: (keyword: string) => void;
-    canUseToolbox: boolean;
+    askQuestion?: (question: string) => void;
+    generateExample?: (keyword: string) => void;
+    canUseToolbox?: boolean;
 }
 
 export const HoverableKeyword = (props: IProps) => {
@@ -72,7 +72,9 @@ export const HoverableKeyword = (props: IProps) => {
                                         return;
                                     }
 
-                                    props.generateExample(props.keyword);
+                                    if (props.generateExample) {
+                                        props.generateExample(props.keyword);
+                                    }
                                 }}
                             >
                                 {getIconSVG(
@@ -98,11 +100,13 @@ export const HoverableKeyword = (props: IProps) => {
                                         return;
                                     }
 
-                                    props.askQuestion(
-                                        "generate a detailed documentation of `" +
-                                            props.keyword +
-                                            "` with usage examples and explanations"
-                                    );
+                                    if (props.askQuestion) {
+                                        props.askQuestion(
+                                            "generate a detailed documentation of `" +
+                                                props.keyword +
+                                                "` with usage examples and explanations"
+                                        );
+                                    }
                                 }}
                             >
                                 {getIconSVG(
@@ -128,11 +132,13 @@ export const HoverableKeyword = (props: IProps) => {
                                         return;
                                     }
 
-                                    props.askQuestion(
-                                        "how can I use `" +
-                                            props.keyword +
-                                            "` ?"
-                                    );
+                                    if (props.askQuestion) {
+                                        props.askQuestion(
+                                            "how can I use `" +
+                                                props.keyword +
+                                                "` ?"
+                                        );
+                                    }
                                 }}
                             >
                                 {getIconSVG("question", "keyword-hover-icon")}
@@ -154,9 +160,9 @@ export const HoverableKeyword = (props: IProps) => {
 
 export const responseToArrayWithKeywords = (
     response: string,
-    canUseToolbox: boolean,
-    askQuestion: (question: string) => void,
-    generateExample: (keyword: string) => void
+    canUseToolbox?: boolean,
+    askQuestion?: (question: string) => void,
+    generateExample?: (keyword: string) => void
 ) => {
     // example: "word1 \`keyword1\` word2 \`keyword2\` word3"
     //  => ["word1", <HoverableKeyword keyword="keyword1" />,

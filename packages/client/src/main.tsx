@@ -1,6 +1,7 @@
 import "./index.css";
 import "./userWorker";
 
+import * as monaco from "monaco-editor";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
@@ -8,9 +9,10 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 import { authRefresh } from "./api/api";
 import { Loader } from "./components/loader";
 import { AuthContext } from "./context";
-import { AdminPage } from "./routes/admin-page";
+import { AnalyzePage } from "./routes/analyze-page";
 import { HomePage } from "./routes/home-page";
 import { LoginPage } from "./routes/login-page";
+import { SummaryPage } from "./routes/summary-page";
 
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("[index.html] missing root element");
@@ -60,12 +62,26 @@ function RequireAuth({
     } else return children;
 }
 
+const initializeMonacoTheme = () => {
+    monaco.editor.defineTheme("dark", {
+        base: "vs-dark",
+        inherit: true,
+        rules: [{ background: "001e3c", token: "" }],
+        colors: {
+            "editor.background": "#001e3c",
+        },
+    });
+    monaco.editor.setTheme("myTheme");
+};
+
 function App() {
     const [context, setContext] = useState(null);
     const value = useMemo(
         () => ({ context: context, setContext: setContext }),
         [context]
     ) as any;
+
+    initializeMonacoTheme();
 
     return (
         <AuthContext.Provider value={value}>
@@ -81,10 +97,18 @@ function App() {
                         }
                     />
                     <Route
-                        path="/admin"
+                        path="/analyze"
                         element={
                             <RequireAuth role="admin">
-                                <AdminPage />
+                                <AnalyzePage />
+                            </RequireAuth>
+                        }
+                    />
+                    <Route
+                        path="/summary"
+                        element={
+                            <RequireAuth role="admin">
+                                <SummaryPage />
                             </RequireAuth>
                         }
                     />

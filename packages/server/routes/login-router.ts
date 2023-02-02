@@ -4,12 +4,7 @@ import passport from "passport";
 
 import { getUserData, UserModel } from "../models/user";
 import env from "../utils/env";
-import {
-    COOKIE_OPTIONS,
-    getRefreshToken,
-    getToken,
-    verifyUser,
-} from "../utils/strategy";
+import { COOKIE_OPTIONS, getRefreshToken, getToken, verifyUser } from "../utils/strategy";
 
 export const loginRouter = express.Router();
 

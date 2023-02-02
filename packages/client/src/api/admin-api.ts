@@ -1,10 +1,7 @@
 import env from "../utils/env";
 
-export const apiGetActiveUsers = (
-    token: string | null | undefined,
-    hours: number
-) =>
-    fetch(env.API_URL + `/api/admin/active-users/${hours}`, {
+export const apiGetActiveUsers = (token: string | null | undefined) =>
+    fetch(env.API_URL + `/api/admin/active-users`, {
         method: "GET",
         credentials: "include",
         headers: {
@@ -111,3 +108,64 @@ export const apiGetAverageRatingByType = (token: string | null | undefined) =>
             Authorization: `Bearer ${token}`,
         },
     });
+
+export const apiGetNewRandomResponseToAnalyze = (
+    token: string | null | undefined,
+    type: string | null,
+    rating: number | null,
+    withReason: boolean
+) =>
+    fetch(env.API_URL + `/api/admin/get-random-response-to-analyze`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            type,
+            rating: rating ? rating : 0,
+            withReason,
+        }),
+    });
+
+export const apiSetResponseAnalysis = (
+    token: string | null | undefined,
+    responseId: string,
+    likertScales: {
+        relevance: number | null;
+        correctness: number | null;
+        helpfulness: number | null;
+        directness: number | null;
+    },
+    notes: string
+) =>
+    fetch(env.API_URL + `/api/admin/set-response-analysis`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            responseId,
+            likertScales,
+            notes,
+        }),
+    });
+
+export const apiGetLatestAnalyzedResponses = (
+    token: string | null | undefined,
+    skipCount: number
+) =>
+    fetch(
+        env.API_URL + `/api/admin/get-latest-analyzed-responses/${skipCount}`,
+        {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
