@@ -510,11 +510,11 @@ adminRouter.get(
             const { skip } = req.params;
 
             const countAnalyzed = await ResponseModel.countDocuments({
-                analysis: { $exists: true },
+                "analysis.admin": { $exists: true },
             });
 
             const responses = await ResponseModel.find({
-                analysis: { $exists: true },
+                "analysis.admin": { $exists: true },
             })
                 .sort({ "analysis.time": -1 })
                 .skip(parseInt(skip))
@@ -551,15 +551,3 @@ adminRouter.get(
         }
     }
 );
-
-adminRouter.post("/analyze-new", verifyUser, async (req, res, next) => {
-    const user = req.user as IUser;
-
-    if (user.role === "admin") {
-    } else {
-        res.status(401).json({
-            message: "unauthorized access to /admin/analyze-new",
-            success: false,
-        });
-    }
-});

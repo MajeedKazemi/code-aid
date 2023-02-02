@@ -37,16 +37,16 @@ export const AnalysisBox = (props: IProps) => {
 
     const [likertScaleRelevance, setLikertScaleRelevance] = useState<
         number | null
-    >(props.priorAnalysis?.likertScales.relevance || null);
+    >(props.priorAnalysis?.likertScales?.relevance || null);
     const [likertScaleCorrectness, setLikertScaleCorrectness] = useState<
         number | null
-    >(props.priorAnalysis?.likertScales.correctness || null);
+    >(props.priorAnalysis?.likertScales?.correctness || null);
     const [likertScaleHelpfulness, setLikertScaleHelpfulness] = useState<
         number | null
-    >(props.priorAnalysis?.likertScales.helpfulness || null);
+    >(props.priorAnalysis?.likertScales?.helpfulness || null);
     const [likertScaleDirectness, setLikertScaleDirectness] = useState<
         number | null
-    >(props.priorAnalysis?.likertScales.directness || null);
+    >(props.priorAnalysis?.likertScales?.directness || null);
 
     const [analysisNotes, setAnalysisNotes] = useState<string>(
         props.priorAnalysis?.notes || ""
@@ -64,7 +64,7 @@ export const AnalysisBox = (props: IProps) => {
             )}
 
             <LikertScale
-                priorRating={props.priorAnalysis?.likertScales.relevance}
+                priorRating={props.priorAnalysis?.likertScales?.relevance}
                 options={["0", "1", "2", "3", "4", "5", "6"]}
                 question={"how related to C programming?"}
                 onChange={(val: number) => {
@@ -74,7 +74,7 @@ export const AnalysisBox = (props: IProps) => {
             />
 
             <LikertScale
-                priorRating={props.priorAnalysis?.likertScales.correctness}
+                priorRating={props.priorAnalysis?.likertScales?.correctness}
                 options={["0", "1", "2", "3", "4", "5", "6"]}
                 question={"how technically correct?"}
                 onChange={(val: number) => {
@@ -84,7 +84,7 @@ export const AnalysisBox = (props: IProps) => {
             />
 
             <LikertScale
-                priorRating={props.priorAnalysis?.likertScales.helpfulness}
+                priorRating={props.priorAnalysis?.likertScales?.helpfulness}
                 options={["0", "1", "2", "3", "4", "5", "6"]}
                 question={"how helpful?"}
                 onChange={(val: number) => {
@@ -94,7 +94,7 @@ export const AnalysisBox = (props: IProps) => {
             />
 
             <LikertScale
-                priorRating={props.priorAnalysis?.likertScales.directness}
+                priorRating={props.priorAnalysis?.likertScales?.directness}
                 options={["0", "1", "2", "3", "4", "5", "6"]}
                 question={"how revealing solution?"}
                 onChange={(val: number) => {
