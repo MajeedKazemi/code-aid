@@ -72,9 +72,9 @@ export const QuestionAnswerResponse = (props: IProps) => {
                 <Link
                     target="_blank"
                     className="admin-response-link"
-                    to={`/response{props.data.id}`}
+                    to={`/response/${props.data.id}`}
                 >
-                    Link: {props.data.id}{" "}
+                    Link: {props.data.id}
                 </Link>
             )}
             <div className="main-question">
