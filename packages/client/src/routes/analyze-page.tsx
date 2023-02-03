@@ -81,6 +81,33 @@ export const AnalyzePage = () => {
         }
     };
 
+    const getNewResponse = () => {
+        apiGetNewRandomResponseToAnalyze(
+            context?.token,
+            selectedType,
+            selectedRating,
+            selectedWithReason
+        )
+            .then(async (res) => {
+                if (res.status === 200) {
+                    const data = await res.json();
+
+                    if (data.response) {
+                        setAnalysisResponse({
+                            ...data.response.data,
+                            type: data.response.type,
+                            id: data.response._id,
+                            followUps: data.response.followUps,
+                            feedback: data.response.feedback,
+                        });
+                    }
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
     return (
         <Layout>
             <div className="analyze-data-main-container">
@@ -90,31 +117,7 @@ export const AnalyzePage = () => {
                     className="analyze-data-new-data-form"
                     onSubmit={(e) => {
                         e.preventDefault();
-
-                        apiGetNewRandomResponseToAnalyze(
-                            context?.token,
-                            selectedType,
-                            selectedRating,
-                            selectedWithReason
-                        )
-                            .then(async (res) => {
-                                if (res.status === 200) {
-                                    const data = await res.json();
-
-                                    if (data.response) {
-                                        setAnalysisResponse({
-                                            ...data.response.data,
-                                            type: data.response.type,
-                                            id: data.response._id,
-                                            followUps: data.response.followUps,
-                                            feedback: data.response.feedback,
-                                        });
-                                    }
-                                }
-                            })
-                            .catch((err) => {
-                                console.log(err);
-                            });
+                        getNewResponse();
                     }}
                 >
                     <div>
@@ -326,6 +329,10 @@ export const AnalyzePage = () => {
                     <div className="analyze-response-container">
                         {displayResponse(analysisResponse)}
                         <AnalysisBox
+                            analyzePage
+                            onSubmit={() => {
+                                getNewResponse();
+                            }}
                             responseId={analysisResponse.id}
                         ></AnalysisBox>
                     </div>

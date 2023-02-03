@@ -551,3 +551,30 @@ adminRouter.get(
         }
     }
 );
+
+adminRouter.get("/get-response/:id", verifyUser, async (req, res, next) => {
+    const user = req.user as IUser;
+
+    if (user.role === "admin") {
+        const { id } = req.params;
+
+        const response = await ResponseModel.findById(id).exec();
+
+        if (response) {
+            res.json({
+                response,
+                success: true,
+            });
+        } else {
+            res.status(404).json({
+                message: "response not found",
+                success: false,
+            });
+        }
+    } else {
+        res.status(401).json({
+            message: "unauthorized access to /admin/analyze-new",
+            success: false,
+        });
+    }
+});

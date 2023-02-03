@@ -169,3 +169,13 @@ export const apiGetLatestAnalyzedResponses = (
             },
         }
     );
+
+export const apiGetResponse = (token: string | null | undefined, id: string) =>
+    fetch(env.API_URL + `/api/admin/get-response/${id}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });

@@ -6,6 +6,8 @@ import { LikertScale } from "../components/utils/likert";
 import { AuthContext } from "../context";
 
 interface IProps {
+    analyzePage?: boolean;
+    onSubmit?: () => void;
     responseId: string;
     priorAnalysis?: {
         likertScales: {
@@ -65,7 +67,7 @@ export const AnalysisBox = (props: IProps) => {
 
             <LikertScale
                 priorRating={props.priorAnalysis?.likertScales?.relevance}
-                options={["0", "1", "2", "3", "4", "5", "6"]}
+                options={["0", "1", "2"]}
                 question={"how related to C programming?"}
                 onChange={(val: number) => {
                     setLikertScaleRelevance(val);
@@ -75,7 +77,7 @@ export const AnalysisBox = (props: IProps) => {
 
             <LikertScale
                 priorRating={props.priorAnalysis?.likertScales?.correctness}
-                options={["0", "1", "2", "3", "4", "5", "6"]}
+                options={["0", "1", "2", "3", "4"]}
                 question={"how technically correct?"}
                 onChange={(val: number) => {
                     setLikertScaleCorrectness(val);
@@ -85,7 +87,7 @@ export const AnalysisBox = (props: IProps) => {
 
             <LikertScale
                 priorRating={props.priorAnalysis?.likertScales?.helpfulness}
-                options={["0", "1", "2", "3", "4", "5", "6"]}
+                options={["0", "1", "2", "3", "4"]}
                 question={"how helpful?"}
                 onChange={(val: number) => {
                     setLikertScaleHelpfulness(val);
@@ -95,8 +97,8 @@ export const AnalysisBox = (props: IProps) => {
 
             <LikertScale
                 priorRating={props.priorAnalysis?.likertScales?.directness}
-                options={["0", "1", "2", "3", "4", "5", "6"]}
-                question={"how revealing solution?"}
+                options={["0", "1", "2", "3", "4"]}
+                question={"how much deterimental to learning is it?"}
                 onChange={(val: number) => {
                     setLikertScaleDirectness(val);
                     setChanged(true);
@@ -117,25 +119,25 @@ export const AnalysisBox = (props: IProps) => {
 
             <Button
                 onClick={() => {
-                    if (!likertScaleCorrectness) {
+                    if (likertScaleCorrectness === null) {
                         displayError("please rate correctness");
 
                         return;
                     }
 
-                    if (!likertScaleRelevance) {
+                    if (likertScaleRelevance === null) {
                         displayError("please rate relevance");
 
                         return;
                     }
 
-                    if (!likertScaleHelpfulness) {
+                    if (likertScaleHelpfulness === null) {
                         displayError("please rate helpfulness");
 
                         return;
                     }
 
-                    if (!likertScaleDirectness) {
+                    if (likertScaleDirectness === null) {
                         displayError("please rate directness");
 
                         return;
@@ -154,6 +156,18 @@ export const AnalysisBox = (props: IProps) => {
                     ).then(async (res) => {
                         if (res.status === 200) {
                             setChanged(false);
+
+                            if (props.onSubmit) {
+                                props.onSubmit();
+                            }
+
+                            if (props.analyzePage) {
+                                setAnalysisNotes("");
+                                setLikertScaleCorrectness(null);
+                                setLikertScaleRelevance(null);
+                                setLikertScaleHelpfulness(null);
+                                setLikertScaleDirectness(null);
+                            }
                         }
                     });
                 }}

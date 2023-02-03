@@ -1,4 +1,5 @@
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { v4 as uuid } from "uuid";
 
 import { getIconSVG } from "../../utils/icons";
@@ -29,6 +30,15 @@ interface IProps {
 export const ExplainCodeHoverResponse = (props: IProps) => {
     return (
         <div className="explain-code-container">
+            {props.admin && (
+                <Link
+                    target="_blank"
+                    className="admin-response-link"
+                    to={`/response/${props.data.id}`}
+                >
+                    Link: {props.data.id}
+                </Link>
+            )}
             <div className="explain-code-header">
                 <Fragment>
                     {getIconSVG("magnifying-glass", "response-header-icon")}

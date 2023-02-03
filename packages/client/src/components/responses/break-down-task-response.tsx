@@ -1,4 +1,5 @@
 import { Fragment, useContext, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { AuthContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
@@ -27,6 +28,15 @@ export const BreakDownStepsResponse = (props: IProps) => {
 
     return (
         <div className="break-down-task-container">
+            {props.admin && (
+                <Link
+                    target="_blank"
+                    className="admin-response-link"
+                    to={`/response/${props.data.id}`}
+                >
+                    Link: {props.data.id}
+                </Link>
+            )}
             <div className="break-down-task-header">
                 <Fragment>
                     {getIconSVG("bullet", "response-header-icon")}

@@ -19,3 +19,15 @@
 
     border-radius: 12px;
 }
+
+.admin-response-link {
+    color: #fff;
+    padding: 12px;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.admin-response-link:hover {
+    background-color: #47fdeb;
+    color: #000;
+}

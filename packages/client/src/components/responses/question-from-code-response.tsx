@@ -1,5 +1,6 @@
 import * as monaco from "monaco-editor";
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { AuthContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
@@ -40,6 +41,15 @@ export const QuestionFromCodeResponse = (props: IProps) => {
 
     return (
         <div className="question-from-code-container">
+            {props.admin && (
+                <Link
+                    target="_blank"
+                    className="admin-response-link"
+                    to={`/response/${props.data.id}`}
+                >
+                    Link: {props.data.id}
+                </Link>
+            )}
             <div className="main-question">
                 <Fragment>
                     {getIconSVG("question", "response-header-icon")}

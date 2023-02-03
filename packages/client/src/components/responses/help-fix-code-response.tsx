@@ -1,5 +1,6 @@
 import * as monaco from "monaco-editor";
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { getIconSVG } from "../../utils/icons";
 import { highlightCode } from "../../utils/utils";
@@ -38,6 +39,15 @@ export const HelpFixCodeResponse = (props: IProps) => {
 
     return (
         <div className="explain-code-container">
+            {props.admin && (
+                <Link
+                    target="_blank"
+                    className="admin-response-link"
+                    to={`/response/${props.data.id}`}
+                >
+                    Link: {props.data.id}
+                </Link>
+            )}
             <div className="explain-code-header">
                 <Fragment>
                     {getIconSVG("wrench", "response-header-icon")}

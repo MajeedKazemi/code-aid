@@ -12,6 +12,7 @@ import { AuthContext } from "./context";
 import { AnalyzePage } from "./routes/analyze-page";
 import { HomePage } from "./routes/home-page";
 import { LoginPage } from "./routes/login-page";
+import { ResponsePage } from "./routes/response-page";
 import { SummaryPage } from "./routes/summary-page";
 
 const rootEl = document.getElementById("root");
@@ -71,7 +72,6 @@ const initializeMonacoTheme = () => {
             "editor.background": "#001e3c",
         },
     });
-    monaco.editor.setTheme("myTheme");
 };
 
 function App() {
@@ -109,6 +109,14 @@ function App() {
                         element={
                             <RequireAuth role="admin">
                                 <SummaryPage />
+                            </RequireAuth>
+                        }
+                    />
+                    <Route
+                        path="/response/:id"
+                        element={
+                            <RequireAuth role="admin">
+                                <ResponsePage />
                             </RequireAuth>
                         }
                     />

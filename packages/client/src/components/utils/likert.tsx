@@ -8,8 +8,8 @@ interface IProps {
 }
 
 export const LikertScale = (props: IProps) => {
-    const [selected, setSelected] = useState<number | null>(
-        props.priorRating || null
+    const [selected, setSelected] = useState<number | undefined>(
+        props.priorRating
     );
 
     return (

@@ -1,4 +1,5 @@
 import { Fragment, useContext, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { apiReplyAnswerQuestion } from "../../api/api";
 import { AuthContext } from "../../context";
@@ -67,6 +68,15 @@ export const QuestionAnswerResponse = (props: IProps) => {
 
     return (
         <div className="question-answer-main-container">
+            {props.admin && (
+                <Link
+                    target="_blank"
+                    className="admin-response-link"
+                    to={`/response{props.data.id}`}
+                >
+                    Link: {props.data.id}{" "}
+                </Link>
+            )}
             <div className="main-question">
                 <Fragment>
                     {getIconSVG("question", "response-header-icon")}
