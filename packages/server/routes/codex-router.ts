@@ -517,6 +517,116 @@ codexRouter.post("/explain-code-hover", verifyUser, async (req, res, next) => {
     }
 });
 
+codexRouter.post(
+    "/man-page-with-example",
+    verifyUser,
+    async (req, res, next) => {
+        const { keyword } = req.body;
+        const userId = (req.user as IUser)._id;
+
+        if (keyword !== undefined) {
+            const manPagePrompt = manPageWithExamplePrompt(keyword);
+
+            const manPageRes = await openai.createCompletion({
+                model: "code-davinci-002",
+                prompt: manPagePrompt.prompt,
+                temperature: 0.05,
+                max_tokens: 2000,
+                stop: manPagePrompt.stopTokens,
+                user: userId,
+            });
+
+            const curUser = await UserModel.findById(userId);
+
+            if (
+                manPageRes.data.choices &&
+                manPageRes.data.choices?.length > 0
+            ) {
+                const documentation = manPageRes.data.choices[0].text?.trim();
+
+                if (curUser) {
+                    const response = new ResponseModel({
+                        type: "man-page-with-example",
+                        data: {
+                            keyword,
+                            documentation,
+                        },
+                    });
+
+                    const savedResponse = await response.save();
+                    curUser.responses.push(savedResponse);
+                    curUser.canUseToolbox = false;
+                    await curUser.save();
+
+                    res.json({
+                        id: savedResponse.id,
+                        keyword,
+                        documentation,
+                        success: true,
+                    });
+                }
+            } else {
+                res.json({
+                    success: false,
+                });
+            }
+        }
+    }
+);
+
+const manPageWithExamplePrompt = (keyword: string) => {
+    return {
+        prompt: `\`strcpy\` linux manual page:
+
+        # SUMMARY:
+        strcpy() is a standard C library function that copies the contents of a null-terminated string (the source) to the memory location pointed to by destination.
+        
+        # SYNOPSIS:
+        \`char *strcpy(char *destination, const char *source);\`
+        
+        # EXAMPLE (from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com):
+        The following example shows the usage of strcpy() function.
+        
+        \`\`\`
+        #include <stdio.h>
+        #include <string.h>
+        
+        int main () {
+           char src[40];
+           char dest[100];
+          
+           memset(dest, '\0', sizeof(dest));
+           strcpy(src, "This is tutorialspoint.com");
+           strcpy(dest, src);
+        
+           printf("Final copied string : %s\n", dest);
+           
+           return(0);
+        }
+        \`\`\`
+        
+        # DESCRIPTION:
+        The strcpy() function takes two arguments, destination and source, and copies the contents of source to destination. The destination array must be large enough to hold the source string and a null terminator.
+        
+        # RETURN VALUE:
+        The strcpy() function returns a pointer to the destination string.
+        
+        # NOTES:
+        It is not guaranteed that the destination string will be null-terminated if the source string is too long. This can result in unexpected behavior.
+        
+        # BUGS:
+        It is possible for strcpy() to cause a buffer overflow if the destination array is not large enough to hold the source string. This can result in unexpected behavior, including program crashes and security vulnerabilities.
+        
+        ### END ###
+        
+        \`${keyword}\` linux manual page:
+
+        # SUMMARY:
+        `,
+        stopTokens: ["### END ###"],
+    };
+};
+
 const helpFixCodePromptV2 = (code: string, intention: string) => {
     return {
         prompt: [
