@@ -578,3 +578,62 @@ adminRouter.get("/get-response/:id", verifyUser, async (req, res, next) => {
         });
     }
 });
+
+adminRouter.get(
+    "/get-analyzed-percentages",
+    verifyUser,
+    async (req, res, next) => {
+        const user = req.user as IUser;
+
+        if (user.role === "admin") {
+            // for each type of response, get the number of responses that have been analyzed and the total number of responses
+            const analyzed = await ResponseModel.aggregate([
+                {
+                    $group: {
+                        _id: "$type",
+                        analyzed: { $sum: { $cond: ["$analysis", 1, 0] } },
+                        total: { $sum: 1 },
+                    },
+                },
+            ]).exec();
+
+            if (analyzed) {
+                res.json({
+                    analyzed,
+                    success: true,
+                });
+            }
+        } else {
+            res.status(401).json({
+                message: "unauthorized access to /admin/analyze-new",
+                success: false,
+            });
+        }
+    }
+);
+
+adminRouter.get(
+    "/get-analyzed-responses-raw-data",
+    verifyUser,
+    async (req, res, next) => {
+        const user = req.user as IUser;
+
+        if (user.role === "admin") {
+            const responses = await ResponseModel.find({
+                "analysis.admin": { $exists: true },
+            }).exec();
+
+            if (responses) {
+                res.json({
+                    responses,
+                    success: true,
+                });
+            }
+        } else {
+            res.status(401).json({
+                message: "unauthorized access to /admin/analyze-new",
+                success: false,
+            });
+        }
+    }
+);

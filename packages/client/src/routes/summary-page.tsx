@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 
 import {
     apiGetActiveUsers,
+    apiGetAnalyzedPercentages,
+    apiGetAnalyzedResponsesRawData,
     apiGetAverageRatingByType,
     apiGetLastWeekHistogram,
     apiGetLatestAnalyzedResponses,
@@ -322,6 +324,48 @@ export const SummaryPage = () => {
                                     const data = await res.json();
 
                                     console.log(data);
+                                }
+                            );
+                        }}
+                    >
+                        Get
+                    </button>
+                </div>
+
+                <div className="admin-dashboard-column">
+                    <h2>Analyzed by type</h2>
+                    <button
+                        onClick={() => {
+                            apiGetAnalyzedPercentages(context?.token).then(
+                                async (res) => {
+                                    const data = await res.json();
+
+                                    console.log(data);
+                                }
+                            );
+                        }}
+                    >
+                        Get
+                    </button>
+                </div>
+
+                <div className="admin-dashboard-column">
+                    <h2>Expprt Analyzed Responses Raw Data</h2>
+                    <button
+                        onClick={() => {
+                            apiGetAnalyzedResponsesRawData(context?.token).then(
+                                async (res) => {
+                                    const data = await res.json();
+
+                                    const element = document.createElement("a");
+                                    const file = new Blob(
+                                        [JSON.stringify(data)],
+                                        { type: "text/plain" }
+                                    );
+                                    element.href = URL.createObjectURL(file);
+                                    element.download = "data.json";
+                                    document.body.appendChild(element); // Required for this to work in FireFox
+                                    element.click();
                                 }
                             );
                         }}

@@ -179,3 +179,25 @@ export const apiGetResponse = (token: string | null | undefined, id: string) =>
             Authorization: `Bearer ${token}`,
         },
     });
+
+export const apiGetAnalyzedPercentages = (token: string | null | undefined) =>
+    fetch(env.API_URL + `/api/admin/get-analyzed-percentages`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+export const apiGetAnalyzedResponsesRawData = (
+    token: string | null | undefined
+) =>
+    fetch(env.API_URL + `/api/admin/get-analyzed-responses-raw-data`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
