@@ -5,13 +5,10 @@ interface IProps {
     question: string;
     options: string[];
     onChange: (value: number) => void;
+    selectedOption: number | null;
 }
 
 export const LikertScale = (props: IProps) => {
-    const [selected, setSelected] = useState<number | undefined>(
-        props.priorRating
-    );
-
     return (
         <div className="likert-component">
             <div>
@@ -25,9 +22,8 @@ export const LikertScale = (props: IProps) => {
                                 <input
                                     type="radio"
                                     value={index}
-                                    checked={selected === index}
+                                    checked={props.selectedOption === index}
                                     onChange={(e) => {
-                                        setSelected(parseInt(e.target.value));
                                         props.onChange(
                                             parseInt(e.target.value)
                                         );

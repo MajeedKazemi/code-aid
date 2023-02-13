@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import {
     apiGetActiveUsers,
+    apiGetAllResponsesRawData,
     apiGetAnalyzedPercentages,
     apiGetAnalyzedResponsesRawData,
     apiGetAverageRatingByType,
@@ -363,7 +364,32 @@ export const SummaryPage = () => {
                                         { type: "text/plain" }
                                     );
                                     element.href = URL.createObjectURL(file);
-                                    element.download = "data.json";
+                                    element.download = "data-analyzed.json";
+                                    document.body.appendChild(element); // Required for this to work in FireFox
+                                    element.click();
+                                }
+                            );
+                        }}
+                    >
+                        Get
+                    </button>
+                </div>
+
+                <div className="admin-dashboard-column">
+                    <h2>Expprt All Responses Raw Data</h2>
+                    <button
+                        onClick={() => {
+                            apiGetAllResponsesRawData(context?.token).then(
+                                async (res) => {
+                                    const data = await res.json();
+
+                                    const element = document.createElement("a");
+                                    const file = new Blob(
+                                        [JSON.stringify(data)],
+                                        { type: "text/plain" }
+                                    );
+                                    element.href = URL.createObjectURL(file);
+                                    element.download = "data-all.json";
                                     document.body.appendChild(element); // Required for this to work in FireFox
                                     element.click();
                                 }

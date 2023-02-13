@@ -66,6 +66,7 @@ export const AnalysisBox = (props: IProps) => {
             )}
 
             <LikertScale
+                selectedOption={likertScaleRelevance}
                 priorRating={props.priorAnalysis?.likertScales?.relevance}
                 options={["0", "1", "2"]}
                 question={"how related to C programming?"}
@@ -76,6 +77,7 @@ export const AnalysisBox = (props: IProps) => {
             />
 
             <LikertScale
+                selectedOption={likertScaleCorrectness}
                 priorRating={props.priorAnalysis?.likertScales?.correctness}
                 options={["0", "1", "2", "3", "4"]}
                 question={"how technically correct?"}
@@ -86,6 +88,7 @@ export const AnalysisBox = (props: IProps) => {
             />
 
             <LikertScale
+                selectedOption={likertScaleHelpfulness}
                 priorRating={props.priorAnalysis?.likertScales?.helpfulness}
                 options={["0", "1", "2", "3", "4"]}
                 question={"how helpful?"}
@@ -96,9 +99,10 @@ export const AnalysisBox = (props: IProps) => {
             />
 
             <LikertScale
+                selectedOption={likertScaleDirectness}
                 priorRating={props.priorAnalysis?.likertScales?.directness}
                 options={["0", "1", "2", "3", "4"]}
-                question={"how much deterimental to learning is it?"}
+                question={"how much revealing the solution?"}
                 onChange={(val: number) => {
                     setLikertScaleDirectness(val);
                     setChanged(true);

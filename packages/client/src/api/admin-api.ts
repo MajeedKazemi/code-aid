@@ -201,3 +201,13 @@ export const apiGetAnalyzedResponsesRawData = (
             Authorization: `Bearer ${token}`,
         },
     });
+
+export const apiGetAllResponsesRawData = (token: string | null | undefined) =>
+    fetch(env.API_URL + `/api/admin/get-all-responses-raw-data`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });

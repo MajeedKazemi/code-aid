@@ -456,7 +456,8 @@ adminRouter.post(
             }
         } else {
             res.status(401).json({
-                message: "unauthorized access to /admin/analyze-new",
+                message:
+                    "unauthorized access to /admin/get-random-response-to-analyze",
                 success: false,
             });
         }
@@ -493,7 +494,7 @@ adminRouter.post(
             }
         } else {
             res.status(401).json({
-                message: "unauthorized access to /admin/analyze-new",
+                message: "unauthorized access to /admin/set-response-analysis",
                 success: false,
             });
         }
@@ -545,7 +546,8 @@ adminRouter.get(
             }
         } else {
             res.status(401).json({
-                message: "unauthorized access to /admin/analyze-new",
+                message:
+                    "unauthorized access to /admin/get-latest-analyzed-responses",
                 success: false,
             });
         }
@@ -573,7 +575,7 @@ adminRouter.get("/get-response/:id", verifyUser, async (req, res, next) => {
         }
     } else {
         res.status(401).json({
-            message: "unauthorized access to /admin/analyze-new",
+            message: "unauthorized access to /admin/get-response",
             success: false,
         });
     }
@@ -605,7 +607,8 @@ adminRouter.get(
             }
         } else {
             res.status(401).json({
-                message: "unauthorized access to /admin/analyze-new",
+                message:
+                    "unauthorized access to /admin/get-analyzed-percentages",
                 success: false,
             });
         }
@@ -631,7 +634,34 @@ adminRouter.get(
             }
         } else {
             res.status(401).json({
-                message: "unauthorized access to /admin/analyze-new",
+                message:
+                    "unauthorized access to /admin/get-analyzed-responses-raw-data",
+                success: false,
+            });
+        }
+    }
+);
+
+adminRouter.get(
+    "/get-all-responses-raw-data",
+    verifyUser,
+    async (req, res, next) => {
+        const user = req.user as IUser;
+
+        if (user.role === "admin") {
+            // get all responses
+            const responses = await ResponseModel.find({}).exec();
+
+            if (responses) {
+                res.json({
+                    responses,
+                    success: true,
+                });
+            }
+        } else {
+            res.status(401).json({
+                message:
+                    "unauthorized access to /admin/get-all-responses-raw-data",
                 success: false,
             });
         }
