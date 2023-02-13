@@ -85,6 +85,22 @@ ENDDEFINE
 
 
 // [code]:
+#include <stdbool.h>
+int main()
+{
+    bool arr[2] = { true, false };
+    return 0;
+}
+// [pseudo-code]:
+INCLUDE [stdbool.h] // [explain]: include the \`stdbool.h\` header file that allows the usage of the \`bool\` type along with \`true\` and \`false\` constants.
+DEFINE [main] -> RETURNS [int] // [explain]: define the \`main\` function that takes no arguments and returns an integer.
+    SET [arr] <- { [true], [false] } // [explain]: create an array of booleans with two elements.
+    RETURN [0] // [explain]: return 0.
+ENDDEFINE
+// [end-pseudo-code]
+
+
+// [code]:
 void fib(int **arr, int n) {
     *arr = (int *)malloc(n * sizeof(int));
     (*arr)[0] = 0;
@@ -107,7 +123,9 @@ ENDDEFINE
 // [end-pseudo-code]
 
 
-        `,
+// [code]: ${code}
+// [pseudo-code]:
+`,
         stopTokens: ["// [end-psuedo-code]"],
     };
 };
