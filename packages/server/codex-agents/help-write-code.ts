@@ -227,7 +227,7 @@ while (current != NULL) {
 // [end-task]
 
 
-// ${prevThread}
+${prevThread}
 // [follow-up-question]: ${newQuestion}
 "code": [
 `,
