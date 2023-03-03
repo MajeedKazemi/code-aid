@@ -13,6 +13,11 @@ import {
     suggestAskQuestion,
 } from "../codex-prompts/ask-question-prompt";
 import { codeToPseudocode } from "../codex-prompts/code-to-pseudocode";
+import {
+    mainExplainCode,
+    suggestExplainCode,
+} from "../codex-prompts/explain-code-prompt";
+import { formatCode, removeComments } from "../codex-prompts/shared/agents";
 import { ResponseModel } from "../models/response";
 import { IUser, UserModel } from "../models/user";
 import { openai } from "../utils/codex";
@@ -95,10 +100,10 @@ export const initializeSocket = (server: http.Server) => {
 
                             break;
 
-                        // case "explain-code":
-                        //     explainCodeSocket(from, componentId, data.code);
+                        case "explain-code":
+                            explainCode(from, id, data.code, user);
 
-                        //     break;
+                            break;
 
                         // case "help-fix-code":
                         //     helpFixCodeSocket(
@@ -164,6 +169,20 @@ export interface IParsedAskQuestionResponse {
     rawCode?: string;
 }
 
+export interface IParsedExplainCodeResponse {
+    explanation?: string;
+    lines?: Array<{
+        code: string;
+        explanation: string;
+    }>;
+    cLibraryFunctions?: Array<{
+        name: string;
+        description: string;
+        include: string;
+        proto: string;
+    }>;
+}
+
 export interface IParsedPseudoCodeResponse {
     pseudoCode?: Array<{
         title: string;
@@ -211,6 +230,102 @@ class IAskQuestionResponse implements IResponse {
             suggestions: this.suggestions,
         } as IAskQuestionResponse;
     }
+}
+
+class IExplainCodeResponse implements IResponse {
+    raw?: string;
+    explanation?: string;
+    cLibraryFunctions?: Array<{
+        name: string;
+        description: string;
+        include: string;
+        proto: string;
+    }>;
+    lines?: Array<{
+        code: string;
+        explanation: string;
+    }>;
+    suggestions?: Array<string>;
+
+    mask() {
+        return {
+            explanation: this.explanation,
+            cLibraryFunctions: this.cLibraryFunctions,
+            lines: this.lines,
+            suggestions: this.suggestions,
+        } as IExplainCodeResponse;
+    }
+}
+
+async function explainCode(
+    from: string,
+    responseId: string,
+    code: string,
+    user: IUser
+) {
+    const mainPrompt = mainExplainCode(formatCode(removeComments(code)));
+
+    let res = new IExplainCodeResponse();
+
+    await codexStreamReader(
+        from,
+        responseId,
+        mainPrompt,
+        (text: string, parsed: IParsedExplainCodeResponse) => {
+            res.raw = text;
+            res.explanation = parsed.explanation;
+            res.cLibraryFunctions = parsed.cLibraryFunctions;
+            res.lines = parsed.lines;
+
+            return res;
+        }
+    );
+
+    if (res.lines && res.lines.length > 0) {
+        const suggestPrompt = suggestExplainCode(
+            JSON.stringify(res.lines, null, 4)
+        );
+
+        res = await codexStreamReader(
+            from,
+            responseId,
+            suggestPrompt,
+            (text: string, parsed: IParsedSuggestedQuestionsResponse) => {
+                res.suggestions = parsed.suggestions;
+
+                return res;
+            }
+        );
+    }
+
+    // update db: store response for user
+    const response = await ResponseModel.findById(responseId);
+
+    if (response) {
+        response.data = {
+            ...response.data,
+            code,
+            response: res.mask(),
+            raw: mainPrompt.raw(res.raw || ""),
+        };
+
+        response.finished = true;
+
+        await response.save();
+    }
+
+    // TODO: check if this line is needed!
+    // user.responses.push(savedResponse);
+    // user.generating = false;
+    // user.canUseToolbox = false;
+
+    await user.save();
+
+    // notify client: finished
+    socket.to(from).emit("codex", {
+        type: "done",
+        componentId: responseId,
+    });
 }
 
 async function askQuestion(

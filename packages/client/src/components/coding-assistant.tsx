@@ -4,7 +4,6 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import {
     apiBreakDownTask,
     apiCheckCanUseToolbox,
-    apiExplainCodeHover,
     apiHelpFixCode,
     apiInitResponse,
     apiKeywordUsageExample,
@@ -13,6 +12,7 @@ import {
 import { AuthContext, SocketContext } from "../context";
 import { AskFromCodeResponse } from "./responses-socket/ask-from-code";
 import { AskQuestionResponse } from "./responses-socket/ask-question";
+import { ExplainCodeV2Response } from "./responses-socket/explain-code";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { ExplainCodeHoverResponse } from "./responses/explain-code-hover-response";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
@@ -331,28 +331,35 @@ export const CodingAssistant = () => {
                     return;
                 }
 
-                setStatus(StatusMessage.Loading);
-                setButtonText("loading");
-
-                apiExplainCodeHover(context?.token, code)
+                apiInitResponse(context?.token, "explain-code-v2")
                     .then(async (res) => {
                         const data = await res.json();
 
-                        setResponses([
-                            { ...data, type: "explain-code-hover" },
-                            ...responses,
-                        ]);
-                        setStatus(StatusMessage.OK);
-                        setCanUseToolbox(false);
-                        setSelectedOption(null);
-                        setQuestion("");
-                        setButtonText("ask");
+                        if (data.success) {
+                            setResponses([
+                                {
+                                    code,
+                                    type: "explain-code-v2",
+                                    id: data.id,
+                                    stream: true,
+                                },
+                                ...responses,
+                            ]);
+
+                            setStatus(StatusMessage.Loading);
+                            setButtonText("loading");
+                        } else {
+                            displayError(
+                                "Failed to generate example. Please try again or reload the page."
+                            );
+                            setButtonText("explain");
+                        }
                     })
-                    .catch(() => {
+                    .catch((e) => {
                         displayError(
                             "Failed to generate example. Please try again or reload the page."
                         );
-                        setButtonText("ask");
+                        setButtonText("explain");
                     });
 
                 break;
@@ -670,6 +677,29 @@ export const CodingAssistant = () => {
                                                 setSelectedOption(null);
                                                 setQuestion("");
                                                 setButtonText("ask");
+                                            }}
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                            setCanUseToolbox={setCanUseToolbox}
+                                        />
+                                    );
+
+                                case "explain-code-v2":
+                                    return (
+                                        <ExplainCodeV2Response
+                                            stream={response.stream}
+                                            setStreamFinished={() => {
+                                                setStatus(StatusMessage.OK);
+                                                // setCanUseToolbox(false);
+                                                setSelectedOption(null);
+                                                setQuestion("");
+                                                setButtonText("explain");
                                             }}
                                             key={response.id}
                                             data={response}

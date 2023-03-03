@@ -1,5 +1,3 @@
-import { v4 as uuid } from "uuid";
-
 import { HoverableExplainCode } from "../responses/hoverable-explain-code";
 
 interface IProps {
@@ -23,12 +21,7 @@ export const PseudoCodeHoverable = (props: IProps) => {
                             <HoverableExplainCode
                                 code={line.code || ""}
                                 explanation={line.explanation || ""}
-                                key={
-                                    "hoverable-line-code-" +
-                                    index +
-                                    "-" +
-                                    uuid()
-                                }
+                                key={JSON.stringify(line)}
                             />
                         );
                     })}
