@@ -13,6 +13,7 @@ import { adminRouter } from "./routes/admin-router";
 import { codexRouter } from "./routes/codex-router";
 import { loginRouter } from "./routes/login-router";
 import { responseRouter } from "./routes/response-router";
+import { initializeSocket } from "./sockets/socket-handler";
 import env from "./utils/env";
 
 const corsOptions = {
@@ -74,6 +75,8 @@ mongoose
                 );
             }
         );
+
+        initializeSocket(server);
     })
     .catch((err) => {
         console.error("[Terminating] Error connecting to MongoDB: ", err);

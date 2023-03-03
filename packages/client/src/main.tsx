@@ -2,13 +2,26 @@ import "./index.css";
 import "./userWorker";
 
 import * as monaco from "monaco-editor";
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import {
+    BrowserRouter,
+    Navigate,
+    Route,
+    Routes,
+    useLocation,
+} from "react-router-dom";
 
 import { authRefresh } from "./api/api";
+import { connectSocket } from "./api/socket";
 import { Loader } from "./components/loader";
-import { AuthContext } from "./context";
+import { AuthContext, SocketContext } from "./context";
 import { AnalyzePage } from "./routes/analyze-page";
 import { HomePage } from "./routes/home-page";
 import { LoginPage } from "./routes/login-page";
@@ -28,6 +41,7 @@ function RequireAuth({
 }) {
     const [loading, setLoading] = useState(true);
     let { context, setContext } = useContext(AuthContext);
+    let { socket, setSocket } = useContext(SocketContext);
     let location = useLocation();
 
     const verifyUser = useCallback(() => {
@@ -39,6 +53,7 @@ function RequireAuth({
                     const data = await response.json();
 
                     setContext({ token: data.token, user: data.user });
+                    setSocket(connectSocket(data.token));
                 } else {
                     // logError(response.toString());
                 }
@@ -51,7 +66,7 @@ function RequireAuth({
             });
 
         setTimeout(verifyUser, 60 * 5 * 1000);
-    }, [setContext]);
+    }, [setContext, setSocket]);
 
     useEffect(() => {
         verifyUser();
@@ -76,53 +91,63 @@ const initializeMonacoTheme = () => {
 
 function App() {
     const [context, setContext] = useState(null);
-    const value = useMemo(
+    const [socket, setSocket] = useState(null);
+    const contextVal = useMemo(
         () => ({ context: context, setContext: setContext }),
         [context]
+    ) as any;
+
+    const socketVal = useMemo(
+        () => ({ socket: socket, setSocket: setSocket }),
+        [socket]
     ) as any;
 
     initializeMonacoTheme();
 
     return (
-        <AuthContext.Provider value={value}>
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route
-                        path="/"
-                        element={
-                            <RequireAuth role="any">
-                                <HomePage />
-                            </RequireAuth>
-                        }
-                    />
-                    <Route
-                        path="/analyze"
-                        element={
-                            <RequireAuth role="admin">
-                                <AnalyzePage />
-                            </RequireAuth>
-                        }
-                    />
-                    <Route
-                        path="/summary"
-                        element={
-                            <RequireAuth role="admin">
-                                <SummaryPage />
-                            </RequireAuth>
-                        }
-                    />
-                    <Route
-                        path="/response/:id"
-                        element={
-                            <RequireAuth role="admin">
-                                <ResponsePage />
-                            </RequireAuth>
-                        }
-                    />
-                </Routes>
-            </BrowserRouter>
-        </AuthContext.Provider>
+        <SocketContext.Provider value={socketVal}>
+            <AuthContext.Provider value={contextVal}>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/login" element={<LoginPage />} />
+
+                        <Route
+                            path="/"
+                            element={
+                                <RequireAuth role="any">
+                                    <HomePage />
+                                </RequireAuth>
+                            }
+                        />
+
+                        <Route
+                            path="/analyze"
+                            element={
+                                <RequireAuth role="admin">
+                                    <AnalyzePage />
+                                </RequireAuth>
+                            }
+                        />
+                        <Route
+                            path="/summary"
+                            element={
+                                <RequireAuth role="admin">
+                                    <SummaryPage />
+                                </RequireAuth>
+                            }
+                        />
+                        <Route
+                            path="/response/:id"
+                            element={
+                                <RequireAuth role="admin">
+                                    <ResponsePage />
+                                </RequireAuth>
+                            }
+                        />
+                    </Routes>
+                </BrowserRouter>
+            </AuthContext.Provider>
+        </SocketContext.Provider>
     );
 }
 
