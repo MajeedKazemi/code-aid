@@ -147,7 +147,7 @@ export const AskFromCodeResponse = (props: IProps) => {
 
             <div className="question-answer-main-content">
                 <AskFromCodeContent
-                    key={props.data.id}
+                    key={meta.id}
                     data={{
                         ...meta,
                         response,

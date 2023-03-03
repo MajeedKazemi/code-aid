@@ -154,21 +154,28 @@ export const ExplainCodeV2Response = (props: IProps) => {
                     {response.explanation && <div>{response.explanation}</div>}
                     <br />
 
-                    <div className="explain-code-content">
-                        Hover over each line to see detailed explanation:
-                    </div>
-                    <div className="explained-code">
-                        {response.lines &&
-                            response.lines?.map((line, index) => {
-                                return (
-                                    <HoverableExplainCode
-                                        code={line.code}
-                                        explanation={line.explanation}
-                                        key={JSON.stringify(line)}
-                                    />
-                                );
-                            })}
-                    </div>
+                    {response.lines && (
+                        <div>
+                            <div className="explain-code-content">
+                                Hover over each line to see detailed
+                                explanation:
+                            </div>
+                            <div className="explained-code">
+                                {response.lines?.map((line, index) => {
+                                    return (
+                                        <HoverableExplainCode
+                                            code={line.code}
+                                            explanation={line.explanation}
+                                            key={
+                                                JSON.stringify(line) +
+                                                index.toString()
+                                            }
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div>

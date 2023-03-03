@@ -15,6 +15,7 @@ import {
 import { codeToPseudocode } from "../codex-prompts/code-to-pseudocode";
 import {
     mainExplainCode,
+    replyExplainCode,
     suggestExplainCode,
 } from "../codex-prompts/explain-code-prompt";
 import { formatCode, removeComments } from "../codex-prompts/shared/agents";
@@ -102,6 +103,17 @@ export const initializeSocket = (server: http.Server) => {
 
                         case "explain-code":
                             explainCode(from, id, data.code, user);
+
+                            break;
+
+                        case "explain-code-reply":
+                            explainCodeReply(
+                                from,
+                                id,
+                                data.mainId,
+                                data.question,
+                                user
+                            );
 
                             break;
 
@@ -536,6 +548,105 @@ async function askQuestionFromCodeReply(
                     .filter((fu) => fu.raw && fu.raw.length > 0)
                     .map((fu) => fu.raw),
             ],
+            question
+        );
+
+        let res = new IAskQuestionResponse();
+
+        await codexStreamReader(
+            from,
+            replyId,
+            replyPrompt,
+            (text: string, parsed: IParsedAskQuestionResponse) => {
+                res.raw = text;
+                res.answer = parsed.answer;
+                res.cLibraryFunctions = parsed.cLibraryFunctions;
+                res.rawCode = parsed.rawCode;
+
+                if (parsed.rawCode) {
+                    res.codeLinesCount =
+                        parsed.rawCode.split("\n").length - 1 || 0;
+                }
+
+                return res;
+            }
+        );
+
+        if (res.rawCode) {
+            const pseudoPrompt = codeToPseudocode(res.rawCode);
+
+            res = await codexStreamReader(
+                from,
+                replyId,
+                pseudoPrompt,
+                (text: string, parsed: IParsedPseudoCodeResponse) => {
+                    res.codeParts = parsed.pseudoCode;
+
+                    return res;
+                }
+            );
+        }
+
+        const suggestPrompt = suggestAskQuestion(
+            question,
+            JSON.stringify(res, null, 4)
+        );
+
+        res = await codexStreamReader(
+            from,
+            replyId,
+            suggestPrompt,
+            (text: string, parsed: IParsedSuggestedQuestionsResponse) => {
+                res.suggestions = parsed.suggestions;
+
+                return res;
+            }
+        );
+
+        const followUps = r.followUps;
+
+        const followUpIndex = followUps.findIndex((f) => f.id === replyId);
+
+        if (followUpIndex !== -1) {
+            followUps[followUpIndex] = {
+                ...followUps[followUpIndex],
+                time: new Date(),
+                raw: replyPrompt.raw(res.raw || ""),
+                question,
+                response: res.mask(),
+                finished: true,
+            };
+        }
+
+        r.followUps = followUps;
+        r.save();
+
+        // user.canUseToolbox = false;
+        await user.save();
+
+        // notify client: finished
+        socket.to(from).emit("codex", {
+            type: "done",
+            componentId: replyId,
+        });
+    }
+}
+
+async function explainCodeReply(
+    from: string,
+    replyId: string,
+    responseId: string,
+    question: string,
+    user: IUser
+) {
+    const r = await ResponseModel.findById(responseId);
+
+    if (r) {
+        const replyPrompt = replyExplainCode(
+            r?.data.code,
+            r.followUps
+                .filter((fu) => fu.raw && fu.raw.length > 0)
+                .map((fu) => fu.raw || ""),
             question
         );
 

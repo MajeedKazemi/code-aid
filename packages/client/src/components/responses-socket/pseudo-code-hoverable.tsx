@@ -21,7 +21,7 @@ export const PseudoCodeHoverable = (props: IProps) => {
                             <HoverableExplainCode
                                 code={line.code || ""}
                                 explanation={line.explanation || ""}
-                                key={JSON.stringify(line)}
+                                key={JSON.stringify(line) + index.toString()}
                             />
                         );
                     })}
