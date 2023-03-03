@@ -1,11 +1,19 @@
-# Personal Teaching Assistant
+# Code Inquiry Assistant
 
-This lightweight LLM-based teaching assistant includes the following features:
+This tool is an LLM-based, personal coding assistant with the following main functionalities:
 
--   paste your C code and ask a specific question about it, or how to do something particular
--   the model is preconditioned so that it would not output any code (towards the solution), just natural langauge explanations and hints
--   a C programming documentation is also provided to instrumnet documentation usage
--   the tool will instrument hint usefulness after each usage
+-   ask question
+-   ask question from code
+-   explain code
+-   help fix code
+-   help write code
+
+It also has the following features:
+
+-   stream data similar to _ChatGPT_
+-   display _pseudo-code_ instead of direct code solutions
+-   rate each response and provide feedback
+-   ask follow-up questions
 
 # Running the Tool:
 
