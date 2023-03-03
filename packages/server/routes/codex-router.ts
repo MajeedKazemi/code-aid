@@ -175,6 +175,7 @@ codexRouter.post(
                         id: followUpId,
                         question,
                         answer,
+                        finished: true,
                     });
 
                     curResponse.save();

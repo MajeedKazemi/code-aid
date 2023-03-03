@@ -20,6 +20,7 @@ export interface IUser extends mongoose.Document {
     responses: Array<IResponse>;
     canUseToolbox: boolean;
     refreshToken: Array<{ refreshToken: string }>;
+    generating: boolean;
 }
 
 export const getUserData = (user: IUser) => {
@@ -60,6 +61,10 @@ const UserSchema = new Schema({
     },
     refreshToken: {
         type: [Session],
+    },
+    generating: {
+        type: Boolean,
+        default: false,
     },
 });
 

@@ -5,19 +5,26 @@ const Schema = mongoose.Schema;
 export interface IResponse extends mongoose.Document {
     time: Date;
     type: string;
-    data: {};
+    raw?: string;
+    data: any;
     feedback: {};
     followUps: Array<{
         time: Date;
-        query: string;
+        query?: string;
+
         id: string;
         question: string;
-        answer: string;
+        answer?: string;
+        response?: any;
+        raw?: string;
+
         feedback?: {
             rating: number;
             reason: string;
             time: Date;
         };
+
+        finished: boolean;
     }>;
     analysis: {
         time: Date;
@@ -30,6 +37,7 @@ export interface IResponse extends mongoose.Document {
         };
         notes: string;
     };
+    finished: boolean;
 }
 
 export const ResponseSchema = new Schema({
@@ -56,6 +64,10 @@ export const ResponseSchema = new Schema({
     analysis: {
         type: JSON,
         default: {},
+    },
+    finished: {
+        type: Boolean,
+        default: false,
     },
 });
 

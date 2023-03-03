@@ -2,16 +2,17 @@ import * as monaco from "monaco-editor";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 import {
-    apiAnswerQuestion,
     apiBreakDownTask,
     apiCheckCanUseToolbox,
     apiExplainCodeHover,
     apiHelpFixCode,
+    apiInitResponse,
     apiKeywordUsageExample,
     apiQuestionFromCode,
     apiRecentResponses,
 } from "../api/api";
-import { AuthContext } from "../context";
+import { AuthContext, SocketContext } from "../context";
+import { AskQuestionResponse } from "./responses-socket/ask-question";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { ExplainCodeHoverResponse } from "./responses/explain-code-hover-response";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
@@ -40,6 +41,7 @@ export enum StatusMessage {
 
 export const CodingAssistant = () => {
     const { context } = useContext(AuthContext);
+    const { socket } = useContext(SocketContext);
 
     const editorEl = useRef<HTMLDivElement>(null);
 
@@ -103,6 +105,8 @@ export const CodingAssistant = () => {
                                 id: it.id,
                                 followUps: it.followUps,
                                 feedback: it.feedback,
+                                finished: it.finished,
+                                time: it.time,
                             };
                         })
                     );
@@ -118,6 +122,8 @@ export const CodingAssistant = () => {
                                 id: it.id,
                                 followUps: it.followUps,
                                 feedback: it.feedback,
+                                finished: it.finished,
+                                time: it.time,
                             };
                         }),
                     ]);
@@ -216,7 +222,7 @@ export const CodingAssistant = () => {
         }
     }, [selectedOption]);
 
-    const performQuery = () => {
+    const performQuery = async () => {
         if (!selectedOption) {
             displayError("Please select an option");
 
@@ -244,28 +250,33 @@ export const CodingAssistant = () => {
                     return;
                 }
 
-                setStatus(StatusMessage.Loading);
-                setButtonText("loading");
-
-                apiAnswerQuestion(context?.token, question)
+                apiInitResponse(context?.token, "ask-question-v2")
                     .then(async (res) => {
                         const data = await res.json();
 
-                        setResponses([
-                            { ...data, type: "question-answer" },
-                            ...responses,
-                        ]);
-                        setStatus(StatusMessage.OK);
-                        setCanUseToolbox(false);
-                        setSelectedOption(null);
-                        setQuestion("");
-                        setButtonText("ask");
+                        if (data.success) {
+                            setResponses([
+                                {
+                                    question,
+                                    type: "ask-question-v2",
+                                    id: data.id,
+                                    stream: true,
+                                },
+                                ...responses,
+                            ]);
+
+                            setStatus(StatusMessage.Loading);
+                            setButtonText("loading");
+                        } else {
+                            displayError(
+                                "Failed to generate example. Please try again or reload the page."
+                            );
+                        }
                     })
-                    .catch(() => {
+                    .catch((e) => {
                         displayError(
                             "Failed to generate example. Please try again or reload the page."
                         );
-                        setButtonText("ask");
                     });
 
                 break;
@@ -613,7 +624,32 @@ export const CodingAssistant = () => {
                         {responses.map((response) => {
                             switch (response.type) {
                                 case "disclaimer":
-                                    return <DisclaimerComponent />;
+                                    return (
+                                        <DisclaimerComponent key="disclaimer-key" />
+                                    );
+
+                                case "ask-question-v2":
+                                    return (
+                                        <AskQuestionResponse
+                                            stream={response.stream}
+                                            setStreamFinished={() => {
+                                                setStatus(StatusMessage.OK);
+                                                // setCanUseToolbox(false);
+                                                setSelectedOption(null);
+                                                setQuestion("");
+                                                setButtonText("ask");
+                                            }}
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                            setCanUseToolbox={setCanUseToolbox}
+                                        />
+                                    );
 
                                 case "question-answer":
                                     return (
