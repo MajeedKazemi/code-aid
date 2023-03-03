@@ -2,8 +2,7 @@ import { genericParser, suggestionsParser } from "./shared/parsers";
 
 export const mainAskQuestion = (question: string) => {
     return {
-        prompt: `<|endoftext|>// c programming question / answer. for each [question] provide a detailed answer in the context of C Programming. use the following format:
-[question]: what is the meaning of life?
+        prompt: `[question]: what is the meaning of life?
 [answer]: this question is irrelevant to C Programming.
 [end-question-answer]
 
@@ -121,7 +120,6 @@ fclose(file);
 ${thread}
 [follow-up-question]: ${newQuestion}
 [answer]:`,
-
         stop: ["[end-question-answer]"],
         model: "text-davinci-003",
         temperature: 0.15,

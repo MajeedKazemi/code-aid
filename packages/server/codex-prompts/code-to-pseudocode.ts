@@ -2,7 +2,7 @@ import { pseudocodeParser } from "./shared/parsers";
 
 export const codeToPseudocode = (code: string) => {
     return {
-        prompt: `<|endoftext|>// generate pseudo-code from c language code. keep all the lines that start with "// title".
+        prompt: `<|endoftext|>// generate pseudo-code from c language code. keep all the lines that start with "[code-title]:".
 [code]:
 char[] s = "hello";
 int[] r = {1,2,3,4,5};

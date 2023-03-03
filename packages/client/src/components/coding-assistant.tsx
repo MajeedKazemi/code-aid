@@ -8,10 +8,10 @@ import {
     apiHelpFixCode,
     apiInitResponse,
     apiKeywordUsageExample,
-    apiQuestionFromCode,
     apiRecentResponses,
 } from "../api/api";
 import { AuthContext, SocketContext } from "../context";
+import { AskFromCodeResponse } from "./responses-socket/ask-from-code";
 import { AskQuestionResponse } from "./responses-socket/ask-question";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { ExplainCodeHoverResponse } from "./responses/explain-code-hover-response";
@@ -271,12 +271,14 @@ export const CodingAssistant = () => {
                             displayError(
                                 "Failed to generate example. Please try again or reload the page."
                             );
+                            setButtonText("ask");
                         }
                     })
                     .catch((e) => {
                         displayError(
                             "Failed to generate example. Please try again or reload the page."
                         );
+                        setButtonText("ask");
                     });
 
                 break;
@@ -372,24 +374,31 @@ export const CodingAssistant = () => {
                     return;
                 }
 
-                setStatus(StatusMessage.Loading);
-                setButtonText("loading");
-
-                apiQuestionFromCode(context?.token, code, question)
+                apiInitResponse(context?.token, "question-from-code-v2")
                     .then(async (res) => {
                         const data = await res.json();
 
-                        setResponses([
-                            { ...data, type: "question-from-code" },
-                            ...responses,
-                        ]);
-                        setStatus(StatusMessage.OK);
-                        setCanUseToolbox(false);
-                        setSelectedOption(null);
-                        setQuestion("");
-                        setButtonText("ask");
+                        if (data.success) {
+                            setResponses([
+                                {
+                                    code,
+                                    question,
+                                    type: "question-from-code-v2",
+                                    id: data.id,
+                                    stream: true,
+                                },
+                                ...responses,
+                            ]);
+
+                            setStatus(StatusMessage.Loading);
+                            setButtonText("loading");
+                        } else {
+                            displayError(
+                                "Failed to generate example. Please try again or reload the page."
+                            );
+                        }
                     })
-                    .catch(() => {
+                    .catch((e) => {
                         displayError(
                             "Failed to generate example. Please try again or reload the page."
                         );
@@ -631,6 +640,29 @@ export const CodingAssistant = () => {
                                 case "ask-question-v2":
                                     return (
                                         <AskQuestionResponse
+                                            stream={response.stream}
+                                            setStreamFinished={() => {
+                                                setStatus(StatusMessage.OK);
+                                                // setCanUseToolbox(false);
+                                                setSelectedOption(null);
+                                                setQuestion("");
+                                                setButtonText("ask");
+                                            }}
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                            setCanUseToolbox={setCanUseToolbox}
+                                        />
+                                    );
+
+                                case "question-from-code-v2":
+                                    return (
+                                        <AskFromCodeResponse
                                             stream={response.stream}
                                             setStreamFinished={() => {
                                                 setStatus(StatusMessage.OK);
