@@ -219,3 +219,37 @@ export const apiCheckCanUseToolbox = (token: string | null | undefined) =>
             Authorization: `Bearer ${token}`,
         },
     });
+
+export const apiInitResponse = (
+    token: string | null | undefined,
+    type: string
+) =>
+    fetch(env.API_URL + "/api/responses/init-response", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            type,
+        }),
+    });
+
+export const apiInitFollowUp = (
+    token: string | null | undefined,
+    id: string,
+    len: number
+) =>
+    fetch(env.API_URL + "/api/responses/init-follow-up", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            id,
+            len,
+        }),
+    });
