@@ -19,6 +19,11 @@ import {
     suggestExplainCode,
 } from "../codex-prompts/explain-code-prompt";
 import { formatCode, removeComments } from "../codex-prompts/shared/agents";
+import {
+    mainWriteCode,
+    replyWriteCode,
+    suggestWriteCode,
+} from "../codex-prompts/write-code-prompt";
 import { ResponseModel } from "../models/response";
 import { IUser, UserModel } from "../models/user";
 import { openai } from "../utils/codex";
@@ -117,21 +122,28 @@ export const initializeSocket = (server: http.Server) => {
 
                             break;
 
+                        case "write-code":
+                            writeCode(from, id, data.question, user);
+
+                            break;
+
+                        case "write-code-reply":
+                            writeCodeReply(
+                                from,
+                                id,
+                                data.mainId,
+                                data.question,
+                                user
+                            );
+
+                            break;
+
                         // case "help-fix-code":
                         //     helpFixCodeSocket(
                         //         from,
                         //         componentId,
                         //         data.code,
                         //         data.intendedBehavior
-                        //     );
-
-                        //     break;
-
-                        // case "help-write-code":
-                        //     helpWriteCodeSocket(
-                        //         from,
-                        //         componentId,
-                        //         data.behavior
                         //     );
 
                         //     break;
@@ -317,6 +329,95 @@ async function explainCode(
         response.data = {
             ...response.data,
             code,
+            response: res.mask(),
+            raw: mainPrompt.raw(res.raw || ""),
+        };
+
+        response.finished = true;
+
+        await response.save();
+    }
+
+    // TODO: check if this line is needed!
+    // user.responses.push(savedResponse);
+    // user.generating = false;
+    // user.canUseToolbox = false;
+
+    await user.save();
+
+    // notify client: finished
+    socket.to(from).emit("codex", {
+        type: "done",
+        componentId: responseId,
+    });
+}
+
+async function writeCode(
+    from: string,
+    responseId: string,
+    question: string,
+    user: IUser
+) {
+    const mainPrompt = mainWriteCode(question);
+
+    let res = new IAskQuestionResponse();
+
+    await codexStreamReader(
+        from,
+        responseId,
+        mainPrompt,
+        (text: string, parsed: IParsedAskQuestionResponse) => {
+            res.raw = text;
+            res.answer = parsed.answer;
+            res.cLibraryFunctions = parsed.cLibraryFunctions;
+            res.rawCode = parsed.rawCode;
+
+            if (parsed.rawCode) {
+                res.codeLinesCount = parsed.rawCode.split("\n").length - 1 || 0;
+            }
+
+            return res;
+        }
+    );
+
+    if (res.rawCode) {
+        const pseudoPrompt = codeToPseudocode(res.rawCode);
+
+        res = await codexStreamReader(
+            from,
+            responseId,
+            pseudoPrompt,
+            (text: string, parsed: IParsedPseudoCodeResponse) => {
+                res.codeParts = parsed.pseudoCode;
+
+                return res;
+            }
+        );
+    }
+
+    const suggestPrompt = suggestAskQuestion(
+        question,
+        JSON.stringify(res, null, 4)
+    );
+
+    res = await codexStreamReader(
+        from,
+        responseId,
+        suggestPrompt,
+        (text: string, parsed: IParsedSuggestedQuestionsResponse) => {
+            res.suggestions = parsed.suggestions;
+
+            return res;
+        }
+    );
+
+    // update db: store response for user
+    const response = await ResponseModel.findById(responseId);
+
+    if (response) {
+        response.data = {
+            ...response.data,
+            question,
             response: res.mask(),
             raw: mainPrompt.raw(res.raw || ""),
         };
@@ -530,6 +631,107 @@ async function askQuestionReply(
     }
 }
 
+async function writeCodeReply(
+    from: string,
+    replyId: string,
+    responseId: string,
+    question: string,
+    user: IUser
+) {
+    const r = await ResponseModel.findById(responseId);
+
+    if (r) {
+        const replyPrompt = replyWriteCode(
+            [
+                r.data.raw,
+                ...r.followUps
+                    .filter((fu) => fu.raw && fu.raw.length > 0)
+                    .map((fu) => fu.raw),
+            ],
+            question
+        );
+
+        let res = new IAskQuestionResponse();
+
+        await codexStreamReader(
+            from,
+            replyId,
+            replyPrompt,
+            (text: string, parsed: IParsedAskQuestionResponse) => {
+                res.raw = text;
+                res.answer = parsed.answer;
+                res.cLibraryFunctions = parsed.cLibraryFunctions;
+                res.rawCode = parsed.rawCode;
+
+                if (parsed.rawCode) {
+                    res.codeLinesCount =
+                        parsed.rawCode.split("\n").length - 1 || 0;
+                }
+
+                return res;
+            }
+        );
+
+        if (res.rawCode) {
+            const pseudoPrompt = codeToPseudocode(res.rawCode);
+
+            res = await codexStreamReader(
+                from,
+                replyId,
+                pseudoPrompt,
+                (text: string, parsed: IParsedPseudoCodeResponse) => {
+                    res.codeParts = parsed.pseudoCode;
+
+                    return res;
+                }
+            );
+        }
+
+        const suggestPrompt = suggestWriteCode(
+            question,
+            JSON.stringify(res, null, 4)
+        );
+
+        res = await codexStreamReader(
+            from,
+            replyId,
+            suggestPrompt,
+            (text: string, parsed: IParsedSuggestedQuestionsResponse) => {
+                res.suggestions = parsed.suggestions;
+
+                return res;
+            }
+        );
+
+        const followUps = r.followUps;
+
+        const followUpIndex = followUps.findIndex((f) => f.id === replyId);
+
+        if (followUpIndex !== -1) {
+            followUps[followUpIndex] = {
+                ...followUps[followUpIndex],
+                time: new Date(),
+                raw: replyPrompt.raw(res.raw || ""),
+                question,
+                response: res.mask(),
+                finished: true,
+            };
+        }
+
+        r.followUps = followUps;
+        r.save();
+
+        // user.canUseToolbox = false;
+        await user.save();
+
+        // notify client: finished
+        socket.to(from).emit("codex", {
+            type: "done",
+            componentId: replyId,
+        });
+    }
+}
+
 async function askQuestionFromCodeReply(
     from: string,
     replyId: string,
@@ -587,7 +789,8 @@ async function askQuestionFromCodeReply(
             );
         }
 
-        const suggestPrompt = suggestAskQuestion(
+        const suggestPrompt = suggestAskFromCode(
+            r?.data.code,
             question,
             JSON.stringify(res, null, 4)
         );
@@ -686,10 +889,7 @@ async function explainCodeReply(
             );
         }
 
-        const suggestPrompt = suggestAskQuestion(
-            question,
-            JSON.stringify(res, null, 4)
-        );
+        const suggestPrompt = suggestExplainCode(JSON.stringify(res, null, 4));
 
         res = await codexStreamReader(
             from,

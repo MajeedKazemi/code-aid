@@ -218,9 +218,9 @@ ${thread}
 export const suggestExplainCode = (code: string) => {
     return {
         prompt: `[annotated-code]:
-    ${code}
-    [follow-up-questions]: based on the above [annotated-code], generate three separate and different follow-up questions to ask about the code:
-    1.`,
+${code}
+[follow-up-questions]: based on the above [annotated-code], generate three separate and different follow-up questions to ask about the code:
+1.`,
         stop: ["4."],
         model: "text-davinci-003",
         temperature: 0.3,

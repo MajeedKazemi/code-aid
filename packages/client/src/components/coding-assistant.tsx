@@ -2,7 +2,6 @@ import * as monaco from "monaco-editor";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 import {
-    apiBreakDownTask,
     apiCheckCanUseToolbox,
     apiHelpFixCode,
     apiInitResponse,
@@ -13,6 +12,7 @@ import { AuthContext, SocketContext } from "../context";
 import { AskFromCodeResponse } from "./responses-socket/ask-from-code";
 import { AskQuestionResponse } from "./responses-socket/ask-question";
 import { ExplainCodeV2Response } from "./responses-socket/explain-code";
+import { WriteCodeResponse } from "./responses-socket/write-code";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { ExplainCodeHoverResponse } from "./responses/explain-code-hover-response";
 import { ExplainCodeResponse } from "./responses/explain-code-response";
@@ -30,8 +30,8 @@ export enum HintOption {
     AskQuestion = "ask question",
     QuestionFromCode = "ask question from code",
     ExplainCode = "explain code",
-    BreakDownSteps = "task steps",
-    HelpFix = "fix code",
+    BreakDownSteps = "help write code",
+    HelpFix = "help fix code",
 }
 
 export enum StatusMessage {
@@ -298,24 +298,31 @@ export const CodingAssistant = () => {
                     return;
                 }
 
-                setStatus(StatusMessage.Loading);
-                setButtonText("loading");
-
-                apiBreakDownTask(context?.token, question)
+                apiInitResponse(context?.token, "write-code-v2")
                     .then(async (res) => {
                         const data = await res.json();
 
-                        setResponses([
-                            { ...data, type: "break-down-steps" },
-                            ...responses,
-                        ]);
-                        setStatus(StatusMessage.OK);
-                        setCanUseToolbox(false);
-                        setSelectedOption(null);
-                        setQuestion("");
-                        setButtonText("assist");
+                        if (data.success) {
+                            setResponses([
+                                {
+                                    question,
+                                    type: "write-code-v2",
+                                    id: data.id,
+                                    stream: true,
+                                },
+                                ...responses,
+                            ]);
+
+                            setStatus(StatusMessage.Loading);
+                            setButtonText("loading");
+                        } else {
+                            displayError(
+                                "Failed to generate example. Please try again or reload the page."
+                            );
+                            setButtonText("assist");
+                        }
                     })
-                    .catch(() => {
+                    .catch((e) => {
                         displayError(
                             "Failed to generate example. Please try again or reload the page."
                         );
@@ -700,6 +707,29 @@ export const CodingAssistant = () => {
                                                 setSelectedOption(null);
                                                 setQuestion("");
                                                 setButtonText("explain");
+                                            }}
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                            setCanUseToolbox={setCanUseToolbox}
+                                        />
+                                    );
+
+                                case "write-code-v2":
+                                    return (
+                                        <WriteCodeResponse
+                                            stream={response.stream}
+                                            setStreamFinished={() => {
+                                                setStatus(StatusMessage.OK);
+                                                // setCanUseToolbox(false);
+                                                setSelectedOption(null);
+                                                setQuestion("");
+                                                setButtonText("assist");
                                             }}
                                             key={response.id}
                                             data={response}

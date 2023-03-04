@@ -7,21 +7,24 @@ import { AuthContext, SocketContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
 import { StatusMessage } from "../coding-assistant";
 import { ResponseFeedback } from "../response-feedback";
-import { HoverableExplainCode } from "../responses/hoverable-explain-code";
 import { responseToArrayWithKeywords } from "../responses/keyword";
 import { PseudoCodeHoverable } from "./pseudo-code-hoverable";
 
-interface IExplainCodeResponse {
-    explanation?: string;
-    lines: Array<{
-        code: string;
-        explanation: string;
-    }>;
+interface IWriteCodeResponse {
+    answer?: string;
     cLibraryFunctions?: Array<{
         name: string;
         description: string;
         include: string;
         proto: string;
+    }>;
+    codeLinesCount?: number;
+    codeParts?: Array<{
+        title: string;
+        lines: Array<{
+            code: string;
+            explanation: string;
+        }>;
     }>;
     suggestions?: Array<string>;
 }
@@ -38,10 +41,10 @@ interface IProps {
     data: {
         id: string;
         time: Date;
-        code: string;
+        question: string;
         finished: boolean;
 
-        response: IExplainCodeResponse;
+        response: IWriteCodeResponse;
 
         feedback?: {
             reason: string;
@@ -52,7 +55,7 @@ interface IProps {
     };
 }
 
-export const ExplainCodeV2Response = (props: IProps) => {
+export const WriteCodeResponse = (props: IProps) => {
     const { context } = useContext(AuthContext);
     const { socket } = useContext(SocketContext);
 
@@ -64,17 +67,18 @@ export const ExplainCodeV2Response = (props: IProps) => {
 
     const [meta, setMeta] = useState({
         id: props.data.id,
-        code: props.data.code,
+        question: props.data.question,
         feedback: props.data.feedback,
         finished: props.data.finished,
         time: props.data.time,
     });
 
-    const [response, setResponse] = useState<IExplainCodeResponse>({
-        explanation: props.data.response?.explanation,
-        lines: props.data.response?.lines,
+    const [response, setResponse] = useState<IWriteCodeResponse>({
+        answer: props.data.response?.answer,
         cLibraryFunctions: props.data.response?.cLibraryFunctions,
+        codeParts: props.data.response?.codeParts,
         suggestions: props.data.response?.suggestions,
+        codeLinesCount: props.data.response?.codeLinesCount,
     });
 
     const [followUps, setFollowUps] = useState(
@@ -103,10 +107,10 @@ export const ExplainCodeV2Response = (props: IProps) => {
         useEffect(() => {
             socket.emit("codex", {
                 data: {
-                    code: meta.code,
+                    question: props.data.question,
                 },
-                type: "explain-code",
-                id: meta.id,
+                type: "write-code",
+                id: props.data.id,
                 from: socket.id,
                 userId: context?.user?.id,
             });
@@ -115,9 +119,9 @@ export const ExplainCodeV2Response = (props: IProps) => {
                 if (d.componentId === props.data.id) {
                     if (d.type === "response") {
                         setResponse({
-                            explanation: d.data.explanation,
+                            answer: d.data.answer,
                             cLibraryFunctions: d.data.cLibraryFunctions,
-                            lines: d.data.lines,
+                            codeParts: d.data.codePart,
                             suggestions: d.data.suggestions,
                         });
                     } else if (d.type === "done") {
@@ -144,76 +148,28 @@ export const ExplainCodeV2Response = (props: IProps) => {
 
             <div className="main-question">
                 <Fragment>
-                    {getIconSVG("magnifying-glass", "response-header-icon")}
-                    Explain Code Response
+                    {getIconSVG("bullet", "response-header-icon")}
+                    Help Write Code Response
                 </Fragment>
             </div>
 
             <div className="question-answer-main-content">
-                <div>
-                    {response.explanation && <div>{response.explanation}</div>}
-                    <br />
-
-                    {response.lines && (
-                        <div>
-                            <div className="explain-code-content">
-                                Hover over each line to see detailed
-                                explanation:
-                            </div>
-                            <div className="explained-code">
-                                {response.lines?.map((line, index) => {
-                                    return (
-                                        <HoverableExplainCode
-                                            code={line.code}
-                                            explanation={line.explanation}
-                                            key={
-                                                JSON.stringify(line) +
-                                                index.toString()
-                                            }
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <div>
-                    {response.cLibraryFunctions &&
-                        response.cLibraryFunctions.map((f) => {
-                            return (
-                                <div
-                                    className="question-answer-c-library-function"
-                                    key={JSON.stringify(f)}
-                                >
-                                    <div className="question-answer-c-library-function-title">
-                                        <span>{f?.name}</span>
-                                        <br />
-                                        <span>{f?.description}</span>
-                                        <br />
-                                        <span>{f?.include}</span>
-                                        <br />
-                                        <span>{f?.proto}</span>
-                                    </div>
-                                    <hr />
-                                </div>
-                            );
-                        })}
-                </div>
-
-                <div>
-                    {response.suggestions &&
-                        response.suggestions.map((s) => {
-                            return (
-                                <div
-                                    className="question-answer-suggestion"
-                                    key={JSON.stringify(s)}
-                                >
-                                    {s}
-                                </div>
-                            );
-                        })}
-                </div>
+                <AskQuestionContent
+                    key={props.data.id}
+                    data={{
+                        ...meta,
+                        response,
+                    }}
+                    stream={props.stream}
+                    admin={props.admin}
+                    setStreamFinished={() => {
+                        setStatus(StatusMessage.OK);
+                        setButtonText("ask");
+                        if (props.setCanUseToolbox) {
+                            // props.setCanUseToolbox(false);
+                        }
+                    }}
+                />
 
                 <div className="follow-up-responses">
                     {followUps.map((f) => {
@@ -316,25 +272,6 @@ export const ExplainCodeV2Response = (props: IProps) => {
     );
 };
 
-interface IAskQuestionResponse {
-    answer?: string;
-    cLibraryFunctions?: Array<{
-        name: string;
-        description: string;
-        include: string;
-        proto: string;
-    }>;
-    codeLinesCount?: number;
-    codeParts?: Array<{
-        title: string;
-        lines: Array<{
-            code: string;
-            explanation: string;
-        }>;
-    }>;
-    suggestions?: Array<string>;
-}
-
 interface IAskQuestionContentProps {
     admin?: boolean;
     data: {
@@ -345,7 +282,7 @@ interface IAskQuestionContentProps {
         finished: boolean;
 
         question: string;
-        response?: IAskQuestionResponse;
+        response?: IWriteCodeResponse;
 
         feedback?: {
             reason: string;
@@ -396,7 +333,7 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
                     question: props.data.question,
                     mainId: props.data.mainId,
                 },
-                type: "explain-code-reply",
+                type: "write-code-reply",
                 id: props.data.id,
                 from: socket.id,
                 userId: context?.user?.id,
