@@ -530,6 +530,14 @@
     width: 55%;
 }
 
+.hoverable-code-line-container .hoverable-fixed-code {
+    line-height: 30px;
+    cursor: pointer;
+    display: block;
+
+    background-color: #a5003a;
+}
+
 .hoverable-code-line-container .hoverable-code {
     line-height: 30px;
     cursor: pointer;

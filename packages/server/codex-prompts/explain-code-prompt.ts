@@ -91,7 +91,7 @@ ${code}
         stop: ["[end-explain-code]"],
         model: "text-davinci-003",
         temperature: 0.1,
-        max_tokens: 1500,
+        max_tokens: 1536,
         parser: (resTxt: string) => explainCodeParser(resTxt),
         raw: (resTxt: string) => `[code]:
 ${code}
@@ -207,7 +207,7 @@ ${thread}
         stop: ["[end-question-answer]"],
         model: "text-davinci-003",
         temperature: 0.15,
-        max_tokens: 1500,
+        max_tokens: 1536,
         parser: (resTxt: string) => genericParser(resTxt),
         raw: (resTxt: string) => `[follow-up-question]: ${newQuestion}
 [answer]:${resTxt}`,

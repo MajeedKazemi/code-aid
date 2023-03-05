@@ -97,7 +97,7 @@ ${code}
         stop: ["[end-pseudo-code]"],
         model: "text-davinci-003",
         temperature: 0.25,
-        max_tokens: 1500,
+        max_tokens: 1536,
         parser: (resTxt: string) => pseudocodeParser(resTxt),
         raw: (resTxt: string) => `[code]:
 ${code}

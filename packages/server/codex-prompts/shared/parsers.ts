@@ -1,6 +1,8 @@
 import {
     IParsedAskQuestionResponse,
     IParsedExplainCodeResponse,
+    IParsedExplainedDiffCodeResponse,
+    IParsedFixedCodeResponse,
     IParsedPseudoCodeResponse,
 } from "../../sockets/socket-handler";
 
@@ -204,6 +206,65 @@ export const explainCodeParser = (r: string) => {
     return obj as IParsedExplainCodeResponse;
 };
 
+export const diffFixedCodeParser = (txt: string) => {
+    const r = `[explained-original-code]:\n${txt}`;
+
+    const obj: any = {
+        rawExplainedLines: "",
+        explanation: "",
+    };
+
+    const lines = r.split("\n");
+
+    let inLineByLineExplanation = false;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (line.startsWith("[explained-original-code]")) {
+            inLineByLineExplanation = true;
+            continue;
+        } else if (line.startsWith("[end-explained-original-code]")) {
+            inLineByLineExplanation = false;
+            continue;
+        } else if (inLineByLineExplanation) {
+            obj.rawExplainedLines += line + "\n";
+        } else if (line.startsWith("[high-level-explanation-of-changes]")) {
+            obj.explanation = line.replace(
+                "[high-level-explanation-of-changes]: ",
+                ""
+            );
+        }
+    }
+
+    obj.rawExplainedLines = obj.rawExplainedLines.trim();
+
+    obj.lines = obj.rawExplainedLines.split("\n").map((line: string) => {
+        const [code, explanation] = line.split(" // [modified-reason]: ");
+
+        return {
+            code,
+            explanation,
+        };
+    });
+
+    return obj as IParsedExplainedDiffCodeResponse;
+};
+
+export const rawFixedCodeParser = (r: string) => {
+    const obj: any = {
+        rawFixedCode: r,
+    };
+
+    // remove [end-fixed-code] from the end of the file
+
+    if (r.endsWith("\n[end-fixed-code]")) {
+        obj.rawFixedCode = r.replace("\n[end-fixed-code]", "");
+    }
+
+    return obj as IParsedFixedCodeResponse;
+};
+
 export const testParser = () => {
     const test1 = ` The \`scanf()\` function is used to read input from the standard input stream (stdin). It takes a format string and a list of arguments as parameters. The format string contains the format specifiers that indicate the type of input to be read. The arguments are the variables in which the input will be stored.
 
@@ -289,5 +350,61 @@ void write_random_pieces(int soc, const char *message, int times) { // the funct
 [end-c-library-functions]
 [end-explain-code]`;
 
-    console.log(explainCodeParser(test3));
+    // console.log(explainCodeParser(test3));
+
+    const test4 = `[code]:
+void fib(int **arr, int count) {
+    *arr = malloc(count * sizeof(int));
+    
+    if (count == 0) {
+        *arr[0] = 0;
+    } else if (count == 1) {
+        *arr[0] = 0;
+        *arr[1] = 1;
+    }
+
+    for (int i = 2; i < count; i++) {
+        *arr[i] = *arr[i - 1] + *arr[i - 2];
+    }
+
+    return arr;
+}
+[intended-behavior]: take in an int n, and generates the first n elements of the Fibonacci sequence.
+[fixed-code]:
+void fib(int **arr, int count) {
+    *arr = malloc(count * sizeof(int));
+
+    if (count > 0) { // [fixed]
+        (*arr)[0] = 0; // [fixed]
+    } // [fixed]
+
+    if (count > 1) { // [fixed]
+        (*arr)[1] = 1; // [fixed]
+    } // [fixed]
+    
+    for (int i = 2; i < count; i++) {
+        (*arr)[i] = (*arr)[i - 1] + (*arr)[i - 2]; // [fixed]
+    }
+}
+[explained-fixed-lines]: for each line that is tagged with [fixed], compare it to the original [code], and provide the [change-reason] as an explanation of what was wrong in the original [code] and how it was fixed in [fixed-code].
+void fib(int **arr, int count) {
+    *arr = malloc(count * sizeof(int));
+
+    if (count > 0) { // [change-reason]: your code has a logical issue: if count != 0, first array element will not be 0.
+        (*arr)[0] = 0; // [change-reason]: fix operator precedence by first using parenthesis to dereference \`arr\`, then access element [0] of the dereferenced \`arr\`.
+    }
+
+    if (count > 1) { // [change-reason]: your code has a logical issue: if count != 1, second array element will not be 1.
+        (*arr)[1] = 1; // [change-reason]: fix operator precedence by first using parenthesis to dereference \`arr\`, then access element [1] of the dereferenced \`arr\`.
+    }
+    
+    for (int i = 2; i < count; i++) {
+        (*arr)[i] = (*arr)[i - 1] + (*arr)[i - 2]; // [change-reason]: fix operator precedence by first using parenthesis to dereference \`arr\`, then access element [i] of the dereferenced \`arr\`.
+    }
+}
+[end-explained-fixed-lines]
+[high-level-explanation-of-changes]: The original code had a logical issue in which it would not assign the first and second elements of the array to 0 and 1, respectively, if the count of elements was not 0 or 1. This was because the original code did not check if the count was greater than 0 or 1 before assigning the elements. To fix this, checks were added to make sure the count was greater than 0 and 1 before assigning the array elements to 0 and 1, respectively. Additionally, operator precedence was fixed by using parentheses around the dereference of the array before accessing elements 0 and 1. Finally, operator precedence was also fixed for the calculation of the Fibonacci sequence by wrapping parentheses around the dereference of the array before accessing the array elements.
+[end-diff-fixed-code]`;
+
+    console.log(diffFixedCodeParser(test4));
 };

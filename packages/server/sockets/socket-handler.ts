@@ -18,7 +18,15 @@ import {
     replyExplainCode,
     suggestExplainCode,
 } from "../codex-prompts/explain-code-prompt";
-import { formatCode, removeComments } from "../codex-prompts/shared/agents";
+import {
+    mainDiffFixedCode,
+    mainFixCode,
+} from "../codex-prompts/fix-code-prompt";
+import {
+    formatCCode,
+    labelModifiedLines,
+    removeComments,
+} from "../codex-prompts/shared/agents";
 import {
     mainWriteCode,
     replyWriteCode,
@@ -66,6 +74,15 @@ export const initializeSocket = (server: http.Server) => {
 
                 socket.on("codex", async ({ from, type, id, data, userId }) => {
                     const user = (await UserModel.findById(userId)) as IUser;
+
+                    // console.log(
+                    //     "new codex request: from",
+                    //     from,
+                    //     "type",
+                    //     type,
+                    //     "data",
+                    //     data
+                    // );
 
                     switch (type) {
                         case "ask-question":
@@ -138,15 +155,10 @@ export const initializeSocket = (server: http.Server) => {
 
                             break;
 
-                        // case "help-fix-code":
-                        //     helpFixCodeSocket(
-                        //         from,
-                        //         componentId,
-                        //         data.code,
-                        //         data.intendedBehavior
-                        //     );
+                        case "fix-code":
+                            fixCode(from, id, data.question, data.code, user);
 
-                        //     break;
+                            break;
 
                         // case "generate-man-page":
                         //     generateManPageSocket(
@@ -181,6 +193,18 @@ export const initializeSocket = (server: http.Server) => {
 // TODO: add a shared package to lerna to share interfaces between client and server
 
 interface IParsedResponse {}
+
+export interface IParsedFixedCodeResponse {
+    rawFixedCode?: string;
+}
+
+export interface IParsedExplainedDiffCodeResponse {
+    lines?: Array<{
+        code: string;
+        explanation: string;
+    }>;
+    explanation?: string;
+}
 
 export interface IParsedAskQuestionResponse {
     answer?: string;
@@ -281,13 +305,38 @@ class IExplainCodeResponse implements IResponse {
     }
 }
 
+class IFixedCodeResponse implements IResponse {
+    raw?: string;
+
+    rawFixedCode?: string;
+    rawExplainedLines?: string;
+
+    fixedCodeLinesCount?: number;
+
+    // line-by-line pseudocode + changes
+    lines?: Array<{
+        code: string;
+        explanation: string;
+    }>;
+    explanation?: string;
+
+    mask() {
+        return {
+            fixedCodeLinesCount: this.fixedCodeLinesCount,
+            explanation: this.explanation,
+            lines: this.lines,
+        } as IFixedCodeResponse;
+    }
+}
+
 async function explainCode(
     from: string,
     responseId: string,
     code: string,
     user: IUser
 ) {
-    const mainPrompt = mainExplainCode(formatCode(removeComments(code)));
+    const formattedCode = await formatCCode(removeComments(code));
+    const mainPrompt = mainExplainCode(formattedCode);
 
     let res = new IExplainCodeResponse();
 
@@ -1001,6 +1050,86 @@ async function askQuestionFromCode(
             code,
             response: res.mask(),
             raw: mainPrompt.raw(res.raw || ""),
+        };
+
+        response.finished = true;
+
+        await response.save();
+    }
+
+    // user.responses.push(savedResponse);
+    // user.canUseToolbox = false;
+
+    await user.save();
+
+    // notify client: finished
+    socket.to(from).emit("codex", {
+        type: "done",
+        componentId: responseId,
+    });
+}
+
+async function fixCode(
+    from: string,
+    responseId: string,
+    question: string,
+    code: string,
+    user: IUser
+) {
+    const formattedCode = await formatCCode(removeComments(code));
+    const fixCodePrompt = mainFixCode(question, formattedCode);
+
+    let res = new IFixedCodeResponse();
+
+    // tries to generate a fixed version of the code
+    await codexStreamReader(
+        from,
+        responseId,
+        fixCodePrompt,
+        (text: string, parsed: IParsedFixedCodeResponse) => {
+            res.rawFixedCode = parsed.rawFixedCode;
+
+            if (parsed.rawFixedCode) {
+                res.fixedCodeLinesCount =
+                    parsed.rawFixedCode.split("\n").length - 1 || 0;
+            }
+
+            return res;
+        }
+    );
+
+    if (res.rawFixedCode) {
+        // create two labeled versions of the code: labeledOriginalCode (with all modified lines labeled) and labeledFixedCode (with all fixed lines labeled)
+        // this LLM prompt will be used to annotate the original code with some explanation of the changes + provide an overview of all changes made
+        const explainDiffPrompt = mainDiffFixedCode(
+            labelModifiedLines(res.rawFixedCode, formattedCode, "modified"),
+            labelModifiedLines(formattedCode, res.rawFixedCode, "fixed"),
+            question
+        );
+
+        res = await codexStreamReader(
+            from,
+            responseId,
+            explainDiffPrompt,
+            (text: string, parsed: IParsedExplainedDiffCodeResponse) => {
+                res.raw = text; // this is the real raw response (not from the previous fixed-code)
+                res.explanation = parsed.explanation;
+                res.lines = parsed.lines;
+
+                return res;
+            }
+        );
+    }
+
+    const response = await ResponseModel.findById(responseId);
+
+    if (response) {
+        response.data = {
+            ...response.data,
+            question,
+            code,
+            response: res.mask(),
+            raw: fixCodePrompt.raw(res.raw || ""),
         };
 
         response.finished = true;

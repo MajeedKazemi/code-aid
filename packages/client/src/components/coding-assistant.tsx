@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 
 import {
     apiCheckCanUseToolbox,
-    apiHelpFixCode,
     apiInitResponse,
     apiKeywordUsageExample,
     apiRecentResponses,
@@ -12,6 +11,7 @@ import { AuthContext, SocketContext } from "../context";
 import { AskFromCodeResponse } from "./responses-socket/ask-from-code";
 import { AskQuestionResponse } from "./responses-socket/ask-question";
 import { ExplainCodeV2Response } from "./responses-socket/explain-code";
+import { FixCodeResponse } from "./responses-socket/fix-code";
 import { WriteCodeResponse } from "./responses-socket/write-code";
 import { BreakDownStepsResponse } from "./responses/break-down-task-response";
 import { ExplainCodeHoverResponse } from "./responses/explain-code-hover-response";
@@ -440,28 +440,35 @@ export const CodingAssistant = () => {
                     return;
                 }
 
-                setStatus(StatusMessage.Loading);
-                setButtonText("loading");
-
-                apiHelpFixCode(context?.token, code, question)
+                apiInitResponse(context?.token, "help-fix-code-v2")
                     .then(async (res) => {
                         const data = await res.json();
 
-                        setResponses([
-                            { ...data, type: "help-fix-code" },
-                            ...responses,
-                        ]);
-                        setStatus(StatusMessage.OK);
-                        setCanUseToolbox(false);
-                        setSelectedOption(null);
-                        setQuestion("");
-                        setButtonText("assist");
+                        if (data.success) {
+                            setResponses([
+                                {
+                                    code,
+                                    question,
+                                    type: "help-fix-code-v2",
+                                    id: data.id,
+                                    stream: true,
+                                },
+                                ...responses,
+                            ]);
+
+                            setStatus(StatusMessage.Loading);
+                            setButtonText("loading");
+                        } else {
+                            displayError(
+                                "Failed to generate example. Please try again or reload the page."
+                            );
+                        }
                     })
-                    .catch(() => {
+                    .catch((e) => {
                         displayError(
                             "Failed to generate example. Please try again or reload the page."
                         );
-                        setButtonText("assist");
+                        setButtonText("ask");
                     });
 
                 break;
@@ -723,6 +730,29 @@ export const CodingAssistant = () => {
                                 case "write-code-v2":
                                     return (
                                         <WriteCodeResponse
+                                            stream={response.stream}
+                                            setStreamFinished={() => {
+                                                setStatus(StatusMessage.OK);
+                                                // setCanUseToolbox(false);
+                                                setSelectedOption(null);
+                                                setQuestion("");
+                                                setButtonText("assist");
+                                            }}
+                                            key={response.id}
+                                            data={response}
+                                            canUseToolbox={canUseToolbox}
+                                            onSubmitFeedback={
+                                                checkCanUseToolbox
+                                            }
+                                            generateExample={generateExample}
+                                            askQuestion={askQuestion}
+                                            setCanUseToolbox={setCanUseToolbox}
+                                        />
+                                    );
+
+                                case "help-fix-code-v2":
+                                    return (
+                                        <FixCodeResponse
                                             stream={response.stream}
                                             setStreamFinished={() => {
                                                 setStatus(StatusMessage.OK);
