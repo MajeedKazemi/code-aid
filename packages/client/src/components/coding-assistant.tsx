@@ -664,7 +664,7 @@ export const CodingAssistant = () => {
                                             stream={response.stream}
                                             setStreamFinished={() => {
                                                 setStatus(StatusMessage.OK);
-                                                // setCanUseToolbox(false);
+                                                setCanUseToolbox(false);
                                                 setSelectedOption(null);
                                                 setQuestion("");
                                                 setButtonText("ask");
@@ -687,7 +687,7 @@ export const CodingAssistant = () => {
                                             stream={response.stream}
                                             setStreamFinished={() => {
                                                 setStatus(StatusMessage.OK);
-                                                // setCanUseToolbox(false);
+                                                setCanUseToolbox(false);
                                                 setSelectedOption(null);
                                                 setQuestion("");
                                                 setButtonText("ask");
@@ -710,7 +710,7 @@ export const CodingAssistant = () => {
                                             stream={response.stream}
                                             setStreamFinished={() => {
                                                 setStatus(StatusMessage.OK);
-                                                // setCanUseToolbox(false);
+                                                setCanUseToolbox(false);
                                                 setSelectedOption(null);
                                                 setQuestion("");
                                                 setButtonText("explain");
@@ -733,7 +733,7 @@ export const CodingAssistant = () => {
                                             stream={response.stream}
                                             setStreamFinished={() => {
                                                 setStatus(StatusMessage.OK);
-                                                // setCanUseToolbox(false);
+                                                setCanUseToolbox(false);
                                                 setSelectedOption(null);
                                                 setQuestion("");
                                                 setButtonText("assist");
@@ -756,7 +756,7 @@ export const CodingAssistant = () => {
                                             stream={response.stream}
                                             setStreamFinished={() => {
                                                 setStatus(StatusMessage.OK);
-                                                // setCanUseToolbox(false);
+                                                setCanUseToolbox(false);
                                                 setSelectedOption(null);
                                                 setQuestion("");
                                                 setButtonText("assist");

@@ -389,9 +389,8 @@ async function explainCode(
 
     // TODO: check if this line is needed!
     // user.responses.push(savedResponse);
-    // user.generating = false;
-    // user.canUseToolbox = false;
-
+    user.generating = false;
+    user.canUseToolbox = false;
     await user.save();
 
     // notify client: finished
@@ -478,9 +477,8 @@ async function writeCode(
 
     // TODO: check if this line is needed!
     // user.responses.push(savedResponse);
-    // user.generating = false;
-    // user.canUseToolbox = false;
-
+    user.generating = false;
+    user.canUseToolbox = false;
     await user.save();
 
     // notify client: finished
@@ -567,9 +565,8 @@ async function askQuestion(
 
     // TODO: check if this line is needed!
     // user.responses.push(savedResponse);
-    // user.generating = false;
-    // user.canUseToolbox = false;
-
+    user.generating = false;
+    user.canUseToolbox = false;
     await user.save();
 
     // notify client: finished
@@ -669,7 +666,8 @@ async function askQuestionReply(
         r.followUps = followUps;
         r.save();
 
-        // user.canUseToolbox = false;
+        user.canUseToolbox = false;
+        user.generating = false;
         await user.save();
 
         // notify client: finished
@@ -770,7 +768,8 @@ async function writeCodeReply(
         r.followUps = followUps;
         r.save();
 
-        // user.canUseToolbox = false;
+        user.canUseToolbox = false;
+        user.generating = false;
         await user.save();
 
         // notify client: finished
@@ -873,7 +872,8 @@ async function askQuestionFromCodeReply(
         r.followUps = followUps;
         r.save();
 
-        // user.canUseToolbox = false;
+        user.canUseToolbox = false;
+        user.generating = false;
         await user.save();
 
         // notify client: finished
@@ -969,7 +969,8 @@ async function explainCodeReply(
         r.followUps = followUps;
         r.save();
 
-        // user.canUseToolbox = false;
+        user.canUseToolbox = false;
+        user.generating = false;
         await user.save();
 
         // notify client: finished
@@ -1058,8 +1059,8 @@ async function askQuestionFromCode(
     }
 
     // user.responses.push(savedResponse);
-    // user.canUseToolbox = false;
-
+    user.canUseToolbox = false;
+    user.generating = false;
     await user.save();
 
     // notify client: finished
@@ -1138,8 +1139,8 @@ async function fixCode(
     }
 
     // user.responses.push(savedResponse);
-    // user.canUseToolbox = false;
-
+    user.canUseToolbox = false;
+    user.generating = false;
     await user.save();
 
     // notify client: finished
