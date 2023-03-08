@@ -114,46 +114,54 @@ responseRouter.post("/set-feedback", verifyUser, async (req, res, next) => {
     const { rating, reason, responseId, followUpId } = req.body;
     const userId = (req.user as IUser)._id;
 
-    const response = await ResponseModel.findById(responseId);
-    const user = await UserModel.findById(userId);
+    try {
+        const response = await ResponseModel.findById(responseId);
+        const user = await UserModel.findById(userId);
 
-    if (response && user) {
-        if (followUpId) {
-            const followUps = response.followUps;
+        if (response && user) {
+            if (followUpId) {
+                const followUps = response.followUps;
 
-            const followUpIndex = followUps.findIndex(
-                (f) => f.id === followUpId
-            );
+                const followUpIndex = followUps.findIndex(
+                    (f) => f.id === followUpId
+                );
 
-            if (followUpIndex !== -1) {
-                followUps[followUpIndex] = {
-                    ...followUps[followUpIndex],
-                    feedback: {
-                        rating,
-                        reason,
-                        time: new Date(),
-                    },
+                if (followUpIndex !== -1) {
+                    followUps[followUpIndex] = {
+                        ...followUps[followUpIndex],
+                        feedback: {
+                            rating,
+                            reason,
+                            time: new Date(),
+                        },
+                    };
+                }
+
+                response.followUps = followUps;
+            } else {
+                response.feedback = {
+                    rating,
+                    reason,
+                    time: new Date(),
                 };
             }
 
-            response.followUps = followUps;
+            await response.save();
+
+            user.canUseToolbox = true;
+            await user.save();
+
+            res.json({
+                success: true,
+            });
         } else {
-            response.feedback = {
-                rating,
-                reason,
-                time: new Date(),
-            };
+            res.json({
+                success: false,
+            });
         }
+    } catch (err) {
+        console.log(err);
 
-        await response.save();
-
-        user.canUseToolbox = true;
-        await user.save();
-
-        res.json({
-            success: true,
-        });
-    } else {
         res.json({
             success: false,
         });
