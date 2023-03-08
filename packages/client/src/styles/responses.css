@@ -349,7 +349,8 @@
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#a8a5ff",endColorstr="#13adbd",GradientType=1);
     color: #000;
     /* padding: 16px; */
-    border-radius: 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
     box-shadow: rgb(0 0 0 / 10%) 0px 20px 25px, rgb(0 0 0 / 4%) 0px 10px 10px;
     overflow: hidden;
 }

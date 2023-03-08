@@ -1,0 +1,126 @@
+.response-header-icon {
+    height: 24px;
+    width: 24px;
+    margin-right: 8px;
+}
+
+/* question-answer */
+
+.response-main-container {
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px,
+        rgba(0, 0, 0, 0.22) 0px 10px 10px;
+    line-height: 26px;
+
+    border-radius: 12px;
+    background-color: #132f4c;
+    margin-top: 32px;
+    border: 1px solid #1e4976;
+}
+
+.response-header {
+    border-radius: 12px 12px 0 0;
+    background-color: #1e4976;
+    padding: 12px 16px;
+    border-bottom: 3px solid #1e4976;
+    display: flex;
+    flex-direction: row;
+}
+
+.response-main-content {
+    padding: 16px 16px 0 16px;
+}
+
+.meta-question {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background-color: #091d32;
+    border-radius: 6px;
+}
+
+.meta-static-code {
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background-color: #091d32;
+}
+
+.response-main-answer {
+    margin-bottom: 12px;
+}
+
+.hoverable-code-container {
+    margin-bottom: 12px;
+}
+
+.hoverable-code-header {
+    padding: 12px 16px;
+    border-radius: 12px 12px 0 0;
+    background-color: #3100b8;
+    /* border: solid 1px #0a16c0; */
+    display: flex;
+    flex-direction: row;
+    font-weight: bold;
+}
+
+.hoverable-code-subtitle {
+    padding: 12px 16px;
+    background-color: #073e59;
+}
+
+.hoverable-code-content {
+    padding: 12px;
+
+    border-radius: 0 0 12px 12px;
+    border: 1px solid #1e4976;
+
+    background-color: #1e0041;
+}
+
+.inline-code-subtle {
+    background-color: #0c598c;
+    border-radius: 4px;
+    padding: 2px 4px;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.suggested-follow-up-questions-container {
+}
+
+.suggested-follow-up-questions-header {
+    margin-bottom: 8px;
+    font-size: 22px;
+}
+
+.follow-up-question-suggestion {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.follow-up-question-suggestion:hover {
+    background-color: #0c77b5;
+}
+
+.follow-up-icon {
+    height: 20px;
+    width: 20px;
+    margin-right: 8px;
+}
+
+.follow-up-input-container {
+    background-color: #144577;
+    border-radius: 12px;
+    margin: 16px;
+    padding: 16px;
+}
+
+.follow-up-separator {
+    margin: 0;
+    border: 1.5px solid #2765a4;
+}
