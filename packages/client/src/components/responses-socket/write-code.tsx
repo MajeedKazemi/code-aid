@@ -5,9 +5,10 @@ import { Link } from "react-router-dom";
 import { apiInitFollowUp } from "../../api/api";
 import { AuthContext, SocketContext } from "../../context";
 import { getIconSVG } from "../../utils/icons";
+import { highlightCode } from "../../utils/utils";
 import { StatusMessage } from "../coding-assistant";
 import { ResponseFeedback } from "../response-feedback";
-import { responseToArrayWithKeywords } from "../responses/keyword";
+import { FollowUp } from "./follow-up";
 import { PseudoCodeHoverable } from "./pseudo-code-hoverable";
 
 interface IWriteCodeResponse {
@@ -61,8 +62,6 @@ export const WriteCodeResponse = (props: IProps) => {
 
     const [buttonText, setButtonText] = useState<string>("ask");
     const [status, setStatus] = useState<StatusMessage>(StatusMessage.OK);
-    const [followUpQuestion, setFollowUpQuestion] = useState<string>("");
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const codeEl = useRef(null);
 
     const [meta, setMeta] = useState({
@@ -84,14 +83,6 @@ export const WriteCodeResponse = (props: IProps) => {
     const [followUps, setFollowUps] = useState(
         props.data.followUps ? props.data.followUps : []
     );
-
-    const displayError = (message: string) => {
-        setErrorMessage(message);
-
-        setTimeout(() => {
-            setErrorMessage(null);
-        }, 5000);
-    };
 
     useEffect(() => {
         if (codeEl.current) {
@@ -134,8 +125,16 @@ export const WriteCodeResponse = (props: IProps) => {
         }, [socket]);
     }
 
+    let suggestions = [];
+
+    if (followUps.length > 0) {
+        suggestions = followUps[followUps.length - 1].response?.suggestions;
+    } else if (response.suggestions) {
+        suggestions = response.suggestions;
+    }
+
     return (
-        <div className="question-answer-main-container">
+        <div className="response-main-container">
             {props.admin && (
                 <Link
                     target="_blank"
@@ -146,14 +145,14 @@ export const WriteCodeResponse = (props: IProps) => {
                 </Link>
             )}
 
-            <div className="main-question">
+            <div className="response-header">
                 <Fragment>
                     {getIconSVG("bullet", "response-header-icon")}
-                    Help Write Code Response
+                    <b>Help Write Code:</b>
                 </Fragment>
             </div>
 
-            <div className="question-answer-main-content">
+            <div>
                 <AskQuestionContent
                     key={props.data.id}
                     data={{
@@ -171,103 +170,82 @@ export const WriteCodeResponse = (props: IProps) => {
                     }}
                 />
 
-                <div className="follow-up-responses">
-                    {followUps.map((f) => {
-                        return (
-                            <AskQuestionContent
-                                followUp
-                                key={f.id}
-                                data={f}
-                                stream={f.stream}
-                                admin={props.admin}
-                                setStreamFinished={() => {
-                                    setStatus(StatusMessage.OK);
-                                    setButtonText("ask");
-                                    if (props.setCanUseToolbox) {
-                                        // props.setCanUseToolbox(false);
-                                    }
-                                }}
-                            />
-                        );
-                    })}
-                </div>
+                {followUps?.length > 0 && (
+                    <div className="follow-ups-container">
+                        {followUps.map((f) => {
+                            return (
+                                <AskQuestionContent
+                                    followUp
+                                    key={f.id}
+                                    data={{
+                                        ...f,
+                                        mainId: meta.id,
+                                    }}
+                                    stream={f.stream}
+                                    admin={props.admin}
+                                    onSubmitFeedback={props.onSubmitFeedback}
+                                    setFollowUpResponse={(response) => {
+                                        const newFollowUps = followUps.map(
+                                            (old) => {
+                                                if (f.id === old.id) {
+                                                    return {
+                                                        ...old,
+                                                        response,
+                                                    };
+                                                }
 
-                <div className="follow-up-question-input-container">
-                    <textarea
-                        placeholder="follow up question..."
-                        className="follow-up-question-input"
-                        onChange={(e) => {
-                            setFollowUpQuestion(e.target.value);
-                        }}
-                        value={followUpQuestion}
-                    ></textarea>
+                                                return old;
+                                            }
+                                        );
 
-                    <button
-                        disabled={props.canUseToolbox ? false : true}
-                        className={
-                            "follow-up-question-button " +
-                            (props.canUseToolbox
-                                ? "follow-up-question-button-enabled"
-                                : "follow-up-question-button-disabled")
-                        }
-                        onClick={() => {
-                            if (followUpQuestion.length < 3) {
-                                displayError(
-                                    "Please specify your follow-up question more clearly."
-                                );
+                                        setFollowUps(newFollowUps);
+                                    }}
+                                    setStreamFinished={() => {
+                                        setStatus(StatusMessage.OK);
+                                        setButtonText("ask");
+                                        if (props.setCanUseToolbox) {
+                                            // props.setCanUseToolbox(false);
+                                        }
+                                    }}
+                                />
+                            );
+                        })}
+                    </div>
+                )}
 
-                                return;
+                <FollowUp
+                    suggestions={suggestions}
+                    canUseToolbox={props.canUseToolbox}
+                    status={status}
+                    buttonText={buttonText}
+                    onFollowUp={(followUpQuestion: string) => {
+                        apiInitFollowUp(
+                            context?.token,
+                            meta.id,
+                            followUps.length
+                        ).then(async (res) => {
+                            const data = await res.json();
+
+                            if (data.success) {
+                                setFollowUps([
+                                    ...followUps,
+                                    {
+                                        id: data.id,
+                                        mainId: meta.id,
+                                        stream: true,
+                                        question: followUpQuestion,
+                                        response: undefined,
+                                        feedback: undefined,
+                                    },
+                                ]);
+
+                                setStatus(StatusMessage.Loading);
+                                setButtonText("loading");
                             }
-
-                            apiInitFollowUp(
-                                context?.token,
-                                meta.id,
-                                followUps.length
-                            ).then(async (res) => {
-                                const data = await res.json();
-
-                                if (data.success) {
-                                    setFollowUps([
-                                        ...followUps,
-                                        {
-                                            id: data.id,
-                                            mainId: meta.id,
-                                            stream: true,
-                                            question: followUpQuestion,
-                                            response: undefined,
-                                            feedback: undefined,
-                                        },
-                                    ]);
-
-                                    setStatus(StatusMessage.Loading);
-                                    setButtonText("loading");
-                                }
-                            });
-                        }}
-                    >
-                        {buttonText}
-                    </button>
-                </div>
-
-                {status !== StatusMessage.OK ? (
-                    <div className="status-message-container">{status}</div>
-                ) : null}
-
-                {/* {status === StatusMessage.OK && (
-                    <ResponseFeedback
-                        admin={props.admin}
-                        priorData={meta.feedback}
-                        responseId={meta.id}
-                        onSubmitFeedback={props.onSubmitFeedback}
-                    />
-                )} */}
+                        });
+                    }}
+                />
             </div>
-
-            {errorMessage && (
-                <div className="error-container">
-                    <div className="error-message">{errorMessage}</div>
-                </div>
-            )}
         </div>
     );
 };
@@ -298,6 +276,7 @@ interface IAskQuestionContentProps {
     followUp?: boolean;
     stream?: boolean;
     setStreamFinished?: (finished: boolean) => void;
+    setFollowUpResponse?: (response: IWriteCodeResponse) => void;
 }
 
 const AskQuestionContent = (props: IAskQuestionContentProps) => {
@@ -350,6 +329,16 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
                             suggestions: d.data.suggestions,
                             codeLinesCount: d.data.codeLinesCount,
                         });
+
+                        if (props.setFollowUpResponse) {
+                            props.setFollowUpResponse({
+                                answer: d.data.answer,
+                                cLibraryFunctions: d.data.cLibraryFunctions,
+                                codeParts: d.data.codeParts,
+                                suggestions: d.data.suggestions,
+                                codeLinesCount: d.data.codeLinesCount,
+                            });
+                        }
                     } else if (d.type === "done") {
                         setStreamFinished(true);
 
@@ -363,25 +352,24 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
     }
 
     return (
-        <div>
-            <div>{meta.question}</div>
+        <div className="response-main-content">
+            <div className="meta-question">
+                <span>
+                    <b>Intended Behavior:</b> {meta.question}
+                </span>
+            </div>
 
             {response.answer && (
-                <div>
-                    <Fragment>
-                        {responseToArrayWithKeywords(
-                            response.answer,
-                            props.canUseToolbox,
-                            props.askQuestion,
-                            props.generateExample
-                        ).map((item: string | JSX.Element, index: number) => {
-                            if (typeof item === "string") {
-                                return <span key={"txt-" + index}>{item}</span>;
-                            }
-
-                            return item;
-                        })}
-                    </Fragment>
+                <div className="response-main-answer">
+                    <b>Response:</b>{" "}
+                    <span
+                        dangerouslySetInnerHTML={{
+                            __html: highlightCode(
+                                response.answer,
+                                "inline-code-subtle"
+                            ),
+                        }}
+                    ></span>
                 </div>
             )}
 
@@ -393,55 +381,18 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
                     </span>
                 )}
 
-            {response.codeParts &&
-                response.codeParts.map((codePart) => {
-                    return (
-                        <div>
-                            <div>{codePart.title}</div>
-
-                            {codePart.lines && codePart.lines.length > 0 && (
-                                <PseudoCodeHoverable code={codePart.lines} />
-                            )}
-                        </div>
-                    );
-                })}
-
-            <div>
-                {response.cLibraryFunctions &&
-                    response.cLibraryFunctions.map((f) => {
-                        return (
-                            <div
-                                className="question-answer-c-library-function"
-                                key={JSON.stringify(f)}
-                            >
-                                <div className="question-answer-c-library-function-title">
-                                    <span>{f?.name}</span>
-                                    <br />
-                                    <span>{f?.description}</span>
-                                    <br />
-                                    <span>{f?.include}</span>
-                                    <br />
-                                    <span>{f?.proto}</span>
-                                </div>
-                                <hr />
-                            </div>
-                        );
-                    })}
-            </div>
-
-            <div>
-                {response.suggestions &&
-                    response.suggestions.map((s) => {
-                        return (
-                            <div
-                                className="question-answer-suggestion"
-                                key={JSON.stringify(s)}
-                            >
-                                {s}
-                            </div>
-                        );
-                    })}
-            </div>
+            {response.codeParts?.map((codePart) => {
+                return (
+                    <div>
+                        {codePart.lines && codePart.lines.length > 0 && (
+                            <PseudoCodeHoverable
+                                title={codePart.title}
+                                code={codePart.lines}
+                            />
+                        )}
+                    </div>
+                );
+            })}
 
             {streamFinished && (
                 <ResponseFeedback
