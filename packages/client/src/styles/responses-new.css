@@ -240,14 +240,19 @@
     background-color: #fff;
     color: #000;
     top: 10%;
-    left: 10%;
-    right: 10%;
+    left: 7.5%;
+    right: 7.5%;
 
     font-size: 24px;
-    padding: 64px;
+    padding: 32px;
     border-radius: 24px;
 
     box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+}
+
+.update-notice-container h1 {
+    font-size: 32px;
+    margin-bottom: 24px;
 }
 
 .update-notice-title {
@@ -264,22 +269,22 @@
 }
 
 .update-notice-message {
-    font-size: 28px;
+    font-size: 24px;
 }
 
 .update-notice-message li {
-    margin-bottom: 16px;
+    margin-bottom: 8px;
 }
 
 .update-notice-button {
     background-color: #0c94ac;
     color: #fff;
-    padding: 24px 48px;
-    border-radius: 16px;
-    font-size: 40px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 32px;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 64px;
+    margin-top: 16px;
     border: none;
 }
 

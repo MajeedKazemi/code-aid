@@ -35,13 +35,8 @@ export const UpdateNoticeComponent = () => {
                         and can display some pseudocode (with explanations).
                     </li>
                     <li>
-                        <b>Help Write Code:</b> now generates much useufl
-                        pseudocode (with explanations).
-                    </li>
-                    <li>
-                        <b>Standard Library Functions:</b> most responses will
-                        also include hoverable man-pages for relevant standard
-                        library functions.
+                        <b>Help Write Code:</b> now generates pseudocode (with
+                        explanations).
                     </li>
                     <li>
                         <b>Standard Library Functions:</b> most responses will
