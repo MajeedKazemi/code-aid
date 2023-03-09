@@ -160,6 +160,7 @@ export const WriteCodeResponse = (props: IProps) => {
                     }}
                     stream={props.stream}
                     admin={props.admin}
+                    onSubmitFeedback={props.onSubmitFeedback}
                     canUseToolbox={props.canUseToolbox}
                     setCanUseToolbox={props.setCanUseToolbox}
                     setStreamFinished={() => {
