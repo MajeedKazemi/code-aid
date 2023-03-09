@@ -1,7 +1,8 @@
-export const staticManPages = {
+// TODO: sendto, recvfrom, fscanf,
+
+const staticManPages = {
     printf: {
-        summary:
-            "`printf()` is a standard C library function that writes a formatted string to the standard output stream.",
+        summary: "writes a formatted string to the standard output stream.",
         synopsis: "int printf(const char *format, ...);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -23,7 +24,7 @@ export const staticManPages = {
     },
     scanf: {
         summary:
-            "`scanf()` is a standard C library function that reads formatted input from the standard input stream (stdin) and stores it in the locations pointed to by its arguments.",
+            "reads formatted input from the standard input stream (stdin) and stores it in the locations pointed to by its arguments.",
         synopsis: "int scanf(const char *format, ...);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -40,8 +41,7 @@ export const staticManPages = {
         similar: ["fscanf", "sscanf", "fgets", "getchar", "getline"],
     },
     malloc: {
-        summary:
-            "`malloc()` is a standard C library function that allocates memory on the heap.",
+        summary: "allocates memory on the heap.",
         synopsis: "void *malloc(size_t size);",
         include: ["#include <stdlib.h>"],
         examples: [
@@ -59,7 +59,7 @@ export const staticManPages = {
     },
     free: {
         summary:
-            "`free()` is a standard C library function that deallocates a block of memory previously allocated by a call to `malloc()`, `calloc()`, or `realloc()`.",
+            "deallocates a block of memory previously allocated by a call to `malloc()`, `calloc()`, or `realloc()`.",
         synopsis: "void free(void *ptr);",
         include: ["#include <stdlib.h>"],
         examples: [
@@ -77,7 +77,7 @@ export const staticManPages = {
     },
     getchar: {
         summary:
-            "`getchar()` is a standard C library function that reads a single character from the standard input stream (stdin).",
+            "reads a single character from the standard input stream (stdin).",
         synopsis: "int getchar(void);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -94,8 +94,7 @@ export const staticManPages = {
         similar: ["getc", "fgetc", "getw", "fgetw"],
     },
     fopen: {
-        summary:
-            "`fopen()` is a standard C library function that opens a file and returns a pointer to a FILE structure.",
+        summary: "opens a file and returns a pointer to a FILE structure.",
         synopsis: "FILE *fopen(const char *pathname, const char *mode);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -113,7 +112,7 @@ export const staticManPages = {
     },
     fseek: {
         summary:
-            "`fseek()` is a standard C library function that sets the file position indicator for the stream pointed to by stream.",
+            "sets the file position indicator for the stream pointed to by stream.",
         synopsis: "int fseek(FILE *stream, long offset, int whence);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -131,7 +130,7 @@ export const staticManPages = {
     },
     ftell: {
         summary:
-            "`ftell()` is a standard C library function that returns the current position of the file pointer associated with the given stream.",
+            "returns the current position of the file pointer associated with the given stream.",
         synopsis: "long int ftell(FILE *stream);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -148,8 +147,7 @@ export const staticManPages = {
         similar: ["fseek", "rewind", "fgetpos", "fsetpos"],
     },
     fclose: {
-        summary:
-            "`fclose()` is a standard C library function that closes a file stream.",
+        summary: "closes a file stream.",
         synopsis: "int fclose(FILE *stream);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -166,8 +164,7 @@ export const staticManPages = {
         similar: ["fopen", "fread", "fwrite", "fseek", "ftell"],
     },
     fgets: {
-        summary:
-            "`fgets()` is a standard C library function that reads a line from a stream and stores it in a string.",
+        summary: "reads a line from a stream and stores it in a string.",
         synopsis: "char *fgets(char *str, int n, FILE *stream);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -184,8 +181,7 @@ export const staticManPages = {
         similar: ["fgetc", "fputs", "gets", "puts"],
     },
     fgetc: {
-        summary:
-            "`fgetc()` is a standard C library function that reads a single character from the specified stream.",
+        summary: "reads a single character from the specified stream.",
         synopsis: "int fgetc(FILE *stream);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -202,8 +198,7 @@ export const staticManPages = {
         similar: ["getc", "fgets", "fread", "fputc"],
     },
     fputs: {
-        summary:
-            "`fputs()` is a standard C library function that writes a string to a given stream.",
+        summary: "writes a string to a given stream.",
         synopsis: "int fputs(const char *s, FILE *stream);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -221,7 +216,7 @@ export const staticManPages = {
     },
     gets: {
         summary:
-            "`gets()` is a standard C library function that reads a line from the standard input stream (stdin) into a buffer.",
+            "reads a line from the standard input stream (stdin) into a buffer.",
         synopsis: "char *gets(char *s);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -238,8 +233,7 @@ export const staticManPages = {
         similar: ["fgets", "getline", "getchar"],
     },
     puts: {
-        summary:
-            "`puts()` is a standard C library function that writes a string to the standard output stream (stdout).",
+        summary: "writes a string to the standard output stream (stdout).",
         synopsis: "int puts(const char *str);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -257,7 +251,7 @@ export const staticManPages = {
     },
     fread: {
         summary:
-            "`fread()` is a standard C library function that reads a specified number of elements from a given stream into an array.",
+            "reads a specified number of elements from a given stream into an array.",
         synopsis:
             "size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);",
         include: ["#include <stdio.h>"],
@@ -276,7 +270,7 @@ export const staticManPages = {
     },
     fwrite: {
         summary:
-            "`fwrite()` is a standard C library function that writes a specified number of elements of a given size from a given buffer to a given stream.",
+            "writes a specified number of elements of a given size from a given buffer to a given stream.",
         synopsis:
             "size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);",
         include: ["#include <stdio.h>"],
@@ -294,8 +288,7 @@ export const staticManPages = {
         similar: ["fread", "fprintf", "fputs", "fputc"],
     },
     fputc: {
-        summary:
-            "`fputc()` is a standard C library function that writes a character to the specified stream.",
+        summary: "writes a character to the specified stream.",
         synopsis: "int fputc(int character, FILE *stream);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -313,7 +306,7 @@ export const staticManPages = {
     },
     socket: {
         summary:
-            "`socket()` is a system call that creates an endpoint for communication and returns a file descriptor that refers to that endpoint.",
+            "a system call that creates an endpoint for communication and returns a file descriptor that refers to that endpoint.",
         synopsis: "int socket(int domain, int type, int protocol);",
         include: ["#include <sys/socket.h>"],
         examples: [
@@ -331,7 +324,7 @@ export const staticManPages = {
     },
     inet_pton: {
         summary:
-            "`inet_pton()` is a standard C library function that converts an Internet Protocol address from its presentation format (textual representation) to its numeric binary form.",
+            "converts an Internet Protocol address from its presentation format (textual representation) to its numeric binary form.",
         synopsis: "int inet_pton(int af, const char *src, void *dst);",
         include: ["#include <arpa/inet.h>"],
         examples: [
@@ -348,8 +341,7 @@ export const staticManPages = {
         similar: ["inet_ntop", "getaddrinfo", "getnameinfo"],
     },
     bind: {
-        summary:
-            "`bind()` is a system call used to assign a local address to a socket.",
+        summary: "a system call that assigns a local address to a socket.",
         synopsis:
             "int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);",
         include: ["#include <sys/socket.h>"],
@@ -368,7 +360,7 @@ export const staticManPages = {
     },
     listen: {
         summary:
-            "`listen()` is a system call used by a server process to listen for incoming connections from client processes.",
+            "a system call used by a server process to listen for incoming connections from client processes.",
         synopsis: "int listen(int sockfd, int backlog);",
         include: ["#include <sys/socket.h>"],
         examples: [
@@ -386,7 +378,7 @@ export const staticManPages = {
     },
     connect: {
         summary:
-            "`connect()` is a system call used to establish a connection between a socket and a remote socket address.",
+            "a system call that establishes a connection between a socket and a remote socket address.",
         synopsis:
             "int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);",
         include: ["#include <sys/types.h>", "#include <sys/socket.h>"],
@@ -404,8 +396,7 @@ export const staticManPages = {
         similar: ["socket", "bind", "listen", "accept"],
     },
     accept: {
-        summary:
-            "`accept()` is a system call used to accept a connection on a socket.",
+        summary: "a system call that accepts a connection on a socket.",
         synopsis:
             "int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);",
         include: ["#include <sys/types.h>", "#include <sys/socket.h>"],
@@ -423,8 +414,7 @@ export const staticManPages = {
         similar: ["socket", "bind", "listen", "connect"],
     },
     fprintf: {
-        summary:
-            "`fprintf()` is a standard C library function that writes formatted output to a stream.",
+        summary: "writes formatted output to a stream.",
         synopsis: "int fprintf(FILE *stream, const char *format, ...);",
         include: ["#include <stdio.h>"],
         examples: [
@@ -442,7 +432,7 @@ export const staticManPages = {
     },
     sizeof: {
         summary:
-            "`sizeof` is a C language operator that returns the size of a data type or the size of an object.",
+            "an operator that returns the size of a data type or the size of an object.",
         synopsis: "size_t sizeof(type);",
         include: [],
         examples: [
@@ -458,10 +448,9 @@ export const staticManPages = {
         bugs: "The `sizeof` operator does not work on variables, only on data types.",
         similar: ["strlen", "strcpy", "strcat", "strncat", "memcpy", "memmove"],
     },
-
     fork: {
         summary:
-            "`fork()` is a system call in Unix-like operating systems that creates a new process by duplicating the existing process.",
+            "a system call that creates a new process by duplicating the existing process.",
         synopsis: "pid_t fork(void);",
         include: ["#include <unistd.h>"],
         examples: [
@@ -478,8 +467,7 @@ export const staticManPages = {
         similar: ["exec", "wait", "exit", "kill"],
     },
     exec: {
-        summary:
-            "`exec()` is a system call that is used to execute a program from within a process.",
+        summary: "a system call that executes a program from within a process.",
         synopsis: "int exec(const char *filename, char *const argv[]);",
         include: ["#include <unistd.h>"],
         examples: [
@@ -495,10 +483,9 @@ export const staticManPages = {
         bugs: "The `exec()` family of functions does not check for the existence of the new process image file before attempting to execute it. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
         similar: ["execv", "execve", "execl", "execlp", "execle", "execvp"],
     },
-
     kill: {
         summary:
-            "`kill()` is a system call in the Linux kernel that sends a signal to a process or process group.",
+            "a system call that sends a signal to a process or a group of processes.",
         synopsis: "int kill(pid_t pid, int sig);",
         include: ["#include <sys/types.h>", "#include <signal.h>"],
         examples: [
@@ -516,7 +503,7 @@ export const staticManPages = {
     },
     wait: {
         summary:
-            "`wait()` is a system call that suspends the calling process until one of its children terminates.",
+            "a system call that suspends the calling process until one of its children terminates.",
         synopsis: "pid_t wait(int *status);",
         include: ["#include <sys/types.h>", "#include <sys/wait.h>"],
         examples: [
@@ -533,8 +520,7 @@ export const staticManPages = {
         similar: ["waitpid", "waitid", "wait3", "wait4"],
     },
     exit: {
-        summary:
-            "`exit()` is a standard C library function that terminates the calling process.",
+        summary: "terminates the calling process.",
         synopsis: "void exit(int status);",
         include: ["#include <stdlib.h>"],
         examples: [
@@ -552,7 +538,7 @@ export const staticManPages = {
     },
     perror: {
         summary:
-            "`perror()` is a standard C library function that prints a descriptive error message to the standard error stream (stderr) based on the value of the global variable errno.",
+            "prints a descriptive error message to the standard error stream (stderr) based on the value of the global variable errno.",
         synopsis: "void perror(const char *s);",
         include: ["#include <stdio.h>", "#include <errno.h>"],
         examples: [
@@ -569,8 +555,7 @@ export const staticManPages = {
         similar: ["strerror", "errno"],
     },
     strtoul: {
-        summary:
-            "`strtoul()` is a standard C library function that converts a string to an unsigned long integer.",
+        summary: "converts a string to an unsigned long integer.",
         synopsis:
             "unsigned long int strtoul(const char *nptr, char **endptr, int base);",
         include: ["#include <stdlib.h>"],
@@ -596,8 +581,7 @@ export const staticManPages = {
         ],
     },
     setlocale: {
-        summary:
-            "`setlocale()` is a standard C library function that sets the current locale of the program.",
+        summary: "sets the current locale of the program.",
         synopsis: "char *setlocale(int category, const char *locale);",
         include: ["#include <locale.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -615,8 +599,7 @@ export const staticManPages = {
         similar: ["localeconv", "nl_langinfo"],
     },
     toupper: {
-        summary:
-            "`toupper()` is a standard C library function that converts a lowercase letter to its uppercase equivalent.",
+        summary: "converts a lowercase letter to its uppercase equivalent.",
         synopsis: "int toupper(int c);",
         include: ["#include <ctype.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -634,7 +617,7 @@ export const staticManPages = {
     },
     tolower: {
         summary:
-            "`tolower()` is a standard C library function that converts an upper-case letter to its corresponding lower-case letter.",
+            "converts an upper-case letter to its corresponding lower-case letter.",
         synopsis: "int tolower(int c);",
         include: ["#include <ctype.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -653,7 +636,7 @@ export const staticManPages = {
     },
     bzero: {
         summary:
-            "`bzero()` is a standard C library function that sets the first n bytes of the memory area pointed to by s to zero.",
+            "sets the first n bytes of the memory area pointed to by s to zero.",
         synopsis: "void bzero(void *s, size_t n);",
         include: ["#include <strings.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -672,8 +655,7 @@ export const staticManPages = {
     },
 
     strtol: {
-        summary:
-            "`strtol()` is a standard C library function that converts a string to a long integer.",
+        summary: "converts a string to a long integer.",
         synopsis: "long int strtol(const char *nptr, char **endptr, int base);",
         include: ["#include <stdlib.h>"],
         examples: [
@@ -698,7 +680,7 @@ export const staticManPages = {
     },
     strchr: {
         summary:
-            "`strchr()` is a standard C library function that searches for the first occurrence of a character in a null-terminated string.",
+            "searches for the first occurrence of a character in a null-terminated string.",
         synopsis: "char *strchr(const char *s, int c);",
         include: ["#include <string.h>"],
         examples: [
@@ -715,8 +697,7 @@ export const staticManPages = {
         similar: ["strstr", "strrchr", "strspn", "strcspn"],
     },
     strlen: {
-        summary:
-            "`strlen()` is a standard C library function that returns the length of a null-terminated string.",
+        summary: "returns the length of a null-terminated string.",
         synopsis: "size_t strlen(const char *s);",
         include: ["#include <string.h>"],
         examples: [
@@ -741,7 +722,7 @@ export const staticManPages = {
     },
     dup2: {
         summary:
-            "`dup2()` is a system call that creates a copy of an existing file descriptor.",
+            "a system call that creates a copy of an existing file descriptor.",
         synopsis: "int dup2(int oldfd, int newfd);",
         include: ["#include <unistd.h>"],
         examples: [
@@ -759,7 +740,7 @@ export const staticManPages = {
     },
     close: {
         summary:
-            "`close()` is a system call that closes a file descriptor, so that it no longer refers to any file and may be reused.",
+            "a system call that closes a file descriptor, so that it no longer refers to any file and may be reused.",
         synopsis: "int close(int fd);",
         include: ["#include <unistd.h>"],
         examples: [
@@ -777,7 +758,7 @@ export const staticManPages = {
     },
     pipe: {
         summary:
-            "`pipe()` is a system call that creates a pipe, a unidirectional data channel that can be used for interprocess communication.",
+            "a system call that creates a pipe, a unidirectional data channel that can be used for interprocess communication.",
         synopsis: "int pipe(int pipefd[2]);",
         include: ["#include <unistd.h>"],
         examples: [
@@ -795,7 +776,7 @@ export const staticManPages = {
     },
     strncat: {
         summary:
-            "`strncat()` is a standard C library function that appends a specified number of characters from a source string to the end of a destination string.",
+            "appends a specified number of characters from a source string to the end of a destination string.",
         synopsis:
             "char *strncat(char *destination, const char *source, size_t num);",
         include: ["#include <string.h>"],
@@ -814,7 +795,7 @@ export const staticManPages = {
     },
     strcmp: {
         summary:
-            "`strcmp()` is a standard C library function that compares two null-terminated strings and returns an integer indicating their relative ordering.",
+            "compares two null-terminated strings and returns an integer indicating their relative ordering.",
         synopsis: "int strcmp(const char *s1, const char *s2);",
         include: ["#include <string.h>"],
         examples: [
@@ -832,7 +813,7 @@ export const staticManPages = {
     },
     strcat: {
         summary:
-            "`strcat()` is a standard C library function that appends a copy of the null-terminated string pointed to by source to the end of the null-terminated string pointed to by destination.",
+            "appends a copy of the null-terminated string pointed to by source to the end of the null-terminated string pointed to by destination.",
         synopsis: "char *strcat(char *destination, const char *source);",
         include: ["#include <string.h>"],
         examples: [
@@ -850,7 +831,7 @@ export const staticManPages = {
     },
     strspn: {
         summary:
-            "`strspn()` is a standard C library function that calculates the length of the initial segment of a string which consists entirely of characters from a given set of characters.",
+            "calculates the length of the initial segment of a string which consists entirely of characters from a given set of characters.",
         synopsis: "size_t strspn(const char *str1, const char *str2);",
         include: ["#include <string.h>"],
         examples: [
@@ -868,7 +849,7 @@ export const staticManPages = {
     },
     strstr: {
         summary:
-            "`strstr()` is a standard C library function that searches for the first occurrence of a substring in a string.",
+            "searches for the first occurrence of a substring in a string.",
         synopsis: "char *strstr(const char *haystack, const char *needle);",
         include: ["#include <string.h>"],
         examples: [
@@ -892,8 +873,7 @@ export const staticManPages = {
         ],
     },
     strncmp: {
-        summary:
-            "`strncmp()` is a standard C library function that compares the first n characters of two strings.",
+        summary: "compares the first n characters of two strings.",
         synopsis: "int strncmp(const char *s1, const char *s2, size_t n);",
         include: ["#include <string.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -920,7 +900,7 @@ export const staticManPages = {
     },
     strcat_s: {
         summary:
-            "`strcat_s()` is a standard C library function that appends a null-terminated string (the source) to the end of another null-terminated string (the destination).",
+            "appends a null-terminated string (the source) to the end of another null-terminated string (the destination).",
         synopsis:
             "errno_t strcat_s(char *destination, rsize_t destsz, const char *source);",
         include: ["#include <string.h>"],
@@ -940,7 +920,7 @@ export const staticManPages = {
     },
     memcpy_s: {
         summary:
-            "`memcpy_s()` is a standard C library function that copies a specified number of bytes from a source memory location to a destination memory location.",
+            "copies a specified number of bytes from a source memory location to a destination memory location.",
         synopsis:
             "errno_t memcpy_s(void *dest, rsize_t destsz, const void *src, rsize_t n);",
         include: ["#include <string.h>"],
@@ -959,8 +939,7 @@ export const staticManPages = {
         similar: ["strcpy", "strncpy", "strcat", "strncat", "memmove"],
     },
     memmove: {
-        summary:
-            "`memmove()` is a standard C library function that copies a block of memory from one location to another.",
+        summary: "copies a block of memory from one location to another.",
         synopsis: "void *memmove(void *dest, const void *src, size_t n);",
         include: ["#include <string.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -978,8 +957,8 @@ export const staticManPages = {
         similar: ["strcpy", "strncpy", "strcat", "strncat", "memcpy"],
     },
     memchr: {
-        summary:
-            "`memchr()` is a standard C library function that searches for a character in a memory area.",
+        summary: "searches for a character in a memory area.",
+        short: "searches for a character in a memory area",
         synopsis: "void *memchr(const void *s, int c, size_t n);",
         include: ["#include <string.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1006,8 +985,7 @@ export const staticManPages = {
     },
 
     qsort: {
-        summary:
-            "`qsort()` is a standard C library function that sorts an array of elements in ascending order.",
+        summary: "sorts an array of elements in ascending order.",
         synopsis:
             "void qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));",
         include: ["#include <stdlib.h>"],
@@ -1026,8 +1004,7 @@ export const staticManPages = {
         similar: ["bsearch", "qsort_r", "heapsort"],
     },
     rand_r: {
-        summary:
-            "`rand_r()` is a standard C library function that generates a random number using a given seed.",
+        summary: "generates a random number using a given seed.",
         synopsis: "int rand_r(unsigned int *seed);",
         include: ["#include <stdlib.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1045,8 +1022,7 @@ export const staticManPages = {
         similar: ["random", "rand", "srand"],
     },
     setjmp: {
-        summary:
-            "`setjmp()` is a standard C library function that saves the current program state in a buffer and returns 0.",
+        summary: "saves the current program state in a buffer and returns 0.",
         synopsis: "int setjmp(jmp_buf env);",
         include: ["#include <setjmp.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1065,7 +1041,7 @@ export const staticManPages = {
     },
     longjmp: {
         summary:
-            "`longjmp()` is a standard C library function that restores the environment saved by a previous call to `setjmp()`.",
+            "restores the environment saved by a previous call to `setjmp()`.",
         synopsis: "void longjmp(jmp_buf env, int val);",
         include: ["#include <setjmp.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1083,8 +1059,7 @@ export const staticManPages = {
         similar: ["setjmp", "siglongjmp", "sigsetjmp"],
     },
     signal: {
-        summary:
-            "`signal()` is a standard C library function that sets a signal handler for a specified signal.",
+        summary: "sets a signal handler for a specified signal.",
         synopsis: "void (*signal(int signum, void (*handler)(int)))(int);",
         include: ["#include <signal.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1103,7 +1078,7 @@ export const staticManPages = {
     },
     sigaction: {
         summary:
-            "`sigaction()` is a POSIX system call that allows a process to examine and change the action taken by the system on receipt of a specific signal.",
+            "a system call that allows a process to examine and change the action taken by the system on receipt of a specific signal.",
         synopsis:
             "int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact);",
         include: ["#include <signal.h>"],
@@ -1122,8 +1097,7 @@ export const staticManPages = {
         similar: ["signal", "sigprocmask", "sigpending", "sigwait"],
     },
     time: {
-        summary:
-            "`time()` is a system call that returns the current calendar time.",
+        summary: "a system call that returns the current calendar time.",
         synopsis: "time_t time(time_t *t);",
         include: ["#include <time.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1147,8 +1121,7 @@ export const staticManPages = {
         ],
     },
     localtime: {
-        summary:
-            "`localtime()` is a standard C library function that converts a time value to a broken-down local time structure.",
+        summary: "converts a time value to a broken-down local time structure.",
         synopsis: "struct tm *localtime(const time_t *timep);",
         include: ["#include <time.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1167,7 +1140,7 @@ export const staticManPages = {
     },
     gmtime: {
         summary:
-            "`gmtime()` is a standard C library function that converts a time value into a broken-down time structure, expressed in Coordinated Universal Time (UTC).",
+            "converts a time value into a broken-down time structure, expressed in Coordinated Universal Time (UTC).",
         synopsis: "struct tm *gmtime(const time_t *timep);",
         include: ["#include <time.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1186,7 +1159,7 @@ export const staticManPages = {
     },
     strftime: {
         summary:
-            "`strftime()` is a standard C library function that formats a given date and time according to the specified format.",
+            "formats a given date and time according to the specified format.",
         synopsis:
             "size_t strftime(char *s, size_t max, const char *format, const struct tm *tm);",
         include: ["#include <time.h>"],
@@ -1206,7 +1179,7 @@ export const staticManPages = {
     },
     mktime: {
         summary:
-            "`mktime()` is a standard C library function that converts a broken-down time structure (struct tm) into a calendar time (time_t).",
+            "converts a broken-down time structure (struct tm) into a calendar time (time_t).",
         synopsis: "time_t mktime(struct tm *timeptr);",
         include: ["#include <time.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1224,8 +1197,7 @@ export const staticManPages = {
         similar: ["gmtime", "localtime", "strftime", "ctime"],
     },
     difftime: {
-        summary:
-            "`difftime()` is a standard C library function that computes the difference between two calendar times.",
+        summary: "computes the difference between two calendar times.",
         synopsis: "double difftime(time_t time1, time_t time2);",
         include: ["#include <time.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1244,7 +1216,7 @@ export const staticManPages = {
     },
     strncpy: {
         summary:
-            "`strncpy()` is a standard C library function that copies up to n characters from the null-terminated string (the source) to the memory location pointed to by destination.",
+            "copies up to n characters from the null-terminated string (the source) to the memory location pointed to by destination.",
         synopsis:
             "char *strncpy(char *destination, const char *source, size_t n);",
         include: ["#include <stdlib.h>"],
@@ -1262,8 +1234,7 @@ export const staticManPages = {
         similar: ["strcpy", "strcat", "strncat", "memcpy", "memmove"],
     },
     memcpy: {
-        summary:
-            "`memcpy()` is a standard C library function that copies a block of memory from one location to another.",
+        summary: "copies a block of memory from one location to another.",
         synopsis: "void *memcpy(void *dest, const void *src, size_t n);",
         include: ["#include <string.h>"],
         examples: [
@@ -1281,7 +1252,7 @@ export const staticManPages = {
     },
     FD_ISSET: {
         summary:
-            "`FD_ISSET()` is a macro that tests to see if a file descriptor is part of a set.",
+            "a macro that tests to see if a file descriptor is part of a set.",
         synopsis: "int FD_ISSET(int fd, fd_set *set);",
         include: ["#include <sys/select.h>"],
         examples: [
@@ -1299,7 +1270,7 @@ export const staticManPages = {
     },
     select: {
         summary:
-            '`select()` is a system call that allows a program to monitor multiple file descriptors, waiting until one or more of the file descriptors become "ready" for some class of I/O operation.',
+            'a system call that allows a program to monitor multiple file descriptors, waiting until one or more of the file descriptors become "ready" for some class of I/O operation.',
         synopsis:
             "int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);",
         include: ["#include <sys/select.h>"],
@@ -1317,8 +1288,7 @@ export const staticManPages = {
         similar: ["poll", "epoll"],
     },
     abs: {
-        summary:
-            "`abs()` is a standard C library function that returns the absolute value of an integer.",
+        summary: "returns the absolute value of an integer.",
         synopsis: "int abs(int x);",
         include: ["#include <stdlib.h>"],
         examples: [
@@ -1335,8 +1305,7 @@ export const staticManPages = {
         similar: ["fabs", "labs"],
     },
     atoi: {
-        summary:
-            "`atoi()` is a standard C library function that converts a string (the source) to an integer.",
+        summary: "converts a string (the source) to an integer.",
         synopsis: "int atoi(const char *str);",
         include: ["#include <stdlib.h>"],
         examples: [
@@ -1361,8 +1330,7 @@ export const staticManPages = {
         ],
     },
     memset: {
-        summary:
-            "`memset()` is a standard C library function that fills a block of memory with a specified value.",
+        summary: "fills a block of memory with a specified value.",
         synopsis: "void *memset(void *s, int c, size_t n);",
         include: ["#include <string.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1387,8 +1355,7 @@ export const staticManPages = {
         ],
     },
     rand: {
-        summary:
-            "`rand()` is a standard C library function that generates a pseudo-random integer between 0 and RAND_MAX.",
+        summary: "generates a pseudo-random integer between 0 and RAND_MAX.",
         synopsis: "int rand(void);",
         include: ["#include <stdlib.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1407,7 +1374,7 @@ export const staticManPages = {
     },
     srand: {
         summary:
-            "`srand()` is a standard C library function that sets the starting point for generating a series of pseudo-random integers.",
+            "sets the starting point for generating a series of pseudo-random integers.",
         synopsis: "void srand(unsigned int seed);",
         include: ["#include <stdlib.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1426,7 +1393,7 @@ export const staticManPages = {
     },
     atof: {
         summary:
-            "`atof()` is a standard C library function that converts a string to a double-precision floating-point number.",
+            "converts a string to a double-precision floating-point number.",
         synopsis: "double atof(const char *str);",
         include: ["#include <stdlib.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1444,8 +1411,7 @@ export const staticManPages = {
         similar: ["atol", "atoll", "strtod", "strtof"],
     },
     atol: {
-        summary:
-            "`atol()` is a standard C library function that converts a string to a long integer.",
+        summary: "converts a string to a long integer.",
         synopsis: "long atol(const char *str);",
         include: ["#include <stdlib.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1464,7 +1430,7 @@ export const staticManPages = {
     },
     ceil: {
         summary:
-            "`ceil()` is a standard C library function that returns the smallest integral value that is not less than the given argument.",
+            "returns the smallest integral value that is not less than the given argument.",
         synopsis: "double ceil(double x);",
         include: ["#include <math.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1483,7 +1449,7 @@ export const staticManPages = {
     },
     floor: {
         summary:
-            "`floor()` is a standard C library function that returns the largest integral value that is not greater than the given argument.",
+            "returns the largest integral value that is not greater than the given argument.",
         synopsis: "double floor(double x);",
         include: ["#include <math.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1501,8 +1467,7 @@ export const staticManPages = {
         similar: ["ceil", "round", "trunc"],
     },
     fmod: {
-        summary:
-            "`fmod()` is a standard C library function that returns the remainder of a division operation.",
+        summary: "returns the remainder of a division operation.",
         synopsis: "double fmod(double x, double y);",
         include: ["#include <math.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1520,8 +1485,7 @@ export const staticManPages = {
         similar: ["modf", "remainder", "remquo"],
     },
     pow: {
-        summary:
-            "`pow()` is a standard C library function that computes the value of x raised to the power of y.",
+        summary: "computes the value of x raised to the power of y.",
         synopsis: "double pow(double x, double y);",
         include: ["#include <math.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1539,8 +1503,7 @@ export const staticManPages = {
         similar: ["sqrt", "exp", "log", "log10"],
     },
     sqrt: {
-        summary:
-            "`sqrt()` is a standard C library function that computes the square root of a number.",
+        summary: "computes the square root of a number.",
         synopsis: "double sqrt(double x);",
         include: ["#include <math.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1558,8 +1521,7 @@ export const staticManPages = {
         similar: ["pow", "exp", "log", "log10"],
     },
     exp: {
-        summary:
-            "`exp()` is a standard C library function that calculates the exponential of a given number.",
+        summary: "calculates the exponential of a given number.",
         synopsis: "double exp(double x);",
         include: ["#include <math.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1577,8 +1539,7 @@ export const staticManPages = {
         similar: ["exp2", "exp10", "log", "log2", "log10"],
     },
     syslog: {
-        summary:
-            "`syslog()` is a standard C library function that sends a message to the system log.",
+        summary: "sends a message to the system log.",
         synopsis: "void syslog(int priority, const char *format, ...);",
         include: ["#include <syslog.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1597,7 +1558,7 @@ export const staticManPages = {
     },
     poll: {
         summary:
-            '`poll()` is a system call that allows a program to monitor multiple file descriptors, waiting until one or more of the file descriptors become "ready" for some class of I/O operation.',
+            'a system call that allows a program to monitor multiple file descriptors, waiting until one or more of the file descriptors become "ready" for some class of I/O operation.',
         synopsis: "int poll(struct pollfd *fds, nfds_t nfds, int timeout);",
         include: ["#include <poll.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1615,8 +1576,7 @@ export const staticManPages = {
         similar: ["select", "epoll"],
     },
     dup: {
-        summary:
-            "`dup()` is a system call that creates a copy of a file descriptor.",
+        summary: "a system call that creates a copy of a file descriptor.",
         synopsis: "int dup(int oldfd);",
         include: ["#include <unistd.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1634,8 +1594,7 @@ export const staticManPages = {
         similar: ["dup2", "fcntl"],
     },
     isdigit: {
-        summary:
-            "`isdigit()` is a standard C library function that checks if a given character is a decimal digit character.",
+        summary: "checks if a given character is a decimal digit character.",
         synopsis: "int isdigit(int c);",
         include: ["#include <ctype.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1653,8 +1612,7 @@ export const staticManPages = {
         similar: ["isalpha", "isalnum", "isspace", "isupper", "islower"],
     },
     isalpha: {
-        summary:
-            "`isalpha()` is a standard C library function that checks if a given character is an alphabetic character.",
+        summary: "checks if a given character is an alphabetic character.",
         synopsis: "int isalpha(int c);",
         include: ["#include <ctype.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1672,8 +1630,7 @@ export const staticManPages = {
         similar: ["isalnum", "isupper", "islower", "isdigit", "isxdigit"],
     },
     isspace: {
-        summary:
-            "`isspace()` is a standard C library function that checks if a character is a whitespace character.",
+        summary: "checks if a character is a whitespace character.",
         synopsis: "int isspace(int c);",
         include: ["#include <ctype.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1690,8 +1647,7 @@ export const staticManPages = {
         similar: ["isalpha", "isdigit", "isalnum", "isxdigit", "isprint"],
     },
     strrchr: {
-        summary:
-            "`strrchr()` is a standard C library function that searches for the last occurrence of a character in a string.",
+        summary: "searches for the last occurrence of a character in a string.",
         synopsis: "char *strrchr(const char *str, int c);",
         include: ["#include <string.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1709,8 +1665,7 @@ export const staticManPages = {
         similar: ["strchr", "strstr", "strpbrk", "strcspn"],
     },
     sprintf: {
-        summary:
-            "`sprintf()` is a standard C library function that writes a formatted string to a character array.",
+        summary: "writes a formatted string to a character array.",
         synopsis: "int sprintf(char *str, const char *format, ...);",
         include: ["#include <stdio.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1728,8 +1683,7 @@ export const staticManPages = {
         similar: ["snprintf", "vsprintf", "vfprintf", "fprintf"],
     },
     sscanf: {
-        summary:
-            "`sscanf()` is a standard C library function that reads formatted input from a string.",
+        summary: "reads formatted input from a string.",
         synopsis: "int sscanf(const char *str, const char *format, ...);",
         include: ["#include <stdio.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1748,7 +1702,7 @@ export const staticManPages = {
     },
     strtod: {
         summary:
-            "`strtod()` is a standard C library function that converts a string to a double-precision floating-point number.",
+            "converts a string to a double-precision floating-point number.",
         synopsis: "double strtod(const char *str, char **endptr);",
         include: ["#include <stdlib.h>"],
         // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
@@ -1767,7 +1721,7 @@ export const staticManPages = {
     },
     strcpy: {
         summary:
-            "`strcpy()` is a standard C library function that copies the contents of a null-terminated string (the source) to the memory location pointed to by destination.",
+            "copies the contents of a null-terminated string (the source) to the memory location pointed to by destination.",
         synopsis: "char *strcpy(char *destination, const char *source);",
         include: ["#include <string.h>"],
         examples: [
@@ -1785,13 +1739,25 @@ export const staticManPages = {
     },
 };
 
+export const getManPage = (name: string) => {
+    let val: any = null;
+
+    for (const [key, value] of Object.entries(staticManPages)) {
+        if (key === name) {
+            val = value;
+        }
+    }
+
+    return val;
+};
+
 // `
 // strcpy linux manual page:
 
 // https://man7.org/linux/man-pages/man3/strcpy.3.html
 
 // strcpy: {
-//     "summary": "`strcpy()` is a standard C library function that copies the contents of a null-terminated string (the source) to the memory location pointed to by destination.",
+//     "copies the contents of a null-terminated string (the source) to the memory location pointed to by destination.",
 //     "synopsis": "char *strcpy(char *destination, const char *source);",
 //     "examples": // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
 //     [
@@ -1807,7 +1773,7 @@ export const staticManPages = {
 //     "similar": ["strncpy", "strcat", "strncat", "memcpy", "memmove"]
 // }
 // "strcpy": {
-//     "summary": "`strcpy()` is a standard C library function that copies the contents of a null-terminated string (the source) to the memory location pointed to by destination.",
+//     "copies the contents of a null-terminated string (the source) to the memory location pointed to by destination.",
 //     "synopsis": "char *strcpy(char *destination, const char *source);",
 //     "examples": // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
 //     [

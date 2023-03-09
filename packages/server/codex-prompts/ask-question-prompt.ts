@@ -2,18 +2,16 @@ import { genericParser, suggestionsParser } from "./shared/parsers";
 
 export const mainAskQuestion = (question: string) => {
     return {
-        prompt: `[question]: what is the meaning of life?
+        prompt: `<|endoftext|>// for each asked [question], provide a thorough [answer] (single-paragraph) and a list of [c-library-functions] that are relevant to the [answer]. if needed, also provide a [code] example with a [code-title] and end it with [end-code]. each response should end with [end-question-answer].
+
+[question]: what is the meaning of life?
 [answer]: this question is irrelevant to C Programming.
 [end-question-answer]
 
 
 [question]: how can I read from a file?
 [answer]: You can use the \`fopen()\` function to open a file and store the file pointer in a variable (like \`FILE *fp\`). The \`fopen()\` function takes two arguments: the filename and the mode. The mode can be \`r\` for reading, \`w\` for writing, \`a\` for appending, \`r+\` for both reading and writing, and \`w+\` for both reading and writing. Then, you can use the \`fgets()\` function to read a line from the file. The \`fgets()\` takes a buffer (as a char array), the size of the buffer, and the file pointer as arguments. The \`fgets()\` function returns the buffer if successful, and returns NULL if an error occurs, therefore, it could be used in a while loop to read the file line by line. When you are done reading the file, you can use the \`fclose()\` function to close the file.
-[c-library-functions]:
-[function-1]: [name]: fopen <> [description]: opens a file given a filename and a mode <> [include]: stdio.h <> [prototype]: FILE *fopen(const char *filename, const char *mode)
-[function-2]: [name]: fgets <> [description]: reads a line from a file <> [include]: stdio.h <> [prototype]: char *fgets(char *str, int n, FILE *stream)
-[function-3]: [name]: fclose <> [description]: closes a file <> [include]: stdio.h <> [prototype]: int fclose(FILE *stream)
-[end-c-library-functions]
+[c-library-functions]: fopen, fgets, fclose
 [code]:
 [code-title]: read a file line by line using fgets
 FILE *file;
@@ -30,9 +28,6 @@ fclose(file);
 
 [question]: is it possible to initialize a boolean and reassign its value for use later in a program?
 [answer]: Yes, it is possible to initialize a boolean and reassign its value in C programming. However, there is no built-in boolean type in C, so a boolean-like behavior can be achieved using the \`_Bool\` or \`bool\` type from \`<stdbool.h>\` in C99 and later versions of the language, or by using integer constants such as 0 (representing false) and 1 (representing true).
-[c-library-functions]:
-[function-1]: [name]: bool <> [description]: header file that defines the \`_Bool\` and \`bool\` types <> [include]: stdbool.h <> [prototype]: bool
-[end-c-library-functions]
 [code]:
 [code-title]: initialize a boolean and reassign its value
 #include <stdbool.h>
@@ -91,18 +86,16 @@ export const replyAskQuestion = (
     }
 
     return {
-        prompt: `[question]: how can I read from a file?
+        prompt: `<|endoftext|>// for each asked [question], provide a thorough [answer] (single-paragraph) and a list of [c-library-functions] that are relevant to the [answer]. if needed, also provide a [code] example with a [code-title] and end it with [end-code]. each response should end with [end-question-answer].
+
+[question]: how can I read from a file?
 [answer]: You can use the \`fopen()\` function to open a file and store the file pointer in a variable (like \`FILE *fp\`). The \`fopen()\` function takes two arguments: the filename and the mode. The mode can be \`r\` for reading, \`w\` for writing, \`a\` for appending, \`r+\` for both reading and writing, and \`w+\` for both reading and writing. Then, you can use the \`fgets()\` function to read a line from the file. The \`fgets()\` takes a buffer (as a char array), the size of the buffer, and the file pointer as arguments. The \`fgets()\` function returns the buffer if successful, and returns NULL if an error occurs, therefore, it could be used in a while loop to read the file line by line. When you are done reading the file, you can use the \`fclose()\` function to close the file.
 [end-question-answer]
 
 
 [follow-up-question]: I don't want to use fgets, is there another way to read a file?
 [answer]: Yes, there are multiple other options: 1. the \`getc()\` function allows you to read a character by character like this: \`c = getc(fp)\` in which \`fp\` is the file pointer and \`c\` is the read character (as an \`int\` value which can be casted to a \`char\`). 2. the \`fscanf()\` function allows you to read formatted input from a file like this: \`fscanf(fp, "%d %s %f", &i, str, &f)\` in which \`fp\` is the file pointer, \`i\` is an \`int\` variable, \`str\` is a \`char\` array, and \`f\` is a \`float\` variable. 3. the \`fread()\` function allows you to read a block of data from a file like this: \`fread(ptr, size, nitems, fp)\` in which \`ptr\` is a pointer to a block of memory with a minimum size of \`size * nitems\` bytes, \`size\` is the size in bytes of each item to be read, \`nitems\` is the number of items, and \`fp\` is the file pointer.
-[c-library-functions]:
-[function-1]: [name]: getc <> [description]: reads a character from a file <> [include]: stdio.h <> [prototype]: int getc(FILE *stream)
-[function-2]: [name]: fscanf <> [description]: reads formatted input from a file <> [include]: stdio.h <> [prototype]: int fscanf(FILE *stream, const char *format, ...)
-[function-3]: [name]: fread <> [description]: reads a block of data from a file <> [include]: stdio.h <> [prototype]: size_t fread(void *ptr, size_t size, size_t nitems, FILE *stream)
-[end-c-library-functions]
+[c-library-functions]: getc, fscanf, fread
 [code]:
 [code-title]: read a file using fscanf
 FILE *file;
@@ -140,7 +133,7 @@ ${answer}
         stop: ["4."],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 512,
+        max_tokens: 3000,
         parser: (output: string) => suggestionsParser(output),
     };
 };

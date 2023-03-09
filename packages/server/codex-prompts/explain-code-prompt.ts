@@ -1,8 +1,4 @@
-import {
-    explainCodeParser,
-    genericParser,
-    suggestionsParser,
-} from "./shared/parsers";
+import { explainCodeParser, genericParser, suggestionsParser } from "./shared/parsers";
 
 export const mainExplainCode = (code: string) => {
     return {
@@ -77,11 +73,7 @@ void write_random_pieces(int soc, const char *message, int times) { // the funct
     }
 }
 [end-annotated-code]
-[c-library-functions]:
-[function-1]: [name]: write <> [description]: writes to a file descriptor <> [include]: unistd.h <> [prototype]: ssize_t write(int fd, const void *buf, size_t count)
-[function-2]: [name]: rand <> [description]: generates a random number <> [include]: stdlib.h <> [prototype]: int rand(void)
-[function-3]: [name]: strlen <> [description]: gets the length of a string <> [include]: string.h <> [prototype]: size_t strlen(const char *s)
-[end-c-library-functions]
+[c-library-functions]: write, rand, strlen
 [end-explain-code]
 
 
@@ -192,12 +184,7 @@ int main() {
     return 0;
 }
 [end-code]
-[c-library-functions]:
-[function-1]: [name]: fopen <> [description]: opens a file given a filename and a mode <> [include]: stdio.h <> [prototype]: FILE *fopen(const char *filename, const char *mode)
-[function-2]: [name]: fseek <> [description]: sets the file position indicator for the stream to a new position <> [include]: stdio.h <> [prototype]: int fseek(FILE *stream, long int offset, int whence)
-[function-3]: [name]: ftell <> [description]: gets the current value of the file position indicator for the stream <> [include]: stdio.h <> [prototype]: long int ftell(FILE *stream)
-[function-4]: [name]: fread <> [description]: reads data from a stream into an array <> [include]: stdio.h <> [prototype]: size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
-[end-c-library-functions]
+[c-library-functions]: fread, fseek, ftell, fopen, fclose, malloc, free, printf
 [end-question-answer]
 
 
@@ -224,7 +211,7 @@ ${code}
         stop: ["4."],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 512,
+        max_tokens: 3000,
         parser: (output: string) => suggestionsParser(output),
     };
 };

@@ -10,14 +10,13 @@ import { StatusMessage } from "../coding-assistant";
 import { ResponseFeedback } from "../response-feedback";
 import { FollowUp } from "./follow-up";
 import { PseudoCodeHoverable } from "./pseudo-code-hoverable";
+import { QuickDocumentation } from "./quick-documentation";
 
 interface IAskFromCodeResponse {
     answer?: string;
     cLibraryFunctions?: Array<{
         name: string;
-        description: string;
-        include: string;
-        proto: string;
+        data: any;
     }>;
     codeLinesCount?: number;
     codeParts?: Array<{
@@ -154,6 +153,8 @@ export const AskFromCodeResponse = (props: IProps) => {
                     stream={props.stream}
                     admin={props.admin}
                     onSubmitFeedback={props.onSubmitFeedback}
+                    canUseToolbox={props.canUseToolbox}
+                    setCanUseToolbox={props.setCanUseToolbox}
                     setStreamFinished={() => {
                         setStatus(StatusMessage.OK);
                         setButtonText("ask");
@@ -175,6 +176,8 @@ export const AskFromCodeResponse = (props: IProps) => {
                                 }}
                                 stream={f.stream}
                                 admin={props.admin}
+                                canUseToolbox={props.canUseToolbox}
+                                setCanUseToolbox={props.setCanUseToolbox}
                                 onSubmitFeedback={props.onSubmitFeedback}
                                 setFollowUpResponse={(response) => {
                                     const newFollowUps = followUps.map(
@@ -284,8 +287,6 @@ const AskFromCodeContent = (props: IAskFromCodeContentProps) => {
         time: props.data.time,
         finished: props.data.finished,
     });
-
-    console.log("ask-from-code meta", meta);
 
     const [response, setResponse] = useState({
         answer: props.data.response?.answer,
@@ -409,28 +410,23 @@ const AskFromCodeContent = (props: IAskFromCodeContentProps) => {
                     );
                 })}
 
-                {/* <div>
                 {response.cLibraryFunctions &&
-                    response.cLibraryFunctions.map((f) => {
-                        return (
-                            <div
-                                className="question-answer-c-library-function"
-                                key={JSON.stringify(f)}
-                            >
-                                <div className="question-answer-c-library-function-title">
-                                    <span>{f?.name}</span>
-                                    <br />
-                                    <span>{f?.description}</span>
-                                    <br />
-                                    <span>{f?.include}</span>
-                                    <br />
-                                    <span>{f?.proto}</span>
-                                </div>
-                                <hr />
-                            </div>
-                        );
-                    })}
-            </div> */}
+                    response.cLibraryFunctions?.length > 0 && (
+                        <div className="c-library-functions-container">
+                            <span className="c-library-functions-title">
+                                {"Standard Library Functions (Manual Pages): "}
+                            </span>
+                            {response.cLibraryFunctions?.map(
+                                (cLibraryFunction) => (
+                                    <QuickDocumentation
+                                        key={cLibraryFunction.name}
+                                        name={cLibraryFunction.name}
+                                        data={cLibraryFunction.data}
+                                    />
+                                )
+                            )}
+                        </div>
+                    )}
 
                 {streamFinished && (
                     <ResponseFeedback

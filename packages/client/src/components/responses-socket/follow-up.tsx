@@ -33,13 +33,12 @@ export const FollowUp = (props: IProps) => {
                 </div>
                 {props.suggestions?.map((s) => {
                     return (
-                        <Fragment>
+                        <Fragment key={JSON.stringify(s)}>
                             <div
                                 className="follow-up-question-suggestion"
                                 onClick={() => {
                                     setFollowUpQuestion(s);
                                 }}
-                                key={JSON.stringify(s)}
                             >
                                 {getIconSVG(
                                     "magnifying-glass",
@@ -62,7 +61,7 @@ export const FollowUp = (props: IProps) => {
 
             <div className="follow-up-question-input-container">
                 <TextArea
-                    placeholder="follow up question..."
+                    placeholder="follow up question"
                     className="follow-up-question-input"
                     onChange={(e) => {
                         setFollowUpQuestion(e.target.value);
@@ -89,6 +88,7 @@ export const FollowUp = (props: IProps) => {
                         }
 
                         props.onFollowUp(followUpQuestion);
+                        setFollowUpQuestion("");
                     }}
                 >
                     {props.buttonText}

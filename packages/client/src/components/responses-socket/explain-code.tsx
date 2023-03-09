@@ -10,6 +10,7 @@ import { ResponseFeedback } from "../response-feedback";
 import { HoverableExplainCode } from "../responses/hoverable-explain-code";
 import { FollowUp } from "./follow-up";
 import { PseudoCodeHoverable } from "./pseudo-code-hoverable";
+import { QuickDocumentation } from "./quick-documentation";
 
 interface IExplainCodeResponse {
     explanation?: string;
@@ -19,9 +20,7 @@ interface IExplainCodeResponse {
     }>;
     cLibraryFunctions?: Array<{
         name: string;
-        description: string;
-        include: string;
-        proto: string;
+        data: any;
     }>;
     suggestions?: Array<string>;
 }
@@ -197,50 +196,52 @@ export const ExplainCodeV2Response = (props: IProps) => {
                         onSubmitFeedback={props.onSubmitFeedback}
                     />
                 )}
-
-                {followUps?.length > 0 && (
-                    <div className="follow-ups-container">
-                        {followUps.map((f) => {
-                            return (
-                                <AskQuestionContent
-                                    followUp
-                                    key={f.id}
-                                    data={{
-                                        ...f,
-                                        mainId: meta.id,
-                                    }}
-                                    stream={f.stream}
-                                    admin={props.admin}
-                                    onSubmitFeedback={props.onSubmitFeedback}
-                                    setFollowUpResponse={(response) => {
-                                        const newFollowUps = followUps.map(
-                                            (old) => {
-                                                if (f.id === old.id) {
-                                                    return {
-                                                        ...old,
-                                                        response,
-                                                    };
-                                                }
-
-                                                return old;
-                                            }
-                                        );
-
-                                        setFollowUps(newFollowUps);
-                                    }}
-                                    setStreamFinished={() => {
-                                        setStatus(StatusMessage.OK);
-                                        setButtonText("ask");
-                                        if (props.setCanUseToolbox) {
-                                            // props.setCanUseToolbox(false);
-                                        }
-                                    }}
-                                />
-                            );
-                        })}
-                    </div>
-                )}
             </div>
+
+            {followUps?.length > 0 && (
+                <div className="follow-ups-container">
+                    {followUps.map((f) => {
+                        return (
+                            <AskQuestionContent
+                                followUp
+                                key={f.id}
+                                data={{
+                                    ...f,
+                                    mainId: meta.id,
+                                }}
+                                stream={f.stream}
+                                admin={props.admin}
+                                canUseToolbox={props.canUseToolbox}
+                                setCanUseToolbox={props.setCanUseToolbox}
+                                onSubmitFeedback={props.onSubmitFeedback}
+                                setFollowUpResponse={(response) => {
+                                    const newFollowUps = followUps.map(
+                                        (old) => {
+                                            if (f.id === old.id) {
+                                                return {
+                                                    ...old,
+                                                    response,
+                                                };
+                                            }
+
+                                            return old;
+                                        }
+                                    );
+
+                                    setFollowUps(newFollowUps);
+                                }}
+                                setStreamFinished={() => {
+                                    setStatus(StatusMessage.OK);
+                                    setButtonText("ask");
+                                    if (props.setCanUseToolbox) {
+                                        props.setCanUseToolbox(false);
+                                    }
+                                }}
+                            />
+                        );
+                    })}
+                </div>
+            )}
 
             <FollowUp
                 suggestions={suggestions}
@@ -282,9 +283,7 @@ interface IAskQuestionResponse {
     answer?: string;
     cLibraryFunctions?: Array<{
         name: string;
-        description: string;
-        include: string;
-        proto: string;
+        data: any;
     }>;
     codeLinesCount?: number;
     codeParts?: Array<{
@@ -399,57 +398,81 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
     }
 
     return (
-        <div>
-            <div className="meta-question">
-                <span>
-                    <b>Question:</b> {meta.question}
-                </span>
-            </div>
-
-            {response.answer && (
-                <div className="response-main-answer">
-                    <b>Response:</b>{" "}
-                    <span
-                        dangerouslySetInnerHTML={{
-                            __html: highlightCode(
-                                response.answer,
-                                "inline-code-subtle"
-                            ),
-                        }}
-                    ></span>
-                </div>
-            )}
-
-            {response.codeLinesCount &&
-                response.codeLinesCount > 0 &&
-                !response.codeParts && (
+        <Fragment>
+            {props.followUp && <div className="follow-up-separator" />}
+            <div className="response-main-content">
+                <div className="meta-question">
                     <span>
-                        generating {response.codeLinesCount} lines of code
+                        <b>Question:</b> {meta.question}
                     </span>
+                </div>
+
+                {response.answer && (
+                    <div className="response-main-answer">
+                        <b>Response:</b>{" "}
+                        <span
+                            dangerouslySetInnerHTML={{
+                                __html: highlightCode(
+                                    response.answer,
+                                    "inline-code-subtle"
+                                ),
+                            }}
+                        ></span>
+                    </div>
                 )}
 
-            {response.codeParts &&
-                response.codeParts.map((codePart) => {
-                    return (
-                        <div>
-                            <div>{codePart.title}</div>
+                {response.codeLinesCount &&
+                    response.codeLinesCount > 0 &&
+                    !response.codeParts && (
+                        <span>
+                            generating {response.codeLinesCount} lines of code
+                        </span>
+                    )}
 
-                            {codePart.lines && codePart.lines.length > 0 && (
-                                <PseudoCodeHoverable code={codePart.lines} />
+                {response.codeParts &&
+                    response.codeParts.map((codePart) => {
+                        return (
+                            <div>
+                                <div>{codePart.title}</div>
+
+                                {codePart.lines &&
+                                    codePart.lines.length > 0 && (
+                                        <PseudoCodeHoverable
+                                            code={codePart.lines}
+                                        />
+                                    )}
+                            </div>
+                        );
+                    })}
+
+                {response.cLibraryFunctions &&
+                    response.cLibraryFunctions?.length > 0 && (
+                        <div className="c-library-functions-container">
+                            <span className="c-library-functions-title">
+                                {"Standard Library Functions (Manual Pages): "}
+                            </span>
+                            {response.cLibraryFunctions?.map(
+                                (cLibraryFunction) => (
+                                    <QuickDocumentation
+                                        key={cLibraryFunction.name}
+                                        name={cLibraryFunction.name}
+                                        data={cLibraryFunction.data}
+                                    />
+                                )
                             )}
                         </div>
-                    );
-                })}
+                    )}
 
-            {streamFinished && (
-                <ResponseFeedback
-                    admin={props.admin}
-                    priorData={meta.feedback}
-                    responseId={meta.mainId ? meta.mainId : meta.id}
-                    followUpId={props.followUp ? meta.id : undefined}
-                    onSubmitFeedback={props.onSubmitFeedback}
-                />
-            )}
-        </div>
+                {streamFinished && (
+                    <ResponseFeedback
+                        admin={props.admin}
+                        priorData={meta.feedback}
+                        responseId={meta.mainId ? meta.mainId : meta.id}
+                        followUpId={props.followUp ? meta.id : undefined}
+                        onSubmitFeedback={props.onSubmitFeedback}
+                    />
+                )}
+            </div>
+        </Fragment>
     );
 };

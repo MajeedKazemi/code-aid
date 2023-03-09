@@ -39,11 +39,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 [end-code]
-[c-library-functions]:
-[function-1]: [name]: malloc <> [description]: dynamically allocate memory <> [include]: stdlib.h <> [prototype]: void *malloc(size_t size)
-[function-2]: [name]: free <> [description]: free dynamically allocated memory <> [include]: stdlib.h <> [prototype]: void free(void *ptr)
-[function-3]: [name]: atoi <> [description]: convert a string to an integer <> [include]: stdlib.h <> [prototype]: int atoi(const char *str)
-[end-c-library-functions]
+[c-library-functions]: malloc, free, atoi, printf
 [end-question-answer]
 
 
@@ -70,7 +66,7 @@ ${answer}
         stop: ["4."],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 512,
+        max_tokens: 3000,
         parser: (output: string) => suggestionsParser(output),
     };
 };
@@ -234,12 +230,7 @@ int main() {
     return 0;
 }
 [end-code]
-[c-library-functions]:
-[function-1]: [name]: malloc <> [description]: dynamically allocate memory <> [include]: stdlib.h <> [prototype]: void *malloc(size_t size)
-[function-2]: [name]: free <> [description]: free dynamically allocated memory <> [include]: stdlib.h <> [prototype]: void free(void *ptr)
-[function-3]: [name]: printf <> [description]: print to the console <> [include]: stdio.h <> [prototype]: int printf(const char *format, ...)
-[function-4]: [name]: scanf <> [description]: read from the console <> [include]: stdio.h <> [prototype]: int scanf(const char *format, ...)
-[end-c-library-functions]
+[c-library-functions]: malloc, free, printf, scanf
 [end-question-answer]
 
 

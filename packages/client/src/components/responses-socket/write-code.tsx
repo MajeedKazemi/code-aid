@@ -10,14 +10,13 @@ import { StatusMessage } from "../coding-assistant";
 import { ResponseFeedback } from "../response-feedback";
 import { FollowUp } from "./follow-up";
 import { PseudoCodeHoverable } from "./pseudo-code-hoverable";
+import { QuickDocumentation } from "./quick-documentation";
 
 interface IWriteCodeResponse {
     answer?: string;
     cLibraryFunctions?: Array<{
         name: string;
-        description: string;
-        include: string;
-        proto: string;
+        data: any;
     }>;
     codeLinesCount?: number;
     codeParts?: Array<{
@@ -161,11 +160,13 @@ export const WriteCodeResponse = (props: IProps) => {
                     }}
                     stream={props.stream}
                     admin={props.admin}
+                    canUseToolbox={props.canUseToolbox}
+                    setCanUseToolbox={props.setCanUseToolbox}
                     setStreamFinished={() => {
                         setStatus(StatusMessage.OK);
                         setButtonText("ask");
                         if (props.setCanUseToolbox) {
-                            // props.setCanUseToolbox(false);
+                            props.setCanUseToolbox(false);
                         }
                     }}
                 />
@@ -184,6 +185,8 @@ export const WriteCodeResponse = (props: IProps) => {
                                     stream={f.stream}
                                     admin={props.admin}
                                     onSubmitFeedback={props.onSubmitFeedback}
+                                    canUseToolbox={props.canUseToolbox}
+                                    setCanUseToolbox={props.setCanUseToolbox}
                                     setFollowUpResponse={(response) => {
                                         const newFollowUps = followUps.map(
                                             (old) => {
@@ -204,7 +207,7 @@ export const WriteCodeResponse = (props: IProps) => {
                                         setStatus(StatusMessage.OK);
                                         setButtonText("ask");
                                         if (props.setCanUseToolbox) {
-                                            // props.setCanUseToolbox(false);
+                                            props.setCanUseToolbox(false);
                                         }
                                     }}
                                 />
@@ -393,6 +396,22 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
                     </div>
                 );
             })}
+
+            {response.cLibraryFunctions &&
+                response.cLibraryFunctions?.length > 0 && (
+                    <div className="c-library-functions-container">
+                        <span className="c-library-functions-title">
+                            {"Standard Library Functions (Manual Pages): "}
+                        </span>
+                        {response.cLibraryFunctions?.map((cLibraryFunction) => (
+                            <QuickDocumentation
+                                key={cLibraryFunction.name}
+                                name={cLibraryFunction.name}
+                                data={cLibraryFunction.data}
+                            />
+                        ))}
+                    </div>
+                )}
 
             {streamFinished && (
                 <ResponseFeedback

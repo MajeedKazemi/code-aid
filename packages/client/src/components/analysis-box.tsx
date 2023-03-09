@@ -54,8 +54,6 @@ export const AnalysisBox = (props: IProps) => {
         props.priorAnalysis?.notes || ""
     );
 
-    console.log(changed);
-
     return (
         <div className="analysis-box">
             {props.priorAnalysis && (

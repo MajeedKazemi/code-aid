@@ -2,7 +2,9 @@ import { genericParser } from "./shared/parsers";
 
 export const mainAskFromCode = (question: string, code: string) => {
     return {
-        prompt: `[code]:
+        prompt: `<|endoftext|>// for each provided [code] and asked [question] (which is asked about the [code]), provide a thorough [answer] (single-paragraph) and a list of [c-library-functions] that are relevant to the [answer]. if needed, also provide a [code] example with a [code-title] and end it with [end-code]. each response should end with [end-question-answer].
+
+[code]:
 nice code you got over there :)
 [question]: what is the meaning of life?
 [answer]: the question or the provided code are irrelevant to C Programming.
@@ -86,12 +88,7 @@ unsigned long fsize(char* file) {
     return len;
 }
 [end-code]
-[c-library-functions]:
-[function-1]: [name]: fopen <> [description]: opens a file given a filename and a mode <> [include]: stdio.h <> [prototype]: FILE *fopen(const char *filename, const char *mode)
-[function-2]: [name]: fseek <> [description]: sets the file position indicator for the stream to a new position <> [include]: stdio.h <> [prototype]: int fseek(FILE *stream, long int offset, int whence)
-[function-3]: [name]: ftell <> [description]: returns the current value of the file position indicator of the stream <> [include]: stdio.h <> [prototype]: long int ftell(FILE *stream)
-[function-4]: [name]: fclose <> [description]: closes a file <> [include]: stdio.h <> [prototype]: int fclose(FILE *stream)
-[end-c-library-functions]
+[c-library-functions]: fopen, fseek, ftell, fclose
 [end-question-answer]
 
 
@@ -127,7 +124,7 @@ ${answer}
         stop: [`4.`],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 512,
+        max_tokens: 3000,
         parser: (output: string) => {
             return {
                 suggestions: output
@@ -179,7 +176,9 @@ export const replyAskFromCode = (
     }
 
     return {
-        prompt: `[code]:
+        prompt: `<|endoftext|>// for each asked [question], provide a thorough [answer] (single-paragraph) and a list of [c-library-functions] that are relevant to the [answer]. if needed, also provide a [code] example with a [code-title] and end it with [end-code]. each response should end with [end-question-answer].
+
+[code]:
 unsigned long fsize(char* file) {
     FILE f = fopen(file, "r");
     fseek(0, f, SEEK_END);
@@ -219,10 +218,7 @@ int main() {
     return 0;
 }
 [end-code]
-[c-library-functions]:
-[function-1]: [name]: fopen <> [description]: opens a file given a filename and a mode <> [include]: stdio.h <> [prototype]: FILE *fopen(const char *filename, const char *mode)
-[function-2]: [name]: fseek <> [description]: sets the file position indicator for the stream to a new position <> [include]: stdio.h <> [prototype]: int fseek(FILE *stream, long int offset, int whence)
-[function-3]: [name]: ftell <> [description]: returns the current value of the file position indicator of the [end-c-library-functions]
+[c-library-functions]: fopen, fseek, ftell, fread, fclose, malloc, free
 [end-question-answer]
 
 

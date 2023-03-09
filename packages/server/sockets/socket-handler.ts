@@ -2,36 +2,13 @@ import * as http from "http";
 import jwt from "jsonwebtoken";
 import { Server, Socket } from "socket.io";
 
-import {
-    mainAskFromCode,
-    replyAskFromCode,
-    suggestAskFromCode,
-} from "../codex-prompts/ask-from-code-prompt";
-import {
-    mainAskQuestion,
-    replyAskQuestion,
-    suggestAskQuestion,
-} from "../codex-prompts/ask-question-prompt";
+import { mainAskFromCode, replyAskFromCode, suggestAskFromCode } from "../codex-prompts/ask-from-code-prompt";
+import { mainAskQuestion, replyAskQuestion, suggestAskQuestion } from "../codex-prompts/ask-question-prompt";
 import { codeToPseudocode } from "../codex-prompts/code-to-pseudocode";
-import {
-    mainExplainCode,
-    replyExplainCode,
-    suggestExplainCode,
-} from "../codex-prompts/explain-code-prompt";
-import {
-    mainDiffFixedCode,
-    mainFixCode,
-} from "../codex-prompts/fix-code-prompt";
-import {
-    formatCCode,
-    labelModifiedLines,
-    removeComments,
-} from "../codex-prompts/shared/agents";
-import {
-    mainWriteCode,
-    replyWriteCode,
-    suggestWriteCode,
-} from "../codex-prompts/write-code-prompt";
+import { mainExplainCode, replyExplainCode, suggestExplainCode } from "../codex-prompts/explain-code-prompt";
+import { mainDiffFixedCode, mainFixCode } from "../codex-prompts/fix-code-prompt";
+import { formatCCode, labelModifiedLines, removeComments } from "../codex-prompts/shared/agents";
+import { mainWriteCode, replyWriteCode, suggestWriteCode } from "../codex-prompts/write-code-prompt";
 import { ResponseModel } from "../models/response";
 import { IUser, UserModel } from "../models/user";
 import { openai } from "../utils/codex";
@@ -75,14 +52,14 @@ export const initializeSocket = (server: http.Server) => {
                 socket.on("codex", async ({ from, type, id, data, userId }) => {
                     const user = (await UserModel.findById(userId)) as IUser;
 
-                    // console.log(
-                    //     "new codex request: from",
-                    //     from,
-                    //     "type",
-                    //     type,
-                    //     "data",
-                    //     data
-                    // );
+                    console.log(
+                        "new codex request: from",
+                        from,
+                        "type",
+                        type,
+                        "data",
+                        data
+                    );
 
                     switch (type) {
                         case "ask-question":
@@ -210,9 +187,7 @@ export interface IParsedAskQuestionResponse {
     answer?: string;
     cLibraryFunctions?: Array<{
         name: string;
-        description: string;
-        include: string;
-        proto: string;
+        data: any;
     }>;
     rawCode?: string;
 }
@@ -225,9 +200,7 @@ export interface IParsedExplainCodeResponse {
     }>;
     cLibraryFunctions?: Array<{
         name: string;
-        description: string;
-        include: string;
-        proto: string;
+        data: any;
     }>;
 }
 
@@ -254,9 +227,7 @@ class IAskQuestionResponse implements IResponse {
     answer?: string;
     cLibraryFunctions?: Array<{
         name: string;
-        description: string;
-        include: string;
-        proto: string;
+        data: any;
     }>;
     rawCode?: string;
     codeLinesCount?: number;
@@ -285,9 +256,7 @@ class IExplainCodeResponse implements IResponse {
     explanation?: string;
     cLibraryFunctions?: Array<{
         name: string;
-        description: string;
-        include: string;
-        proto: string;
+        data: any;
     }>;
     lines?: Array<{
         code: string;
@@ -335,6 +304,10 @@ async function explainCode(
     code: string,
     user: IUser
 ) {
+    const response = await ResponseModel.findById(responseId);
+
+    if (response?.finished) return;
+
     const formattedCode = await formatCCode(removeComments(code));
     const mainPrompt = mainExplainCode(formattedCode);
 
@@ -355,9 +328,7 @@ async function explainCode(
     );
 
     if (res.lines && res.lines.length > 0) {
-        const suggestPrompt = suggestExplainCode(
-            JSON.stringify(res.lines, null, 4)
-        );
+        const suggestPrompt = suggestExplainCode(res.raw || "");
 
         res = await codexStreamReader(
             from,
@@ -372,8 +343,6 @@ async function explainCode(
     }
 
     // update db: store response for user
-    const response = await ResponseModel.findById(responseId);
-
     if (response) {
         response.data = {
             ...response.data,
@@ -406,6 +375,10 @@ async function writeCode(
     question: string,
     user: IUser
 ) {
+    const response = await ResponseModel.findById(responseId);
+
+    if (response?.finished) return;
+
     const mainPrompt = mainWriteCode(question);
 
     let res = new IAskQuestionResponse();
@@ -443,10 +416,7 @@ async function writeCode(
         );
     }
 
-    const suggestPrompt = suggestAskQuestion(
-        question,
-        JSON.stringify(res, null, 4)
-    );
+    const suggestPrompt = suggestAskQuestion(question, res.raw || "");
 
     res = await codexStreamReader(
         from,
@@ -460,8 +430,6 @@ async function writeCode(
     );
 
     // update db: store response for user
-    const response = await ResponseModel.findById(responseId);
-
     if (response) {
         response.data = {
             ...response.data,
@@ -494,6 +462,10 @@ async function askQuestion(
     question: string,
     user: IUser
 ) {
+    const response = await ResponseModel.findById(responseId);
+
+    if (response?.finished) return;
+
     const mainPrompt = mainAskQuestion(question);
 
     let res = new IAskQuestionResponse();
@@ -531,10 +503,7 @@ async function askQuestion(
         );
     }
 
-    const suggestPrompt = suggestAskQuestion(
-        question,
-        JSON.stringify(res, null, 4)
-    );
+    const suggestPrompt = suggestAskQuestion(question, res.raw || "");
 
     res = await codexStreamReader(
         from,
@@ -548,7 +517,6 @@ async function askQuestion(
     );
 
     // update db: store response for user
-    const response = await ResponseModel.findById(responseId);
 
     if (response) {
         response.data = {
@@ -576,6 +544,175 @@ async function askQuestion(
     });
 }
 
+async function askQuestionFromCode(
+    from: string,
+    responseId: string,
+    question: string,
+    code: string,
+    user: IUser
+) {
+    const response = await ResponseModel.findById(responseId);
+
+    if (response?.finished) return;
+
+    const mainPrompt = mainAskFromCode(question, code);
+
+    let res = new IAskQuestionResponse();
+
+    await codexStreamReader(
+        from,
+        responseId,
+        mainPrompt,
+        (text: string, parsed: IParsedAskQuestionResponse) => {
+            res.raw = text;
+            res.answer = parsed.answer;
+            res.cLibraryFunctions = parsed.cLibraryFunctions;
+            res.rawCode = parsed.rawCode;
+
+            if (parsed.rawCode) {
+                res.codeLinesCount = parsed.rawCode.split("\n").length - 1 || 0;
+            }
+
+            return res;
+        }
+    );
+
+    if (res.rawCode) {
+        const pseudoPrompt = codeToPseudocode(res.rawCode);
+
+        res = await codexStreamReader(
+            from,
+            responseId,
+            pseudoPrompt,
+            (text: string, parsed: IParsedPseudoCodeResponse) => {
+                res.codeParts = parsed.pseudoCode;
+
+                return res;
+            }
+        );
+    }
+
+    const suggestPrompt = suggestAskFromCode(code, question, res.raw || "");
+
+    res = await codexStreamReader(
+        from,
+        responseId,
+        suggestPrompt,
+        (text: string, parsed: IParsedSuggestedQuestionsResponse) => {
+            res.suggestions = parsed.suggestions;
+
+            return res;
+        }
+    );
+
+    if (response) {
+        response.data = {
+            ...response.data,
+            question,
+            code,
+            response: res.mask(),
+            raw: mainPrompt.raw(res.raw || ""),
+        };
+
+        response.finished = true;
+
+        await response.save();
+    }
+
+    // user.responses.push(savedResponse);
+    user.canUseToolbox = false;
+    user.generating = false;
+    await user.save();
+
+    // notify client: finished
+    socket.to(from).emit("codex", {
+        type: "done",
+        componentId: responseId,
+    });
+}
+
+async function fixCode(
+    from: string,
+    responseId: string,
+    question: string,
+    code: string,
+    user: IUser
+) {
+    const response = await ResponseModel.findById(responseId);
+
+    if (response?.finished) return;
+
+    const formattedCode = await formatCCode(removeComments(code));
+    const fixCodePrompt = mainFixCode(question, formattedCode);
+
+    let res = new IFixedCodeResponse();
+
+    // tries to generate a fixed version of the code
+    await codexStreamReader(
+        from,
+        responseId,
+        fixCodePrompt,
+        (text: string, parsed: IParsedFixedCodeResponse) => {
+            res.rawFixedCode = parsed.rawFixedCode;
+
+            if (parsed.rawFixedCode) {
+                res.fixedCodeLinesCount =
+                    parsed.rawFixedCode.split("\n").length - 1 || 0;
+            }
+
+            return res;
+        }
+    );
+
+    if (res.rawFixedCode) {
+        // create two labeled versions of the code: labeledOriginalCode (with all modified lines labeled) and labeledFixedCode (with all fixed lines labeled)
+        // this LLM prompt will be used to annotate the original code with some explanation of the changes + provide an overview of all changes made
+        const explainDiffPrompt = mainDiffFixedCode(
+            labelModifiedLines(res.rawFixedCode, formattedCode, "modified"),
+            labelModifiedLines(formattedCode, res.rawFixedCode, "fixed"),
+            question
+        );
+
+        res = await codexStreamReader(
+            from,
+            responseId,
+            explainDiffPrompt,
+            (text: string, parsed: IParsedExplainedDiffCodeResponse) => {
+                res.raw = text; // this is the real raw response (not from the previous fixed-code)
+                res.explanation = parsed.explanation;
+                res.lines = parsed.lines;
+
+                return res;
+            }
+        );
+    }
+
+    if (response) {
+        response.data = {
+            ...response.data,
+            question,
+            code,
+            response: res.mask(),
+            raw: fixCodePrompt.raw(res.raw || ""),
+        };
+
+        response.finished = true;
+
+        await response.save();
+    }
+
+    // user.responses.push(savedResponse);
+    user.canUseToolbox = false;
+    user.generating = false;
+    await user.save();
+
+    // notify client: finished
+    socket.to(from).emit("codex", {
+        type: "done",
+        componentId: responseId,
+    });
+}
+
 async function askQuestionReply(
     from: string,
     replyId: string,
@@ -586,6 +723,12 @@ async function askQuestionReply(
     const r = await ResponseModel.findById(responseId);
 
     if (r) {
+        const followUps = r.followUps;
+        const followUpIndex = followUps.findIndex((f) => f.id === replyId);
+
+        if (followUpIndex === -1) return;
+        if (followUps[followUpIndex].finished) return;
+
         const replyPrompt = replyAskQuestion(
             [
                 r.data.raw,
@@ -632,10 +775,7 @@ async function askQuestionReply(
             );
         }
 
-        const suggestPrompt = suggestAskQuestion(
-            question,
-            JSON.stringify(res, null, 4)
-        );
+        const suggestPrompt = suggestAskQuestion(question, res.raw || "");
 
         res = await codexStreamReader(
             from,
@@ -647,10 +787,6 @@ async function askQuestionReply(
                 return res;
             }
         );
-
-        const followUps = r.followUps;
-
-        const followUpIndex = followUps.findIndex((f) => f.id === replyId);
 
         if (followUpIndex !== -1) {
             followUps[followUpIndex] = {
@@ -688,6 +824,12 @@ async function writeCodeReply(
     const r = await ResponseModel.findById(responseId);
 
     if (r) {
+        const followUps = r.followUps;
+        const followUpIndex = followUps.findIndex((f) => f.id === replyId);
+
+        if (followUpIndex === -1) return;
+        if (followUps[followUpIndex].finished) return;
+
         const replyPrompt = replyWriteCode(
             [
                 r.data.raw,
@@ -734,10 +876,7 @@ async function writeCodeReply(
             );
         }
 
-        const suggestPrompt = suggestWriteCode(
-            question,
-            JSON.stringify(res, null, 4)
-        );
+        const suggestPrompt = suggestWriteCode(question, res.raw || "");
 
         res = await codexStreamReader(
             from,
@@ -749,10 +888,6 @@ async function writeCodeReply(
                 return res;
             }
         );
-
-        const followUps = r.followUps;
-
-        const followUpIndex = followUps.findIndex((f) => f.id === replyId);
 
         if (followUpIndex !== -1) {
             followUps[followUpIndex] = {
@@ -790,6 +925,12 @@ async function askQuestionFromCodeReply(
     const r = await ResponseModel.findById(responseId);
 
     if (r) {
+        const followUps = r.followUps;
+        const followUpIndex = followUps.findIndex((f) => f.id === replyId);
+
+        if (followUpIndex === -1) return;
+        if (followUps[followUpIndex].finished) return;
+
         const replyPrompt = replyAskFromCode(
             r?.data.code,
             [
@@ -840,7 +981,7 @@ async function askQuestionFromCodeReply(
         const suggestPrompt = suggestAskFromCode(
             r?.data.code,
             question,
-            JSON.stringify(res, null, 4)
+            res.raw || ""
         );
 
         res = await codexStreamReader(
@@ -853,10 +994,6 @@ async function askQuestionFromCodeReply(
                 return res;
             }
         );
-
-        const followUps = r.followUps;
-
-        const followUpIndex = followUps.findIndex((f) => f.id === replyId);
 
         if (followUpIndex !== -1) {
             followUps[followUpIndex] = {
@@ -894,6 +1031,12 @@ async function explainCodeReply(
     const r = await ResponseModel.findById(responseId);
 
     if (r) {
+        const followUps = r.followUps;
+        const followUpIndex = followUps.findIndex((f) => f.id === replyId);
+
+        if (followUpIndex === -1) return;
+        if (followUps[followUpIndex].finished) return;
+
         const replyPrompt = replyExplainCode(
             r?.data.code,
             r.followUps
@@ -938,7 +1081,7 @@ async function explainCodeReply(
             );
         }
 
-        const suggestPrompt = suggestExplainCode(JSON.stringify(res, null, 4));
+        const suggestPrompt = suggestExplainCode(res.raw || "");
 
         res = await codexStreamReader(
             from,
@@ -950,10 +1093,6 @@ async function explainCodeReply(
                 return res;
             }
         );
-
-        const followUps = r.followUps;
-
-        const followUpIndex = followUps.findIndex((f) => f.id === replyId);
 
         if (followUpIndex !== -1) {
             followUps[followUpIndex] = {
@@ -979,175 +1118,6 @@ async function explainCodeReply(
             componentId: replyId,
         });
     }
-}
-
-async function askQuestionFromCode(
-    from: string,
-    responseId: string,
-    question: string,
-    code: string,
-    user: IUser
-) {
-    const mainPrompt = mainAskFromCode(question, code);
-
-    let res = new IAskQuestionResponse();
-
-    await codexStreamReader(
-        from,
-        responseId,
-        mainPrompt,
-        (text: string, parsed: IParsedAskQuestionResponse) => {
-            res.raw = text;
-            res.answer = parsed.answer;
-            res.cLibraryFunctions = parsed.cLibraryFunctions;
-            res.rawCode = parsed.rawCode;
-
-            if (parsed.rawCode) {
-                res.codeLinesCount = parsed.rawCode.split("\n").length - 1 || 0;
-            }
-
-            return res;
-        }
-    );
-
-    if (res.rawCode) {
-        const pseudoPrompt = codeToPseudocode(res.rawCode);
-
-        res = await codexStreamReader(
-            from,
-            responseId,
-            pseudoPrompt,
-            (text: string, parsed: IParsedPseudoCodeResponse) => {
-                res.codeParts = parsed.pseudoCode;
-
-                return res;
-            }
-        );
-    }
-
-    const suggestPrompt = suggestAskFromCode(
-        code,
-        question,
-        JSON.stringify(res, null, 4)
-    );
-
-    res = await codexStreamReader(
-        from,
-        responseId,
-        suggestPrompt,
-        (text: string, parsed: IParsedSuggestedQuestionsResponse) => {
-            res.suggestions = parsed.suggestions;
-
-            return res;
-        }
-    );
-
-    const response = await ResponseModel.findById(responseId);
-
-    if (response) {
-        response.data = {
-            ...response.data,
-            question,
-            code,
-            response: res.mask(),
-            raw: mainPrompt.raw(res.raw || ""),
-        };
-
-        response.finished = true;
-
-        await response.save();
-    }
-
-    // user.responses.push(savedResponse);
-    user.canUseToolbox = false;
-    user.generating = false;
-    await user.save();
-
-    // notify client: finished
-    socket.to(from).emit("codex", {
-        type: "done",
-        componentId: responseId,
-    });
-}
-
-async function fixCode(
-    from: string,
-    responseId: string,
-    question: string,
-    code: string,
-    user: IUser
-) {
-    const formattedCode = await formatCCode(removeComments(code));
-    const fixCodePrompt = mainFixCode(question, formattedCode);
-
-    let res = new IFixedCodeResponse();
-
-    // tries to generate a fixed version of the code
-    await codexStreamReader(
-        from,
-        responseId,
-        fixCodePrompt,
-        (text: string, parsed: IParsedFixedCodeResponse) => {
-            res.rawFixedCode = parsed.rawFixedCode;
-
-            if (parsed.rawFixedCode) {
-                res.fixedCodeLinesCount =
-                    parsed.rawFixedCode.split("\n").length - 1 || 0;
-            }
-
-            return res;
-        }
-    );
-
-    if (res.rawFixedCode) {
-        // create two labeled versions of the code: labeledOriginalCode (with all modified lines labeled) and labeledFixedCode (with all fixed lines labeled)
-        // this LLM prompt will be used to annotate the original code with some explanation of the changes + provide an overview of all changes made
-        const explainDiffPrompt = mainDiffFixedCode(
-            labelModifiedLines(res.rawFixedCode, formattedCode, "modified"),
-            labelModifiedLines(formattedCode, res.rawFixedCode, "fixed"),
-            question
-        );
-
-        res = await codexStreamReader(
-            from,
-            responseId,
-            explainDiffPrompt,
-            (text: string, parsed: IParsedExplainedDiffCodeResponse) => {
-                res.raw = text; // this is the real raw response (not from the previous fixed-code)
-                res.explanation = parsed.explanation;
-                res.lines = parsed.lines;
-
-                return res;
-            }
-        );
-    }
-
-    const response = await ResponseModel.findById(responseId);
-
-    if (response) {
-        response.data = {
-            ...response.data,
-            question,
-            code,
-            response: res.mask(),
-            raw: fixCodePrompt.raw(res.raw || ""),
-        };
-
-        response.finished = true;
-
-        await response.save();
-    }
-
-    // user.responses.push(savedResponse);
-    user.canUseToolbox = false;
-    user.generating = false;
-    await user.save();
-
-    // notify client: finished
-    socket.to(from).emit("codex", {
-        type: "done",
-        componentId: responseId,
-    });
 }
 
 const codexStreamReader = async (

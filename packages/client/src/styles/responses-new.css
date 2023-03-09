@@ -124,3 +124,112 @@
     margin: 0;
     border: 1.5px solid #2765a4;
 }
+
+.c-library-functions-container {
+    margin-bottom: 12px;
+    border-radius: 8px;
+    padding: 12px;
+
+    background-color: #1cbaff;
+    color: #000;
+}
+
+.c-library-functions-title {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: bold;
+}
+
+.hoverable-quick-documentation {
+    position: relative;
+
+    margin-top: 12px;
+}
+
+.quick-doc-part-title {
+    font-weight: bold;
+}
+
+.hoverable-function-name {
+    cursor: pointer;
+    border: 3px solid #000;
+    font-weight: bold;
+    padding: 6px 20px;
+    font-size: 22px;
+    border-radius: 8px;
+    background-color: #000;
+    /* color: #000; */
+    color: #1cbaff;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.hoverable-function-name:hover {
+    background-color: #222;
+    color: #1cbaff;
+    border: 3px solid #222;
+}
+
+.hoverable-func-name-icon {
+    height: 30px;
+    width: 30px;
+    margin-right: 8px;
+}
+
+.hoverable-quick-doc-container {
+    z-index: 99;
+    position: absolute;
+    top: 48px;
+    left: 0;
+    background-color: #0e0048;
+    color: #fff;
+    line-height: 30px;
+    border-radius: 0 12px 12px 12px;
+
+    width: calc(100% - 24px);
+
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.quick-doc-summary {
+    font-size: 20px;
+
+    background-color: #1b0181;
+    padding: 12px;
+}
+
+.quick-doc-main-content {
+    padding: 12px;
+}
+
+.quick-doc-code-container {
+    margin-bottom: 12px;
+    border: 2px solid #000;
+    border-radius: 12px;
+}
+
+.quick-doc-code-title {
+    font-weight: bold;
+    font-size: 20px;
+    padding: 12px;
+    background-color: #690db0;
+    border-radius: 12px 12px 0 0;
+}
+
+.quick-doc-code {
+    background-color: #1e0041;
+    padding: 12px;
+    border-radius: 0 0 12px 12px;
+}
+
+.quick-doc-part {
+    margin-bottom: 12px;
+}
+
+.quick-doc-similar-functions {
+    display: inline-block;
+    margin-right: 12px;
+}

@@ -9,14 +9,13 @@ import { StatusMessage } from "../coding-assistant";
 import { ResponseFeedback } from "../response-feedback";
 import { FollowUp } from "./follow-up";
 import { PseudoCodeHoverable } from "./pseudo-code-hoverable";
+import { QuickDocumentation } from "./quick-documentation";
 
 interface IAskQuestionResponse {
     answer?: string;
     cLibraryFunctions?: Array<{
         name: string;
-        description: string;
-        include: string;
-        proto: string;
+        data: any;
     }>;
     codeLinesCount?: number;
     codeParts?: Array<{
@@ -149,6 +148,8 @@ export const AskQuestionResponse = (props: IProps) => {
                     }}
                     stream={props.stream}
                     admin={props.admin}
+                    canUseToolbox={props.canUseToolbox}
+                    setCanUseToolbox={props.setCanUseToolbox}
                     onSubmitFeedback={props.onSubmitFeedback}
                     setStreamFinished={() => {
                         setStatus(StatusMessage.OK);
@@ -172,6 +173,8 @@ export const AskQuestionResponse = (props: IProps) => {
                                     }}
                                     stream={f.stream}
                                     admin={props.admin}
+                                    canUseToolbox={props.canUseToolbox}
+                                    setCanUseToolbox={props.setCanUseToolbox}
                                     onSubmitFeedback={props.onSubmitFeedback}
                                     setFollowUpResponse={(response) => {
                                         const newFollowUps = followUps.map(
@@ -281,8 +284,6 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
         finished: props.data.finished,
     });
 
-    console.log("ask-question meta", meta);
-
     const [response, setResponse] = useState({
         answer: props.data.response?.answer,
         cLibraryFunctions: props.data.response?.cLibraryFunctions,
@@ -376,7 +377,7 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
 
                 {response.codeParts?.map((codePart) => {
                     return (
-                        <div>
+                        <div key={codePart.title}>
                             {codePart.lines && codePart.lines.length > 0 && (
                                 <PseudoCodeHoverable
                                     title={codePart.title}
@@ -387,28 +388,23 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
                     );
                 })}
 
-                {/* <div>
                 {response.cLibraryFunctions &&
-                    response.cLibraryFunctions.map((f) => {
-                        return (
-                            <div
-                                className="question-answer-c-library-function"
-                                key={JSON.stringify(f)}
-                            >
-                                <div className="question-answer-c-library-function-title">
-                                    <span>{f?.name}</span>
-                                    <br />
-                                    <span>{f?.description}</span>
-                                    <br />
-                                    <span>{f?.include}</span>
-                                    <br />
-                                    <span>{f?.proto}</span>
-                                </div>
-                                <hr />
-                            </div>
-                        );
-                    })}
-            </div> */}
+                    response.cLibraryFunctions?.length > 0 && (
+                        <div className="c-library-functions-container">
+                            <span className="c-library-functions-title">
+                                {"Standard Library Functions (Manual Pages): "}
+                            </span>
+                            {response.cLibraryFunctions?.map(
+                                (cLibraryFunction) => (
+                                    <QuickDocumentation
+                                        key={cLibraryFunction.name}
+                                        name={cLibraryFunction.name}
+                                        data={cLibraryFunction.data}
+                                    />
+                                )
+                            )}
+                        </div>
+                    )}
 
                 {streamFinished && (
                     <ResponseFeedback

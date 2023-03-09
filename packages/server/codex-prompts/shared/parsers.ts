@@ -5,6 +5,7 @@ import {
     IParsedFixedCodeResponse,
     IParsedPseudoCodeResponse,
 } from "../../sockets/socket-handler";
+import { getManPage } from "../static-man-pages";
 
 export const genericParser = (r: string) => {
     let obj: any = {};
@@ -17,62 +18,23 @@ export const genericParser = (r: string) => {
         if (line.startsWith("[answer]:")) {
             obj.answer = line.replace("[answer]:", "").trim();
         } else if (line.startsWith("[c-library-functions]:")) {
-            obj.cLibraryFunctions = [];
-            obj.cLibraryFunctions.push({
-                name: "",
-                description: "",
-                include: "",
-                proto: "",
-            });
-            stack.push("c-library-functions");
-        } else if (line.startsWith("[end-c-library-functions]")) {
-            stack.pop();
-        } else if (
-            stack[stack.length - 1] === "c-library-functions" &&
-            line.match(/^\[function-\d+\]:.*$/)
-        ) {
-            const index = parseInt(line.match(/^\[function-(\d+)\]:/)![1]) - 1;
+            obj.cLibraryFunctions = line
+                .replace("[c-library-functions]:", "")
+                .split(",")
+                .map((name: string) => {
+                    const functionName = name.trim();
 
-            if (obj.cLibraryFunctions[index] === undefined)
-                obj.cLibraryFunctions[index] = {
-                    name: "",
-                    description: "",
-                    include: "",
-                    proto: "",
-                };
-
-            line.replace(/^\[function-\d+\]:/, "")
-                .trim()
-                .split(" <> ")
-                .forEach((l) => {
-                    if (l.startsWith("[name]:")) {
-                        obj.cLibraryFunctions[index].name = l
-                            .replace("[name]:", "")
-                            .trim()
-                            .replace(/<>/g, "");
-                    } else if (l.startsWith("[description]:")) {
-                        obj.cLibraryFunctions[index].description = l
-                            .replace("[description]:", "")
-                            .trim()
-                            .replace(/<>/g, "");
-                    } else if (l.startsWith("[include]:")) {
-                        obj.cLibraryFunctions[index].include = l
-                            .replace("[include]:", "")
-                            .trim()
-                            .replace(/<>/g, "");
-                    } else if (l.startsWith("[prototype]:")) {
-                        obj.cLibraryFunctions[index].proto = l
-                            .replace("[prototype]:", "")
-                            .trim()
-                            .replace(/<>/g, "");
-                    }
+                    return {
+                        name: functionName.trim(),
+                        data: getManPage(functionName),
+                    };
                 });
         } else if (line.startsWith("[code]:")) {
             obj.rawCode = "";
             stack.push("code");
         } else if (line.startsWith("[end-code]")) {
             stack.pop();
-            obj.rawCode = obj.rawCode!.trim();
+            obj.rawCode = obj.rawCode?.trim();
         } else if (
             stack[stack.length - 1] === "code" &&
             line[i - 1] !== "[code]:"
@@ -138,55 +100,16 @@ export const explainCodeParser = (r: string) => {
         if (line.startsWith("[explanation]:")) {
             obj.explanation = line.replace("[explanation]:", "").trim();
         } else if (line.startsWith("[c-library-functions]:")) {
-            obj.cLibraryFunctions = [];
-            obj.cLibraryFunctions.push({
-                name: "",
-                description: "",
-                include: "",
-                proto: "",
-            });
-            stack.push("c-library-functions");
-        } else if (line.startsWith("[end-c-library-functions]")) {
-            stack.pop();
-        } else if (
-            stack[stack.length - 1] === "c-library-functions" &&
-            line.match(/^\[function-\d+\]:.*$/)
-        ) {
-            const index = parseInt(line.match(/^\[function-(\d+)\]:/)![1]) - 1;
+            obj.cLibraryFunctions = line
+                .replace("[c-library-functions]:", "")
+                .split(",")
+                .map((name: string) => {
+                    const functionName = name.trim();
 
-            if (obj.cLibraryFunctions[index] === undefined)
-                obj.cLibraryFunctions[index] = {
-                    name: "",
-                    description: "",
-                    include: "",
-                    proto: "",
-                };
-
-            line.replace(/^\[function-\d+\]:/, "")
-                .trim()
-                .split(" <> ")
-                .forEach((l) => {
-                    if (l.startsWith("[name]:")) {
-                        obj.cLibraryFunctions[index].name = l
-                            .replace("[name]:", "")
-                            .trim()
-                            .replace(/<>/g, "");
-                    } else if (l.startsWith("[description]:")) {
-                        obj.cLibraryFunctions[index].description = l
-                            .replace("[description]:", "")
-                            .trim()
-                            .replace(/<>/g, "");
-                    } else if (l.startsWith("[include]:")) {
-                        obj.cLibraryFunctions[index].include = l
-                            .replace("[include]:", "")
-                            .trim()
-                            .replace(/<>/g, "");
-                    } else if (l.startsWith("[prototype]:")) {
-                        obj.cLibraryFunctions[index].proto = l
-                            .replace("[prototype]:", "")
-                            .trim()
-                            .replace(/<>/g, "");
-                    }
+                    return {
+                        name: functionName.trim(),
+                        data: getManPage(functionName),
+                    };
                 });
         } else if (line.startsWith("[annotated-code]:")) {
             obj.lines = [];
@@ -270,9 +193,7 @@ export const testParser = () => {
 
 For example, the following code reads an integer and a string from the standard input stream:
 
-[c-library-functions]:
-[function-1]: [name]: scanf <> [description]: reads input from the standard input stream <> [include]: stdio.h <> [prototype]: int scanf(const char *format, ...)
-[end-c-library-functions]
+[c-library-functions]: scanf
 [code]:
 [code-title]: read an integer and a string using scanf
 #include <stdio.h>
@@ -343,11 +264,7 @@ void write_random_pieces(int soc, const char *message, int times) { // the funct
     }
 }
 [end-annotated-code]
-[c-library-functions]: that are used in the above code
-[function-1]: [name]: write <> [description]: writes to a file descriptor <> [include]: unistd.h <> [prototype]: ssize_t write(int fd, const void *buf, size_t count)
-[function-2]: [name]: rand <> [description]: generates a random number <> [include]: stdlib.h <> [prototype]: int rand(void)
-[function-3]: [name]: strlen <> [description]: gets the length of a string <> [include]: string.h <> [prototype]: size_t strlen(const char *s)
-[end-c-library-functions]
+[c-library-functions]: write, rand, strlen
 [end-explain-code]`;
 
     // console.log(explainCodeParser(test3));
