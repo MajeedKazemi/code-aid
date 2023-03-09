@@ -1,12 +1,7 @@
 import * as monaco from "monaco-editor";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import {
-    apiCheckCanUseToolbox,
-    apiInitResponse,
-    apiKeywordUsageExample,
-    apiRecentResponses,
-} from "../api/api";
+import { apiCheckCanUseToolbox, apiInitResponse, apiKeywordUsageExample, apiRecentResponses } from "../api/api";
 import { AuthContext, SocketContext } from "../context";
 import { AskFromCodeResponse } from "./responses-socket/ask-from-code";
 import { AskQuestionResponse } from "./responses-socket/ask-question";
@@ -22,6 +17,7 @@ import { QuestionAnswerResponse } from "./responses/question-answer-response";
 import { QuestionFromCodeResponse } from "./responses/question-from-code-response";
 import { SelectableOption } from "./selectable-option";
 import { DisclaimerComponent } from "./utils/disclaimer";
+import { UpdateNoticeComponent } from "./utils/update-notice";
 import { VideoContainer } from "./utils/video-container";
 
 const disclaimerNotShowDays = 3;
@@ -65,6 +61,8 @@ export const CodingAssistant = () => {
         null
     );
 
+    const [showUpdateNotice, setShowUpdateNotice] = useState<boolean>(false);
+
     const displayError = (message: string) => {
         setErrorMessage(message);
 
@@ -88,6 +86,18 @@ export const CodingAssistant = () => {
                     Date.now() - disclaimerNotShowDays * 24 * 60 * 60 * 1000
             ) {
                 showDisclaimer = false;
+            }
+        } catch (e) {}
+
+        try {
+            const closedUpdateNotice = localStorage.getItem(
+                "closed-update-notice"
+            );
+
+            if (closedUpdateNotice && closedUpdateNotice === "true") {
+                setShowUpdateNotice(false);
+            } else {
+                setShowUpdateNotice(true);
             }
         } catch (e) {}
 
@@ -520,6 +530,7 @@ export const CodingAssistant = () => {
 
     return (
         <main className="home-container">
+            {showUpdateNotice && <UpdateNoticeComponent />}
             <div className="ai-assistant">
                 <VideoContainer />
                 <div className="assistant-toolbox-container">
