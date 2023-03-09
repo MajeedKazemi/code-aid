@@ -10,11 +10,11 @@ export const connectSocket = (token: string) => {
     });
 
     socket.on("connect", () => {
-        // console.log(`Connected to Socket.IO server with ID ${socket.id}`);
+        console.log(`Connected to Socket.IO server with ID ${socket.id}`);
     });
 
     socket.on("disconnect", (reason: string) => {
-        // console.log(`Disconnected from Socket.IO server: ${reason}`);
+        console.log(`Disconnected from Socket.IO server: ${reason}`);
     });
 
     socket.on("error", (err: Error) => {
