@@ -34,9 +34,12 @@ export const HoverableFixedCode = (props: IProps) => {
         >
             <span
                 className={
-                    props.explanation
+                    (props.explanation
                         ? "hoverable-fixed-code"
-                        : "hoverable-code"
+                        : "hoverable-code") +
+                    (hovering && props.explanation
+                        ? " hoverable-code-hovering"
+                        : "")
                 }
                 ref={codeEl}
             >

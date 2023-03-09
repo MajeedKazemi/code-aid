@@ -2,13 +2,37 @@ import * as http from "http";
 import jwt from "jsonwebtoken";
 import { Server, Socket } from "socket.io";
 
-import { mainAskFromCode, replyAskFromCode, suggestAskFromCode } from "../codex-prompts/ask-from-code-prompt";
-import { mainAskQuestion, replyAskQuestion, suggestAskQuestion } from "../codex-prompts/ask-question-prompt";
+import {
+    mainAskFromCode,
+    replyAskFromCode,
+    suggestAskFromCode,
+} from "../codex-prompts/ask-from-code-prompt";
+import {
+    mainAskQuestion,
+    replyAskQuestion,
+    suggestAskQuestion,
+} from "../codex-prompts/ask-question-prompt";
 import { codeToPseudocode } from "../codex-prompts/code-to-pseudocode";
-import { mainExplainCode, replyExplainCode, suggestExplainCode } from "../codex-prompts/explain-code-prompt";
-import { mainDiffFixedCode, mainFixCode } from "../codex-prompts/fix-code-prompt";
-import { formatCCode, labelModifiedLines, removeComments } from "../codex-prompts/shared/agents";
-import { mainWriteCode, replyWriteCode, suggestWriteCode } from "../codex-prompts/write-code-prompt";
+import {
+    mainExplainCode,
+    replyExplainCode,
+    suggestExplainCode,
+} from "../codex-prompts/explain-code-prompt";
+import {
+    mainDiffFixedCode,
+    mainFixCode,
+} from "../codex-prompts/fix-code-prompt";
+import {
+    formatCCode,
+    labelFixedCode,
+    labelOriginalCode,
+    removeComments,
+} from "../codex-prompts/shared/agents";
+import {
+    mainWriteCode,
+    replyWriteCode,
+    suggestWriteCode,
+} from "../codex-prompts/write-code-prompt";
 import { ResponseModel } from "../models/response";
 import { IUser, UserModel } from "../models/user";
 import { openai } from "../utils/codex";
@@ -668,8 +692,8 @@ async function fixCode(
         // create two labeled versions of the code: labeledOriginalCode (with all modified lines labeled) and labeledFixedCode (with all fixed lines labeled)
         // this LLM prompt will be used to annotate the original code with some explanation of the changes + provide an overview of all changes made
         const explainDiffPrompt = mainDiffFixedCode(
-            labelModifiedLines(res.rawFixedCode, formattedCode, "modified"),
-            labelModifiedLines(formattedCode, res.rawFixedCode, "fixed"),
+            labelOriginalCode(formattedCode, res.rawFixedCode),
+            labelFixedCode(formattedCode, res.rawFixedCode),
             question
         );
 

@@ -9,6 +9,7 @@ import Session from "express-session";
 import mongoose from "mongoose";
 import passport from "passport";
 
+import { testDiffs } from "./codex-prompts/shared/agents";
 import { adminRouter } from "./routes/admin-router";
 import { codexRouter } from "./routes/codex-router";
 import { loginRouter } from "./routes/login-router";
@@ -81,3 +82,5 @@ mongoose
     .catch((err) => {
         console.error("[Terminating] Error connecting to MongoDB: ", err);
     });
+
+testDiffs();

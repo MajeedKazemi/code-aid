@@ -163,7 +163,13 @@ export const diffFixedCodeParser = (txt: string) => {
     obj.rawExplainedLines = obj.rawExplainedLines.trim();
 
     obj.lines = obj.rawExplainedLines.split("\n").map((line: string) => {
-        const [code, explanation] = line.split(" // [modified-reason]: ");
+        let splitter = " // [modified-reason]: ";
+
+        if (line.includes("// [added-reason]: ")) {
+            splitter = " // [added-reason]: ";
+        }
+
+        const [code, explanation] = line.split(splitter);
 
         return {
             code,
