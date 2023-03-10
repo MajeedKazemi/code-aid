@@ -1,4 +1,8 @@
-import { explainCodeParser, genericParser, suggestionsParser } from "./shared/parsers";
+import {
+    explainCodeParser,
+    genericParser,
+    suggestionsParser,
+} from "./shared/parsers";
 
 export const mainExplainCode = (code: string) => {
     return {
@@ -204,14 +208,14 @@ ${thread}
 // suggestions: again, something about the code that might be interesting to ask about
 export const suggestExplainCode = (code: string) => {
     return {
-        prompt: `[annotated-code]:
+        prompt: `[code]:
 ${code}
-[follow-up-questions]: based on the above [annotated-code], generate three separate and different follow-up questions to ask about the code:
+[follow-up-questions]: based on the above [code], generate three interesting and detailed questions to ask about the [code]:
 1.`,
         stop: ["4."],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 3000,
+        max_tokens: 3500,
         parser: (output: string) => suggestionsParser(output),
     };
 };

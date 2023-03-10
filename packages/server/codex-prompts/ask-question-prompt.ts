@@ -133,7 +133,7 @@ ${answer}
         stop: ["4."],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 3000,
+        max_tokens: 3500,
         parser: (output: string) => suggestionsParser(output),
     };
 };

@@ -77,12 +77,12 @@ export const initializeSocket = (server: http.Server) => {
                     const user = (await UserModel.findById(userId)) as IUser;
 
                     console.log(
-                        "new codex request: from",
-                        from,
-                        "type",
+                        "request -> [from]:",
+                        user.firstName + " " + user.lastName,
+                        "[type]:",
                         type,
-                        "data",
-                        data
+                        "[size]:",
+                        JSON.stringify(data).length
                     );
 
                     switch (type) {
@@ -160,15 +160,6 @@ export const initializeSocket = (server: http.Server) => {
                             fixCode(from, id, data.question, data.code, user);
 
                             break;
-
-                        // case "generate-man-page":
-                        //     generateManPageSocket(
-                        //         from,
-                        //         componentId,
-                        //         data.function
-                        //     );
-
-                        //     break;
                     }
                 });
             }
@@ -352,7 +343,7 @@ async function explainCode(
     );
 
     if (res.lines && res.lines.length > 0) {
-        const suggestPrompt = suggestExplainCode(res.raw || "");
+        const suggestPrompt = suggestExplainCode(formattedCode);
 
         res = await codexStreamReader(
             from,
@@ -370,7 +361,7 @@ async function explainCode(
     if (response) {
         response.data = {
             ...response.data,
-            code,
+            code: formattedCode,
             response: res.mask(),
             raw: mainPrompt.raw(res.raw || ""),
         };
@@ -440,7 +431,7 @@ async function writeCode(
         );
     }
 
-    const suggestPrompt = suggestAskQuestion(question, res.raw || "");
+    const suggestPrompt = suggestAskQuestion(question, res.answer || "");
 
     res = await codexStreamReader(
         from,
@@ -527,7 +518,7 @@ async function askQuestion(
         );
     }
 
-    const suggestPrompt = suggestAskQuestion(question, res.raw || "");
+    const suggestPrompt = suggestAskQuestion(question, res.answer || "");
 
     res = await codexStreamReader(
         from,
@@ -579,7 +570,8 @@ async function askQuestionFromCode(
 
     if (response?.finished) return;
 
-    const mainPrompt = mainAskFromCode(question, code);
+    const formattedCode = await formatCCode(removeComments(code));
+    const mainPrompt = mainAskFromCode(question, formattedCode);
 
     let res = new IAskQuestionResponse();
 
@@ -616,7 +608,11 @@ async function askQuestionFromCode(
         );
     }
 
-    const suggestPrompt = suggestAskFromCode(code, question, res.raw || "");
+    const suggestPrompt = suggestAskFromCode(
+        formattedCode,
+        question,
+        res.answer || ""
+    );
 
     res = await codexStreamReader(
         from,
@@ -633,7 +629,7 @@ async function askQuestionFromCode(
         response.data = {
             ...response.data,
             question,
-            code,
+            code: formattedCode,
             response: res.mask(),
             raw: mainPrompt.raw(res.raw || ""),
         };
@@ -799,7 +795,7 @@ async function askQuestionReply(
             );
         }
 
-        const suggestPrompt = suggestAskQuestion(question, res.raw || "");
+        const suggestPrompt = suggestAskQuestion(question, res.answer || "");
 
         res = await codexStreamReader(
             from,
@@ -900,7 +896,7 @@ async function writeCodeReply(
             );
         }
 
-        const suggestPrompt = suggestWriteCode(question, res.raw || "");
+        const suggestPrompt = suggestWriteCode(question, res.rawCode || "");
 
         res = await codexStreamReader(
             from,
@@ -1005,7 +1001,7 @@ async function askQuestionFromCodeReply(
         const suggestPrompt = suggestAskFromCode(
             r?.data.code,
             question,
-            res.raw || ""
+            res.answer || ""
         );
 
         res = await codexStreamReader(
@@ -1105,7 +1101,7 @@ async function explainCodeReply(
             );
         }
 
-        const suggestPrompt = suggestExplainCode(res.raw || "");
+        const suggestPrompt = suggestExplainCode(r?.data.code);
 
         res = await codexStreamReader(
             from,

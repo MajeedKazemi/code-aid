@@ -55,18 +55,18 @@ int main(int argc, char *argv[]) {
     };
 };
 
-export const suggestWriteCode = (question: string, answer: string) => {
+export const suggestWriteCode = (question: string, code: string) => {
     return {
         prompt: `[task-description]: ${question}
 [answer]:
-${answer}
+${code}
 [suggested-tasks]: generate three "how can I implement" tasks similar to the above [task-description] in C programming:
 1.`,
 
         stop: ["4."],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 3000,
+        max_tokens: 3500,
         parser: (output: string) => suggestionsParser(output),
     };
 };

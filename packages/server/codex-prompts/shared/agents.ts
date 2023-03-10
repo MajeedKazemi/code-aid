@@ -499,8 +499,8 @@ int main(void) {
     // console.log(labelFixedCode(c6, c6_fixed));
     // console.log(labelOriginalCode(c6, c6_fixed));
 
-    console.log(labelFixedCode(c7, c7_fixed));
-    console.log(labelOriginalCode(c7, c7_fixed));
+    // console.log(labelFixedCode(c7, c7_fixed));
+    // console.log(labelOriginalCode(c7, c7_fixed));
 
     // console.log("\n\n\n");
 

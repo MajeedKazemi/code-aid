@@ -1,4 +1,4 @@
-// TODO: sendto, recvfrom, fscanf,
+// TODO: sendto, recvfrom, fscanf, calloc, realloc, bsearch
 
 const staticManPages = {
     printf: {
