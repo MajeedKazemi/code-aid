@@ -132,12 +132,12 @@ export const suggestAskQuestion = (question: string, answer: string) => {
         prompt: `[question]: ${question}
 [answer]:
 ${answer}
-[follow-up-questions]: based on the above [question] and [answer], generate three separate and different follow-up questions:
+[follow-up-questions]: based on the above [question] and [answer], generate three separate single-line (short, max 100 chars) and different follow-up questions:
 1.`,
         stop: ["4."],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 3500,
+        max_tokens: 500,
         parser: (output: string) => suggestionsParser(output),
     };
 };

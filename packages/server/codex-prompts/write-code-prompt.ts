@@ -60,13 +60,13 @@ export const suggestWriteCode = (question: string, code: string) => {
         prompt: `[task-description]: ${question}
 [answer]:
 ${code}
-[suggested-tasks]: generate three "how can I implement" tasks similar to the above [task-description] in C programming:
+[suggested-tasks]: generate three single-line (short, max 100 chars) "how can I implement" task descriptions similar to the above [task-description] in C programming:
 1.`,
 
         stop: ["4."],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 3500,
+        max_tokens: 500,
         parser: (output: string) => suggestionsParser(output),
     };
 };

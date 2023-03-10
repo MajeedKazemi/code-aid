@@ -213,12 +213,12 @@ export const suggestExplainCode = (code: string) => {
     return {
         prompt: `[code]:
 ${code}
-[follow-up-questions]: based on the above [code], generate three interesting and detailed questions to ask about the [code]:
+[follow-up-questions]: based on the above [code], generate three interesting and detailed, single-line (short, max 100 chars) questions to ask about the [code]:
 1.`,
         stop: ["4."],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 3500,
+        max_tokens: 500,
         parser: (output: string) => suggestionsParser(output),
     };
 };

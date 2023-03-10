@@ -119,12 +119,12 @@ ${code}
 [question]: ${question}
 [answer]:
 ${answer}
-[suggested-questions]: generate three follow-up questions related to C programming and the above [code] and [question]?
+[suggested-questions]: generate three single-line (short, max 100 chars) follow-up questions related to C programming and the above [code] and [question]?
 1.`,
         stop: [`4.`],
         model: "text-davinci-003",
         temperature: 0.3,
-        max_tokens: 3500,
+        max_tokens: 500,
         parser: (output: string) => {
             return {
                 suggestions: output
