@@ -729,231 +729,271 @@ export const CodingAssistant = () => {
                     </div>
 
                     <div className="responses-container">
-                        {responses.map((response) => {
-                            switch (response.type) {
-                                case "disclaimer":
-                                    return (
-                                        <DisclaimerComponent key="disclaimer-key" />
-                                    );
+                        {responses
+                            .filter((r) => {
+                                return !(!r.stream && !r.finished);
+                            })
+                            .map((response) => {
+                                switch (response.type) {
+                                    case "disclaimer":
+                                        return (
+                                            <DisclaimerComponent key="disclaimer-key" />
+                                        );
 
-                                case "ask-question-v2":
-                                    return (
-                                        <AskQuestionResponse
-                                            stream={response.stream}
-                                            setStreamFinished={() => {
-                                                setStatus(StatusMessage.OK);
-                                                setCanUseToolbox(false);
-                                                setSelectedOption(null);
-                                                setQuestion("");
-                                                setButtonText("ask");
-                                            }}
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                            setCanUseToolbox={setCanUseToolbox}
-                                        />
-                                    );
+                                    case "ask-question-v2":
+                                        return (
+                                            <AskQuestionResponse
+                                                stream={response.stream}
+                                                setStreamFinished={() => {
+                                                    setStatus(StatusMessage.OK);
+                                                    setCanUseToolbox(false);
+                                                    setSelectedOption(null);
+                                                    setQuestion("");
+                                                    setButtonText("ask");
+                                                }}
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                                setCanUseToolbox={
+                                                    setCanUseToolbox
+                                                }
+                                            />
+                                        );
 
-                                case "question-from-code-v2":
-                                    return (
-                                        <AskFromCodeResponse
-                                            stream={response.stream}
-                                            setStreamFinished={() => {
-                                                setStatus(StatusMessage.OK);
-                                                setCanUseToolbox(false);
-                                                setSelectedOption(null);
-                                                setQuestion("");
-                                                setButtonText("ask");
-                                            }}
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                            setCanUseToolbox={setCanUseToolbox}
-                                        />
-                                    );
+                                    case "question-from-code-v2":
+                                        return (
+                                            <AskFromCodeResponse
+                                                stream={response.stream}
+                                                setStreamFinished={() => {
+                                                    setStatus(StatusMessage.OK);
+                                                    setCanUseToolbox(false);
+                                                    setSelectedOption(null);
+                                                    setQuestion("");
+                                                    setButtonText("ask");
+                                                }}
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                                setCanUseToolbox={
+                                                    setCanUseToolbox
+                                                }
+                                            />
+                                        );
 
-                                case "explain-code-v2":
-                                    return (
-                                        <ExplainCodeV2Response
-                                            stream={response.stream}
-                                            setStreamFinished={() => {
-                                                setStatus(StatusMessage.OK);
-                                                setCanUseToolbox(false);
-                                                setSelectedOption(null);
-                                                setQuestion("");
-                                                setButtonText("explain");
-                                            }}
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                            setCanUseToolbox={setCanUseToolbox}
-                                        />
-                                    );
+                                    case "explain-code-v2":
+                                        return (
+                                            <ExplainCodeV2Response
+                                                stream={response.stream}
+                                                setStreamFinished={() => {
+                                                    setStatus(StatusMessage.OK);
+                                                    setCanUseToolbox(false);
+                                                    setSelectedOption(null);
+                                                    setQuestion("");
+                                                    setButtonText("explain");
+                                                }}
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                                setCanUseToolbox={
+                                                    setCanUseToolbox
+                                                }
+                                            />
+                                        );
 
-                                case "write-code-v2":
-                                    return (
-                                        <WriteCodeResponse
-                                            stream={response.stream}
-                                            setStreamFinished={() => {
-                                                setStatus(StatusMessage.OK);
-                                                setCanUseToolbox(false);
-                                                setSelectedOption(null);
-                                                setQuestion("");
-                                                setButtonText("assist");
-                                            }}
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                            setCanUseToolbox={setCanUseToolbox}
-                                        />
-                                    );
+                                    case "write-code-v2":
+                                        return (
+                                            <WriteCodeResponse
+                                                stream={response.stream}
+                                                setStreamFinished={() => {
+                                                    setStatus(StatusMessage.OK);
+                                                    setCanUseToolbox(false);
+                                                    setSelectedOption(null);
+                                                    setQuestion("");
+                                                    setButtonText("assist");
+                                                }}
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                                setCanUseToolbox={
+                                                    setCanUseToolbox
+                                                }
+                                            />
+                                        );
 
-                                case "help-fix-code-v2":
-                                    return (
-                                        <FixCodeResponse
-                                            stream={response.stream}
-                                            setStreamFinished={() => {
-                                                setStatus(StatusMessage.OK);
-                                                setCanUseToolbox(false);
-                                                setSelectedOption(null);
-                                                setQuestion("");
-                                                setButtonText("assist");
-                                            }}
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                            setCanUseToolbox={setCanUseToolbox}
-                                        />
-                                    );
+                                    case "help-fix-code-v2":
+                                        return (
+                                            <FixCodeResponse
+                                                stream={response.stream}
+                                                setStreamFinished={() => {
+                                                    setStatus(StatusMessage.OK);
+                                                    setCanUseToolbox(false);
+                                                    setSelectedOption(null);
+                                                    setQuestion("");
+                                                    setButtonText("assist");
+                                                }}
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                                setCanUseToolbox={
+                                                    setCanUseToolbox
+                                                }
+                                            />
+                                        );
 
-                                case "question-answer":
-                                    return (
-                                        <QuestionAnswerResponse
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                            setCanUseToolbox={setCanUseToolbox}
-                                        />
-                                    );
+                                    case "question-answer":
+                                        return (
+                                            <QuestionAnswerResponse
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                                setCanUseToolbox={
+                                                    setCanUseToolbox
+                                                }
+                                            />
+                                        );
 
-                                case "break-down-steps":
-                                    return (
-                                        <BreakDownStepsResponse
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                        />
-                                    );
+                                    case "break-down-steps":
+                                        return (
+                                            <BreakDownStepsResponse
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                            />
+                                        );
 
-                                case "help-fix-code":
-                                    return (
-                                        <HelpFixCodeResponse
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                        />
-                                    );
+                                    case "help-fix-code":
+                                        return (
+                                            <HelpFixCodeResponse
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                            />
+                                        );
 
-                                case "explain-code":
-                                    return (
-                                        <ExplainCodeResponse
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                        />
-                                    );
+                                    case "explain-code":
+                                        return (
+                                            <ExplainCodeResponse
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                            />
+                                        );
 
-                                case "explain-code-hover":
-                                    return (
-                                        <ExplainCodeHoverResponse
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                        />
-                                    );
+                                    case "explain-code-hover":
+                                        return (
+                                            <ExplainCodeHoverResponse
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                            />
+                                        );
 
-                                case "question-from-code":
-                                    return (
-                                        <QuestionFromCodeResponse
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                        />
-                                    );
+                                    case "question-from-code":
+                                        return (
+                                            <QuestionFromCodeResponse
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                            />
+                                        );
 
-                                case "keyword-example":
-                                    return (
-                                        <KeywordExampleResponse
-                                            key={response.id}
-                                            data={response}
-                                            canUseToolbox={canUseToolbox}
-                                            onSubmitFeedback={
-                                                checkCanUseToolbox
-                                            }
-                                            generateExample={generateExample}
-                                            askQuestion={askQuestion}
-                                        />
-                                    );
+                                    case "keyword-example":
+                                        return (
+                                            <KeywordExampleResponse
+                                                key={response.id}
+                                                data={response}
+                                                canUseToolbox={canUseToolbox}
+                                                onSubmitFeedback={
+                                                    checkCanUseToolbox
+                                                }
+                                                generateExample={
+                                                    generateExample
+                                                }
+                                                askQuestion={askQuestion}
+                                            />
+                                        );
 
-                                default:
-                                    return null;
-                            }
-                        })}
+                                    default:
+                                        return null;
+                                }
+                            })}
                     </div>
                 </div>
             </div>
