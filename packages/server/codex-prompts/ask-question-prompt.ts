@@ -61,7 +61,7 @@ export const replyAskQuestion = (
 ) => {
     let thread = "";
 
-    if (prevResponses !== undefined && prevResponses.length !== 0) {
+    if (prevResponses && prevResponses.length !== 0) {
         const firstQuestion = prevResponses[0]
             .split("\n")[0]
             .replace("[question]: ", "");
@@ -72,16 +72,20 @@ export const replyAskQuestion = (
         thread += `[question]: ${firstQuestion}\n[answer]: ${firstAnswer}\n[end-question-answer]\n\n`;
 
         for (let i = 1; i < prevResponses.length; i++) {
-            let lines = prevResponses[i].split("\n");
+            if (prevResponses[i]) {
+                let lines = prevResponses[i].split("\n");
 
-            let question = lines
-                .filter((line) => line.startsWith("[follow-up-question]:"))[0]
-                .replace("[follow-up-question]:", "");
-            let answer = lines.filter((line) =>
-                line.startsWith("[answer]:")
-            )[0];
+                let question = lines
+                    .filter((line) =>
+                        line.startsWith("[follow-up-question]:")
+                    )[0]
+                    .replace("[follow-up-question]:", "");
+                let answer = lines.filter((line) =>
+                    line.startsWith("[answer]:")
+                )[0];
 
-            thread += `[follow-up-question]: ${question}\n${answer}\n[end-question-answer]\n\n`;
+                thread += `[follow-up-question]: ${question}\n${answer}\n[end-question-answer]\n\n`;
+            }
         }
     }
 
