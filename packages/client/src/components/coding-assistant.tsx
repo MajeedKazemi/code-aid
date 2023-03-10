@@ -321,7 +321,7 @@ export const CodingAssistant = () => {
                     return;
                 }
 
-                if (question.length > 1000) {
+                if (question.length > 500) {
                     displayError(
                         "Please try to break your task into smaller parts. Your description is too long."
                     );
@@ -375,7 +375,7 @@ export const CodingAssistant = () => {
                     return;
                 }
 
-                if (code.length > 2000) {
+                if (code.length > 2500) {
                     displayError(
                         "Please try to explain your code in smaller parts. Your code is too long."
                     );
@@ -509,7 +509,7 @@ export const CodingAssistant = () => {
                     return;
                 }
 
-                if (code.length > 3000) {
+                if (code.length > 2500) {
                     displayError(
                         "Please try to explain your code in smaller parts. Your code is too long."
                     );

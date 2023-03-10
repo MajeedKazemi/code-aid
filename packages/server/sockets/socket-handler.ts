@@ -324,7 +324,7 @@ async function explainCode(
     if (response?.finished) return;
 
     const formattedCode = await formatCCode(removeComments(code));
-    const mainPrompt = mainExplainCode(formattedCode);
+    const mainPrompt = mainExplainCode(formattedCode.substring(0, 2500));
 
     let res = new IExplainCodeResponse();
 
@@ -343,7 +343,9 @@ async function explainCode(
     );
 
     if (res.lines && res.lines.length > 0) {
-        const suggestPrompt = suggestExplainCode(formattedCode);
+        const suggestPrompt = suggestExplainCode(
+            formattedCode.substring(0, 2500)
+        );
 
         res = await codexStreamReader(
             from,
@@ -394,7 +396,7 @@ async function writeCode(
 
     if (response?.finished) return;
 
-    const mainPrompt = mainWriteCode(question);
+    const mainPrompt = mainWriteCode(question.substring(0, 500));
 
     let res = new IAskQuestionResponse();
 
@@ -431,7 +433,10 @@ async function writeCode(
         );
     }
 
-    const suggestPrompt = suggestAskQuestion(question, res.answer || "");
+    const suggestPrompt = suggestAskQuestion(
+        question.substring(0, 500),
+        res.answer || ""
+    );
 
     res = await codexStreamReader(
         from,
@@ -481,7 +486,7 @@ async function askQuestion(
 
     if (response?.finished) return;
 
-    const mainPrompt = mainAskQuestion(question);
+    const mainPrompt = mainAskQuestion(question.substring(0, 500));
 
     let res = new IAskQuestionResponse();
 
@@ -518,7 +523,10 @@ async function askQuestion(
         );
     }
 
-    const suggestPrompt = suggestAskQuestion(question, res.answer || "");
+    const suggestPrompt = suggestAskQuestion(
+        question.substring(0, 500),
+        res.answer || ""
+    );
 
     res = await codexStreamReader(
         from,
@@ -571,7 +579,10 @@ async function askQuestionFromCode(
     if (response?.finished) return;
 
     const formattedCode = await formatCCode(removeComments(code));
-    const mainPrompt = mainAskFromCode(question, formattedCode);
+    const mainPrompt = mainAskFromCode(
+        question.substring(0, 500),
+        formattedCode.substring(0, 2500)
+    );
 
     let res = new IAskQuestionResponse();
 
@@ -609,8 +620,8 @@ async function askQuestionFromCode(
     }
 
     const suggestPrompt = suggestAskFromCode(
-        formattedCode,
-        question,
+        formattedCode.substring(0, 2500),
+        question.substring(0, 500),
         res.answer || ""
     );
 
@@ -663,7 +674,10 @@ async function fixCode(
     if (response?.finished) return;
 
     const formattedCode = await formatCCode(removeComments(code));
-    const fixCodePrompt = mainFixCode(question, formattedCode);
+    const fixCodePrompt = mainFixCode(
+        question.substring(0, 500),
+        formattedCode.substring(0, 2500)
+    );
 
     let res = new IFixedCodeResponse();
 
@@ -690,7 +704,7 @@ async function fixCode(
         const explainDiffPrompt = mainDiffFixedCode(
             labelOriginalCode(formattedCode, res.rawFixedCode),
             labelFixedCode(formattedCode, res.rawFixedCode),
-            question
+            question.substring(0, 500)
         );
 
         res = await codexStreamReader(
@@ -756,7 +770,7 @@ async function askQuestionReply(
                     .filter((fu) => fu.raw && fu.raw.length > 0)
                     .map((fu) => fu.raw),
             ],
-            question
+            question.substring(0, 500)
         );
 
         let res = new IAskQuestionResponse();
@@ -795,7 +809,10 @@ async function askQuestionReply(
             );
         }
 
-        const suggestPrompt = suggestAskQuestion(question, res.answer || "");
+        const suggestPrompt = suggestAskQuestion(
+            question.substring(0, 500),
+            res.answer || ""
+        );
 
         res = await codexStreamReader(
             from,
@@ -857,7 +874,7 @@ async function writeCodeReply(
                     .filter((fu) => fu.raw && fu.raw.length > 0)
                     .map((fu) => fu.raw),
             ],
-            question
+            question.substring(0, 500)
         );
 
         let res = new IAskQuestionResponse();
@@ -896,7 +913,10 @@ async function writeCodeReply(
             );
         }
 
-        const suggestPrompt = suggestWriteCode(question, res.rawCode || "");
+        const suggestPrompt = suggestWriteCode(
+            question.substring(0, 500),
+            res.rawCode?.substring(0, 2500) || ""
+        );
 
         res = await codexStreamReader(
             from,
@@ -952,14 +972,14 @@ async function askQuestionFromCodeReply(
         if (followUps[followUpIndex].finished) return;
 
         const replyPrompt = replyAskFromCode(
-            r?.data.code,
+            r?.data.code.substring(0, 2500),
             [
                 r.data.raw,
                 ...r.followUps
                     .filter((fu) => fu.raw && fu.raw.length > 0)
                     .map((fu) => fu.raw),
             ],
-            question
+            question.substring(0, 500)
         );
 
         let res = new IAskQuestionResponse();
@@ -999,8 +1019,8 @@ async function askQuestionFromCodeReply(
         }
 
         const suggestPrompt = suggestAskFromCode(
-            r?.data.code,
-            question,
+            r?.data.code.substring(0, 2500),
+            question.substring(0, 500),
             res.answer || ""
         );
 
@@ -1058,11 +1078,11 @@ async function explainCodeReply(
         if (followUps[followUpIndex].finished) return;
 
         const replyPrompt = replyExplainCode(
-            r?.data.code,
+            r?.data.code.substring(0, 2500),
             r.followUps
                 .filter((fu) => fu.raw && fu.raw.length > 0)
                 .map((fu) => fu.raw || ""),
-            question
+            question.substring(0, 500)
         );
 
         let res = new IAskQuestionResponse();
@@ -1101,7 +1121,9 @@ async function explainCodeReply(
             );
         }
 
-        const suggestPrompt = suggestExplainCode(r?.data.code);
+        const suggestPrompt = suggestExplainCode(
+            r?.data.code.substring(0, 2500)
+        );
 
         res = await codexStreamReader(
             from,
