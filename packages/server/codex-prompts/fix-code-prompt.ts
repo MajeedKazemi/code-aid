@@ -51,7 +51,7 @@ ${code}
 [fixed-code]:
 `,
         stop: ["[end-fixed-code]"],
-        model: "text-davinci-003",
+        model: "code-davinci-002",
         temperature: 0.1,
         max_tokens: 2000,
         parser: (resTxt: string) => rawFixedCodeParser(resTxt),

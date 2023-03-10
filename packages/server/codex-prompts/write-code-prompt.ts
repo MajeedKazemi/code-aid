@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 [question]: ${question}
 [answer]:`,
         stop: [`[end-question-answer]`],
-        model: "text-davinci-003",
+        model: "code-davinci-002",
         temperature: 0.1,
         max_tokens: 2048,
         parser: (resTxt: string) => genericParser(resTxt),

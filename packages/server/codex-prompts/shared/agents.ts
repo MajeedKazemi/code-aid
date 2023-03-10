@@ -106,7 +106,7 @@ export const labelModifiedLines = (
         }
     });
 
-    return annotatedCode;
+    return annotatedCode.trim();
 };
 
 export const labelOriginalCode = (newCode: string, oldCode: string) => {
@@ -175,7 +175,7 @@ export const labelOriginalCode = (newCode: string, oldCode: string) => {
     //     }
     // }
 
-    return finalAnnotatedCode;
+    return finalAnnotatedCode.trim();
 };
 
 export const labelFixedCode = (oldCode: string, newCode: string) => {
