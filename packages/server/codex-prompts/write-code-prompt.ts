@@ -72,94 +72,68 @@ ${code}
 };
 
 export const replyWriteCode = (
-    prevResponses: string[],
+    prevResponses: string[] | undefined,
     newQuestion: string
 ) => {
     let thread = "";
 
-    if (prevResponses.length === 0) {
-        console.error("prevQuery is empty");
-    }
+    if (prevResponses !== undefined && prevResponses.length !== 0) {
+        let code = "";
 
-    `[code]:
-[code-title]: define the structure of a node that contains the data and a pointer to the next node.
-struct node {
-    int data;
-    struct node *next;
-};
+        for (let i = prevResponses.length - 1; i >= 0; i--) {
+            let lines = prevResponses[i].split("\n");
 
-[code-title]: create a head node that points to the first node in the list.
-struct node *head = NULL;
+            let codeLineStartIndex = lines.findIndex((line) =>
+                line.startsWith("[code]:")
+            );
 
-[code-title]: dynamically allocate memory for a new node
-struct node *new_node = (struct node *)malloc(sizeof(struct node));
+            let codeLineEndIndex = lines.findIndex((line) =>
+                line.startsWith("[end-code]")
+            );
 
-[code-title]: initialize the data and next fields of the new node
-new_node->data = 1;
-new_node->next = NULL;
-
-[code-title]: traverse the list to find the last node and add the new node to the end
-struct node *current = head;
-while (current->next != NULL) {
-    current = current->next;
-}
-current->next = new_node;
-[end-code]`;
-
-    // extract the code
-    let code = "";
-
-    for (let i = prevResponses.length - 1; i >= 0; i--) {
-        let lines = prevResponses[i].split("\n");
-
-        let codeLineStartIndex = lines.findIndex((line) =>
-            line.startsWith("[code]:")
-        );
-
-        let codeLineEndIndex = lines.findIndex((line) =>
-            line.startsWith("[end-code]")
-        );
-
-        if (
-            codeLineStartIndex !== -1 &&
-            codeLineEndIndex !== -1 &&
-            code === ""
-        ) {
-            code = lines
-                .slice(codeLineStartIndex, codeLineEndIndex + 1)
-                .join("\n");
-        } else {
-            code = "";
-        }
-
-        let startWithQuestion = lines.filter((line) =>
-            line.startsWith("[question]:")
-        );
-
-        if (startWithQuestion.length > 0) {
-            let question = startWithQuestion[0].replace("[question]: ", "");
-            let answer = lines
-                .filter((line) => line.startsWith("[answer]:"))[0]
-                .replace("[answer]: ", "");
-
-            if (code !== "") {
-                thread = `[question]: ${question}\n[answer]: ${answer}\n${code}\n[end-question-answer]\n\n${thread}`;
+            if (
+                codeLineStartIndex !== -1 &&
+                codeLineEndIndex !== -1 &&
+                code === ""
+            ) {
+                code = lines
+                    .slice(codeLineStartIndex, codeLineEndIndex + 1)
+                    .join("\n");
             } else {
-                thread = `[question]: ${question}\n[answer]: ${answer}\n[end-question-answer]\n\n${thread}`;
+                code = "";
             }
-        } else {
-            let followUpQuestion = lines
-                .filter((line) => line.startsWith("[follow-up-question]:"))[0]
-                .replace("[follow-up-question]: ", "");
 
-            let followUpAnswer = lines
-                .filter((line) => line.startsWith("[answer]:"))[0]
-                .replace("[answer]: ", "");
+            let startWithQuestion = lines.filter((line) =>
+                line.startsWith("[question]:")
+            );
 
-            if (code !== "") {
-                thread = `[follow-up-question]: ${followUpQuestion}\n[answer]: ${followUpAnswer}\n${code}\n[end-question-answer]\n\n${thread}`;
+            if (startWithQuestion.length > 0) {
+                let question = startWithQuestion[0].replace("[question]: ", "");
+                let answer = lines
+                    .filter((line) => line.startsWith("[answer]:"))[0]
+                    .replace("[answer]: ", "");
+
+                if (code !== "") {
+                    thread = `[question]: ${question}\n[answer]: ${answer}\n${code}\n[end-question-answer]\n\n${thread}`;
+                } else {
+                    thread = `[question]: ${question}\n[answer]: ${answer}\n[end-question-answer]\n\n${thread}`;
+                }
             } else {
-                thread = `[follow-up-question]: ${followUpQuestion}\n[answer]: ${followUpAnswer}\n[end-question-answer]\n\n${thread}`;
+                let followUpQuestion = lines
+                    .filter((line) =>
+                        line.startsWith("[follow-up-question]:")
+                    )[0]
+                    .replace("[follow-up-question]: ", "");
+
+                let followUpAnswer = lines
+                    .filter((line) => line.startsWith("[answer]:"))[0]
+                    .replace("[answer]: ", "");
+
+                if (code !== "") {
+                    thread = `[follow-up-question]: ${followUpQuestion}\n[answer]: ${followUpAnswer}\n${code}\n[end-question-answer]\n\n${thread}`;
+                } else {
+                    thread = `[follow-up-question]: ${followUpQuestion}\n[answer]: ${followUpAnswer}\n[end-question-answer]\n\n${thread}`;
+                }
             }
         }
     }

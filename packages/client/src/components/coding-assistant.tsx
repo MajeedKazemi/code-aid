@@ -1,7 +1,12 @@
 import * as monaco from "monaco-editor";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { apiCheckCanUseToolbox, apiInitResponse, apiKeywordUsageExample, apiRecentResponses } from "../api/api";
+import {
+    apiCheckCanUseToolbox,
+    apiInitResponse,
+    apiKeywordUsageExample,
+    apiRecentResponses,
+} from "../api/api";
 import { AuthContext, SocketContext } from "../context";
 import { AskFromCodeResponse } from "./responses-socket/ask-from-code";
 import { AskQuestionResponse } from "./responses-socket/ask-question";
@@ -260,6 +265,14 @@ export const CodingAssistant = () => {
                     return;
                 }
 
+                if (question.length > 500) {
+                    displayError(
+                        "Please try to ask more concisely. Your question is too long."
+                    );
+
+                    return;
+                }
+
                 apiInitResponse(context?.token, "ask-question-v2")
                     .then(async (res) => {
                         const data = await res.json();
@@ -308,6 +321,14 @@ export const CodingAssistant = () => {
                     return;
                 }
 
+                if (question.length > 1000) {
+                    displayError(
+                        "Please try to break your task into smaller parts. Your description is too long."
+                    );
+
+                    return;
+                }
+
                 apiInitResponse(context?.token, "write-code-v2")
                     .then(async (res) => {
                         const data = await res.json();
@@ -344,6 +365,20 @@ export const CodingAssistant = () => {
             case HintOption.ExplainCode:
                 if (!code) {
                     displayError("Please enter some code to explain.");
+
+                    return;
+                }
+
+                if (code.length < 10) {
+                    displayError("Please enter more code to explain.");
+
+                    return;
+                }
+
+                if (code.length > 2000) {
+                    displayError(
+                        "Please try to explain your code in smaller parts. Your code is too long."
+                    );
 
                     return;
                 }
@@ -398,6 +433,22 @@ export const CodingAssistant = () => {
                     return;
                 }
 
+                if (question.length > 500) {
+                    displayError(
+                        "Please try to ask more concisely. Your question is too long."
+                    );
+
+                    return;
+                }
+
+                if (code.length > 2500) {
+                    displayError(
+                        "Please try to explain your code in smaller parts. Your code is too long."
+                    );
+
+                    return;
+                }
+
                 apiInitResponse(context?.token, "question-from-code-v2")
                     .then(async (res) => {
                         const data = await res.json();
@@ -446,6 +497,22 @@ export const CodingAssistant = () => {
                     return;
                 } else if (!code) {
                     displayError("Please enter the code to fix.");
+
+                    return;
+                }
+
+                if (question.length > 500) {
+                    displayError(
+                        "Please try to explain the intended behavior more concisely. its too long."
+                    );
+
+                    return;
+                }
+
+                if (code.length > 3000) {
+                    displayError(
+                        "Please try to explain your code in smaller parts. Your code is too long."
+                    );
 
                     return;
                 }

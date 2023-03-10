@@ -137,41 +137,39 @@ ${answer}
 
 export const replyAskFromCode = (
     code: string,
-    prevResponses: string[],
+    prevResponses: string[] | undefined,
     newQuestion: string
 ) => {
-    let thread = "";
+    let thread = `[code]:\n${code}\n`;
 
-    if (prevResponses.length === 0) {
-        console.error("prevQuery is empty");
-    }
+    if (prevResponses !== undefined && prevResponses.length != 0) {
+        for (let i = 0; i < prevResponses.length; i++) {
+            let lines = prevResponses[i].split("\n");
 
-    thread += `[code]:\n${code}\n`;
+            let startWithQuestion = lines.filter((line) =>
+                line.startsWith("[question]:")
+            );
 
-    for (let i = 0; i < prevResponses.length; i++) {
-        let lines = prevResponses[i].split("\n");
+            if (startWithQuestion.length > 0) {
+                let question = startWithQuestion[0].replace("[question]: ", "");
+                let answer = lines
+                    .filter((line) => line.startsWith("[answer]:"))[0]
+                    .replace("[answer]: ", "");
 
-        let startWithQuestion = lines.filter((line) =>
-            line.startsWith("[question]:")
-        );
+                thread += `[question]: ${question}\n[answer]: ${answer}\n[end-question-answer]\n\n`;
+            } else {
+                let followUpQuestion = lines
+                    .filter((line) =>
+                        line.startsWith("[follow-up-question]:")
+                    )[0]
+                    .replace("[follow-up-question]: ", "");
 
-        if (startWithQuestion.length > 0) {
-            let question = startWithQuestion[0].replace("[question]: ", "");
-            let answer = lines
-                .filter((line) => line.startsWith("[answer]:"))[0]
-                .replace("[answer]: ", "");
+                let followUpAnswer = lines
+                    .filter((line) => line.startsWith("[answer]:"))[0]
+                    .replace("[answer]: ", "");
 
-            thread += `[question]: ${question}\n[answer]: ${answer}\n[end-question-answer]\n\n`;
-        } else {
-            let followUpQuestion = lines
-                .filter((line) => line.startsWith("[follow-up-question]:"))[0]
-                .replace("[follow-up-question]: ", "");
-
-            let followUpAnswer = lines
-                .filter((line) => line.startsWith("[answer]:"))[0]
-                .replace("[answer]: ", "");
-
-            thread += `[follow-up-question]: ${followUpQuestion}\n${followUpAnswer}\n[end-question-answer]\n\n`;
+                thread += `[follow-up-question]: ${followUpQuestion}\n${followUpAnswer}\n[end-question-answer]\n\n`;
+            }
         }
     }
 
