@@ -53,7 +53,7 @@ ${code}
         stop: ["[end-fixed-code]"],
         model: "text-davinci-003",
         temperature: 0.1,
-        max_tokens: 1536,
+        max_tokens: 2000,
         parser: (resTxt: string) => rawFixedCodeParser(resTxt),
         raw: (resTxt: string) => `[code]:
 ${code}
@@ -189,9 +189,9 @@ show all the lines of [original-code] (do not show any of the lines from [fixed-
 [explained-original-code]:
 `,
         stop: ["[end-diff-fixed-code]"],
-        model: "text-davinci-003",
-        temperature: 0.2,
-        max_tokens: 1250,
+        model: "code-davinci-002",
+        temperature: 0.1,
+        max_tokens: 2500,
         parser: (resTxt: string) => diffFixedCodeParser(resTxt),
         raw: (resTxt: string) => `[code]:
 ${labeledOriginalCode}

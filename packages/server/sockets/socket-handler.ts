@@ -167,9 +167,9 @@ export const initializeSocket = (server: http.Server) => {
     });
 
     socket.on("connection", (socket: any) => {
-        console.log(
-            `Socket connected with user ${socket.request.user?.username}`
-        );
+        // console.log(
+        //     `Socket connected with user ${socket.request.user?.username}`
+        // );
     });
 
     socket.on("disconnect", (reason: string) => {
