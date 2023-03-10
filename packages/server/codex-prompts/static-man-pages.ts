@@ -1,6 +1,175 @@
-// TODO: sendto, recvfrom, fscanf, calloc, realloc, bsearch
-
 const staticManPages = {
+    execv: {
+        summary:
+            "execv() executes the program pointed to by filename, passing it the argument vector pointed to by argv.",
+        synopsis: "int execv(const char *filename, char *const argv[]);",
+        include: ["#include <unistd.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `execv()` function.",
+                code: '#include <stdio.h>\n#include <unistd.h>\n\nint main () {\n    char *argv[] = {"ls", "-l", "/", NULL};\n    \n    execv("/bin/ls", argv);\n    \n    printf("This line will not be executed.\\n");\n    \n    return(0);\n}',
+            },
+        ],
+        description:
+            "`execv()` replaces the current process image with a new process image. The new process image is constructed from a regular, executable file called the new process image file. The new process image file is passed as the first argument to execv(). The second argument is an array of pointers to null-terminated strings that represent the argument list available to the new process image.",
+        return: "`execv()` does not return on success, and the return value is -1 on error.",
+        notes: "The argument vector and environment for the new process image are taken from the calling process.",
+        bugs: "If the new process image file is not an executable file, `execv()` will fail and no new process image will be created.",
+        similar: ["execve", "execvp", "execl", "execlp"],
+    },
+    execl: {
+        summary:
+            "executes a file, replacing the current process image with a new process image.",
+        synopsis: "int execl(const char *path, const char *arg, ...);",
+        include: ["#include <unistd.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `execl()` function.",
+                code: '#include <unistd.h>\n#include <stdio.h>\n\nint main () {\n    execl("/bin/ls", "ls", "-l", (char *)0);\n    printf("This statement is never executed");\n    return 0;\n}',
+            },
+        ],
+        description:
+            "`execl()` function is used to execute a file, replacing the current process image with a new process image. The new process image is constructed from a regular, executable file called the new process image file. The path argument points to a pathname that identifies the new process image file.",
+        return: "`execl()` function returns -1 on error and does not return on success.",
+        notes: "The `execl()` function does not return on success, so any code after it will not be executed.",
+        bugs: "The `execl()` function does not check for the existence of the file before attempting to execute it, so it is possible for it to fail if the file does not exist.",
+        similar: ["execv", "execvp", "execve", "execlp", "execle"],
+    },
+    realloc: {
+        summary:
+            "realloc() changes the size of the memory block pointed to by ptr to size bytes.",
+        synopsis: "void *realloc(void *ptr, size_t size);",
+        include: ["#include <stdlib.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `realloc()` function.",
+                code: '#include <stdio.h>\n#include <stdlib.h>\n\nint main () {\n    int *ptr, i , n1, n2;\n    printf("Enter size of array: ");\n    scanf("%d", &n1);\n\n    ptr = (int*) malloc(n1 * sizeof(int));\n    printf("Address of previously allocated memory: %u\\n", ptr);\n\n    printf("Enter new size of array: ");\n    scanf("%d", &n2);\n\n    // Reallocating memory\n    ptr = realloc(ptr, n2 * sizeof(int));\n    printf("Address of newly allocated memory: %u\\n", ptr);\n\n    free(ptr);\n    return 0;\n}',
+            },
+        ],
+        description:
+            "`realloc()` changes the size of the memory block pointed to by ptr to size bytes. The contents will be unchanged in the range from the start of the region up to the minimum of the old and new sizes. If the new size is larger than the old size, the added memory will not be initialized.",
+        return: "`realloc()` returns a pointer to the newly allocated memory, which is suitably aligned for any kind of variable.",
+        notes: "If ptr is NULL, the `realloc()` function behaves like the `malloc()` function, assigning a new block of size bytes and returning a pointer to the beginning of it.",
+        bugs: "If the size of the memory block pointed to by ptr is insufficient, the `realloc()` function may cause a segmentation fault.",
+        similar: ["malloc", "calloc", "free"],
+    },
+    calloc: {
+        summary:
+            "allocates memory for an array of nmemb elements of size bytes each and returns a pointer to the allocated memory.",
+        synopsis: "void *calloc(size_t nmemb, size_t size);",
+        include: ["#include <stdlib.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `calloc()` function.",
+                code: '#include <stdio.h>\n#include <stdlib.h>\n\nint main () {\n    int n, i, *ptr, sum = 0;\n    printf("Enter number of elements: ");\n    scanf("%d", &n);\n    \n    ptr = (int*) calloc(n, sizeof(int));\n    if(ptr == NULL) {\n        printf("Error! memory not allocated.");\n        exit(0);\n    }\n    \n    printf("Enter elements of array: ");\n    for(i = 0; i < n; ++i) {\n        scanf("%d", ptr + i);\n        sum += *(ptr + i);\n    }\n    \n    printf("Sum = %d", sum);\n    free(ptr);\n    return 0;\n}',
+            },
+        ],
+        description:
+            "`calloc()` function allocates memory for an array of nmemb elements of size bytes each and returns a pointer to the allocated memory. The memory is set to zero. If nmemb or size is 0, then `calloc()` returns either NULL, or a unique pointer value that can later be successfully passed to `free()`.",
+        return: "`calloc()` function returns a pointer to the allocated memory, or NULL if the request fails.",
+        notes: "It is important to note that `calloc()` does not initialize the allocated memory to any specific value.",
+        bugs: "It is possible for `calloc()` to cause a buffer overflow if the requested memory is too large. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
+        similar: ["malloc", "realloc", "free"],
+    },
+    fscanf: {
+        summary:
+            "reads input from the stream pointer stream, according to the format string format.",
+        synopsis: "int fscanf(FILE *stream, const char *format, ...);",
+        include: ["#include <stdio.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `fscanf()` function.",
+                code: '#include <stdio.h>\n\nint main () {\n    char str[80];\n    int i;\n    \n    printf("Enter your family name: ");\n    fscanf(stdin, "%s", str);\n    printf("Enter your age: ");\n    fscanf(stdin, "%d", &i);\n    printf("Mr. %s, %d years old.\\n", str, i);\n    \n    return(0);\n}',
+            },
+        ],
+        description:
+            "`fscanf()` function reads input from the stream pointer stream, according to the format string format. It can read data from standard input, files, and strings.",
+        return: "`fscanf()` function returns the number of items successfully read.",
+        notes: "The format string consists of one or more directives, which are used to specify how to read the input. The format string can contain whitespace characters, which are ignored.",
+        bugs: "It is possible for `fscanf()` to cause a buffer overflow if the destination array is not large enough to hold the input string. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
+        similar: ["scanf", "fprintf", "fputs", "fgets"],
+    },
+    sendto: {
+        summary:
+            "sends a message to a socket, and specifies the destination address.",
+        synopsis:
+            "int sendto(int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);",
+        include: ["#include <sys/socket.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `sendto()` function.",
+                code: '#include <stdio.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <string.h>\n\nint main() {\n    int sockfd;\n    struct sockaddr_in serverAddr;\n    char buffer[1024];\n    socklen_t addr_size;\n    \n    /*Create UDP socket*/\n    sockfd = socket(PF_INET, SOCK_DGRAM, 0);\n    \n    /*Configure settings in address struct*/\n    serverAddr.sin_family = AF_INET;\n    serverAddr.sin_port = htons(7891);\n    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");\n    memset(serverAddr.sin_zero, \'\\0\', sizeof serverAddr.sin_zero);   \n    \n    /*Initialize size variable to be used later on*/\n    addr_size = sizeof serverAddr;\n    \n    strcpy(buffer,"Hello World\n");\n    sendto(sockfd,buffer,1024,0,(struct sockaddr *)&serverAddr,addr_size);\n    \n    return 0;\n}',
+            },
+        ],
+        description:
+            "`sendto()` function sends a message to a socket, and specifies the destination address. The destination address is specified by dest_addr and addrlen. The message is pointed to by buf, and has length len.",
+        return: "`sendto()` function returns the number of bytes sent, or -1 if an error occurred.",
+        notes: "The flags argument can be used to modify the behavior of the function. See the man page for details.",
+        bugs: "It is possible for `sendto()` to cause a buffer overflow if the destination array is not large enough to hold the message. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
+        similar: ["send", "recv", "recvfrom"],
+    },
+    recvfrom: {
+        summary: "receives a message from a socket, and stores it in a buffer.",
+        synopsis:
+            "ssize_t recvfrom(int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen);",
+        include: ["#include <sys/socket.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `recvfrom()` function.",
+                code: '#include <stdio.h>\n#include <sys/socket.h>\n#include <arpa/inet.h>\n#include <stdlib.h>\n#include <string.h>\n#include <unistd.h>\n\n#define BUFFSIZE 32\n\nint main(int argc, char *argv[]) {\n    int sockfd;\n    struct sockaddr_in server_addr;\n    char buff[BUFFSIZE];\n    int n;\n    \n    /* Create a socket */\n    sockfd = socket(AF_INET, SOCK_DGRAM, 0);\n    \n    /* Configure settings in address struct */\n    server_addr.sin_family = AF_INET;\n    server_addr.sin_port = htons(atoi(argv[2]));\n    inet_pton(AF_INET, argv[1], &server_addr.sin_addr);\n    memset(server_addr.sin_zero, \'\\0\', sizeof server_addr.sin_zero);\n    \n    /* Receive message from the server */\n    n = recvfrom(sockfd, buff, BUFFSIZE, 0, (struct sockaddr *)&server_addr, sizeof server_addr);\n    if (n < 0) {\n        perror("Error in recvfrom");\n        exit(1);\n    }\n    \n    printf("Received: %s\\n", buff);\n    \n    return 0;\n}',
+            },
+        ],
+        description:
+            "`recvfrom()` function is used to receive messages from a socket. It takes the socket file descriptor, a buffer to store the message, the length of the buffer, flags, and a pointer to a sockaddr structure that contains the address of the sender. The function returns the number of bytes received, or -1 if an error occurred.",
+        return: "`recvfrom()` function returns the number of bytes received, or -1 if an error occurred.",
+        notes: "The flags argument can be used to specify the type of message reception. For example, the MSG_PEEK flag can be used to peek at the data without removing it from the queue.",
+        bugs: "It is possible for `recvfrom()` to cause a buffer overflow if the buffer is not large enough to hold the message. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
+        similar: ["recv", "send", "sendto"],
+    },
+    write: {
+        summary: "writes data from a buffer to a file descriptor.",
+        synopsis: "ssize_t write(int fd, const void *buf, size_t count);",
+        include: ["#include <unistd.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `write()` function.",
+                code: '#include <unistd.h>\n#include <stdio.h>\n\nint main () {\n    char buff[] = "This is tutorialspoint.com";\n    int n;\n    \n    n = write(1, buff, sizeof(buff));\n    printf("\\nNumber of bytes written: %d\\n", n);\n    \n    return(0);\n}',
+            },
+        ],
+        description:
+            "`write()` function writes up to `count` bytes from the buffer pointed to by `buf` to the file descriptor `fd`. The number of bytes written may be less than `count` if, for example, there is insufficient space on the underlying physical medium, or the `RLIMIT_FSIZE` resource limit is encountered (see setrlimit(2)), or the call was interrupted by a signal handler after having written less than `count` bytes.",
+        return: "`write()` function returns the number of bytes actually written to the file descriptor, or -1 if an error occurred.",
+        notes: "The file descriptor `fd` must have been opened for writing.",
+        bugs: "It is possible for `write()` to cause a buffer overflow if the destination array is not large enough to hold the source string. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
+        similar: ["writev", "pwrite", "pread", "fwrite", "fread"],
+    },
+    read: {
+        summary:
+            "read() attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.",
+        synopsis: "ssize_t read(int fd, void *buf, size_t count);",
+        include: ["#include <unistd.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `read()` function.",
+                code: '#include <unistd.h>\n#include <stdio.h>\n\nint main () {\n    char buffer[100];\n    int n;\n    \n    n = read(0, buffer, 100);\n    if (n < 0) {\n        printf("Read error\\n");\n    } else {\n        printf("Read %d characters\\n", n);\n    }\n    \n    return(0);\n}',
+            },
+        ],
+        description:
+            "`read()` attempts to read up to count bytes from file descriptor fd into the buffer starting at buf. It returns the number of bytes read, or -1 if an error occurred.",
+        return: "`read()` returns the number of bytes read, or -1 if an error occurred.",
+        notes: "The read() function may not read all of the requested number of bytes. This is because the number of bytes read may be limited by the type of file being read.",
+        bugs: "If the file descriptor is invalid, read() may return an incorrect result.",
+        similar: ["write", "pread", "preadv", "pread64"],
+    },
     printf: {
         summary: "writes a formatted string to the standard output stream.",
         synopsis: "int printf(const char *format, ...);",
@@ -1002,6 +1171,153 @@ const staticManPages = {
         notes: "The compar function must return an integer less than, equal to, or greater than zero if the first argument is considered to be respectively less than, equal to, or greater than the second.",
         bugs: "It is possible for `qsort()` to cause a buffer overflow if the array is not large enough to hold the elements. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
         similar: ["bsearch", "qsort_r", "heapsort"],
+    },
+    strcasecmp: {
+        summary: "compares two strings, ignoring the case of the characters.",
+        synopsis: "int strcasecmp(const char *s1, const char *s2);",
+        include: ["#include <strings.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `strcasecmp()`` function.",
+                code: '#include <stdio.h>\n#include <strings.h>\n\nint main () {\n    char str1[15];\n    char str2[15];\n    int ret;\n    \n    strcpy(str1, "Test");\n    strcpy(str2, "test");\n    \n    ret = strcasecmp(str1, str2);\n    \n    if(ret < 0) {\n        printf("str1 is less than str2");\n    } else if(ret > 0) {\n        printf("str2 is less than str1");\n    } else {\n        printf("str1 is equal to str2");\n    }\n    \n    return(0);\n}',
+            },
+        ],
+        description:
+            "`strcasecmp()` function takes two arguments, s1 and s2, and compares them, ignoring the case of the characters. It returns an integer less than, equal to, or greater than zero if s1 is found, respectively, to be less than, to match, or be greater than s2.",
+        return: "`strcasecmp()` function returns an integer less than, equal to, or greater than zero if s1 is found, respectively, to be less than, to match, or be greater than s2.",
+        notes: "The comparison is done using the `tolower()` function, which converts all characters to lowercase before the comparison is done.",
+        bugs: "None.",
+        similar: ["strcmp", "strncmp", "strncasecmp"],
+    },
+    strtok: {
+        summary: "breaks a string into a sequence of tokens using a delimiter.",
+        synopsis: "char *strtok(char *str, const char *delim);",
+        include: ["#include <string.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `strtok()` function.",
+                code: '#include <stdio.h>\n#include <string.h>\n\nint main () {\n    char str[80] = "This is - www.tutorialspoint.com - website";\n    const char s[2] = "-";\n    char *token;\n    \n    /* get the first token */\n    token = strtok(str, s);\n    \n    /* walk through other tokens */\n    while( token != NULL ) {\n        printf( " %s\\n", token );\n        \n        token = strtok(NULL, s);\n    }\n    \n    return(0);\n}',
+            },
+        ],
+        description:
+            "`strtok()` function takes two arguments, str and delim. It breaks the string str into a sequence of tokens using the delimiter delim. The first call to `strtok()` should have str as its first argument, and subsequent calls should have NULL as their first argument.",
+        return: "`strtok()` function returns a pointer to the next token, or NULL if there are no more tokens.",
+        notes: "The string pointed to by str is modified by `strtok()`.",
+        bugs: "It is possible for `strtok()` to cause a buffer overflow if the string pointed to by str is too long. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
+        similar: [
+            "strcpy",
+            "strncpy",
+            "strcat",
+            "strncat",
+            "memcpy",
+            "memmove",
+        ],
+    },
+    strdup: {
+        summary:
+            "allocates memory and copies the contents of a null-terminated string (the source) into it.",
+        synopsis: "char *strdup(const char *s);",
+        include: ["#include <string.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `strdup()`` function.",
+                code: '#include <stdio.h>\n#include <string.h>\n\nint main () {\n    char src[40];\n    char *dest;\n    \n    strcpy(src, "This is tutorialspoint.com");\n    dest = strdup(src);\n\n    printf("Final copied string : %s\\n", dest);\n    \n    return(0);\n}',
+            },
+        ],
+        description:
+            "`strdup()` function takes one argument, source, and allocates memory for a copy of the string, including the null terminator. It then copies the contents of source to the newly allocated memory.",
+        return: "`strdup()` function returns a pointer to the newly allocated string.",
+        notes: "It is not guaranteed that the destination string will be null-terminated if the source string is too long. This can result in unexpected behavior.",
+        bugs: "It is possible for `strdup()` to cause a buffer overflow if the destination array is not large enough to hold the source string. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
+        similar: [
+            "strcpy",
+            "strncpy",
+            "strcat",
+            "strncat",
+            "memcpy",
+            "memmove",
+        ],
+    },
+    heapsort: {
+        summary:
+            "heapsort is an in-place sorting algorithm that sorts an array of elements in ascending order.",
+        synopsis:
+            "void heapsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));",
+        include: ["#include <stdlib.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `heapsort()` function.",
+                code: '#include <stdio.h>\n#include <stdlib.h>\n\nint compare (const void * a, const void * b)\n{\n    return ( *(int*)a - *(int*)b );\n}\n\nint main ()\n{\n    int n, i;\n    int *array;\n\n    printf("Enter number of elements: ");\n    scanf("%d", &n);\n\n    array = (int*) malloc(n * sizeof(int));\n\n    printf("\\nEnter %d integers:\\n", n);\n\n    for (i = 0; i < n; i++)\n        scanf("%d", &array[i]);\n\n    heapsort(array, n, sizeof(int), compare);\n\n    printf("\\nSorted array is:\\n");\n    for (i = 0; i < n; i++)\n        printf("%d ", array[i]);\n\n    return 0;\n}',
+            },
+        ],
+        description:
+            "`heapsort()` function takes four arguments, base, nmemb, size, and compar. The base argument is a pointer to the first element of the array to be sorted. The nmemb argument is the number of elements in the array. The size argument is the size of each element in the array. The compar argument is a pointer to a comparison function that is used to compare two elements of the array.",
+        return: "`heapsort()` function does not return a value.",
+        notes: "The comparison function must return a negative value if the first argument is less than the second, a positive value if the first argument is greater than the second, and zero if the two arguments are equal.",
+        bugs: "It is possible for `heapsort()` to cause a buffer overflow if the array is not large enough to hold the elements. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
+        similar: ["qsort", "mergesort", "bubblesort"],
+    },
+    bsearch: {
+        summary:
+            "searches an array of elements for a specific value using a binary search algorithm.",
+        synopsis:
+            "void *bsearch(const void *key, const void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));",
+        include: ["#include <stdlib.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `bsearch()` function.",
+                code: '#include <stdio.h>\n#include <stdlib.h>\n\nint compare(const void *a, const void *b) {\n    return (*(int*)a - *(int*)b);\n}\n\nint main() {\n    int arr[] = {1, 2, 3, 4, 5};\n    int key = 3;\n    int *p;\n    \n    p = (int*) bsearch(&key, arr, 5, sizeof(arr[0]), compare);\n    \n    if (p != NULL)\n        printf("%d is present at %d\\n", key, (p - arr));\n    else\n        printf("%d is not present\\n", key);\n    \n    return 0;\n}',
+            },
+        ],
+        description:
+            "`bsearch()` function searches an array of elements for a specific value using a binary search algorithm. The array must be sorted in ascending order for the binary search to work correctly.",
+        return: "`bsearch()` function returns a pointer to the element in the array that matches the search key, or NULL if the key is not found.",
+        notes: "The comparison function must return an integer less than, equal to, or greater than zero if the first argument is considered to be respectively less than, equal to, or greater than the second.",
+        bugs: "It is possible for `bsearch()` to cause a buffer overflow if the array is not sorted correctly. This can result in unexpected behavior, including program crashes and security vulnerabilities.",
+        similar: ["qsort", "strcmp", "strncmp", "memcmp"],
+    },
+    strcoll: {
+        summary: "compares two strings according to the current locale.",
+        synopsis: "int strcoll(const char *s1, const char *s2);",
+        include: ["#include <string.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `strcoll()`` function.",
+                code: '#include <stdio.h>\n#include <string.h>\n\nint main () {\n    char str1[20] = "abc";\n    char str2[20] = "ABC";\n    int ret;\n    \n    ret = strcoll(str1, str2);\n    \n    if(ret > 0) {\n        printf("str1 is greater than str2");\n    } else if(ret < 0) {\n        printf("str1 is less than str2");\n    } else {\n        printf("str1 is equal to str2");\n    }\n    \n    return(0);\n}',
+            },
+        ],
+        description:
+            "`strcoll()` function compares two strings according to the current locale. It returns an integer less than, equal to, or greater than zero if s1 is found, respectively, to be less than, to match, or be greater than s2.",
+        return: "`strcoll()` function returns an integer less than, equal to, or greater than zero if s1 is found, respectively, to be less than, to match, or be greater than s2.",
+        notes: "The comparison is based on the collating sequence specified by the current locale.",
+        bugs: "None.",
+        similar: ["strcmp", "strncmp", "strxfrm"],
+    },
+    socketpair: {
+        summary:
+            "creates an unnamed pair of connected sockets in the specified domain.",
+        synopsis:
+            "int socketpair(int domain, int type, int protocol, int sv[2]);",
+        include: ["#include <sys/socket.h>"],
+        examples: [
+            // from https://www.tutorialspoint.com/ or https://www.geeksforgeeks.org/ or www.programiz.com
+            {
+                title: "The following example shows the usage of `socketpair()` function.",
+                code: '#include <stdio.h>\n#include <sys/socket.h>\n#include <unistd.h>\n\nint main () {\n    int sv[2];\n    int ret;\n    \n    ret = socketpair(AF_UNIX, SOCK_STREAM, 0, sv);\n    if (ret == -1) {\n        perror("socketpair");\n        return 1;\n    }\n    \n    printf("socketpair[0] = %d\\nsocketpair[1] = %d\\n", sv[0], sv[1]);\n    \n    return 0;\n}',
+            },
+        ],
+        description:
+            "`socketpair()` creates an unnamed pair of connected sockets in the specified domain. The domain argument specifies the communication domain in which the sockets are created. The type argument specifies the type of socket to be created. The protocol argument specifies a particular protocol to be used with the socket. The sv argument is an array of two integers in which the two created sockets are returned.",
+        return: "`socketpair()` returns 0 on success and -1 on error.",
+        notes: "The sockets created by `socketpair()` are not in the file descriptor table and cannot be accessed using the `read()` or `write()` system calls.",
+        bugs: "`socketpair()` may fail if the system does not have enough resources to create the sockets.",
+        similar: ["socket", "bind", "listen", "accept", "connect"],
     },
     rand_r: {
         summary: "generates a random number using a given seed.",

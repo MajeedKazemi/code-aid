@@ -25,10 +25,11 @@ export const genericParser = (r: string) => {
                     const functionName = name.trim();
 
                     return {
-                        name: functionName.trim(),
+                        name: functionName,
                         data: getManPage(functionName),
                     };
-                });
+                })
+                .filter((f: any) => f.data);
         } else if (line.startsWith("[code]:")) {
             obj.rawCode = "";
             stack.push("code");
@@ -107,10 +108,11 @@ export const explainCodeParser = (r: string) => {
                     const functionName = name.trim();
 
                     return {
-                        name: functionName.trim(),
+                        name: functionName,
                         data: getManPage(functionName),
                     };
-                });
+                })
+                .filter((f: any) => f.data);
         } else if (line.startsWith("[annotated-code]:")) {
             obj.lines = [];
             stack.push("annotated-code");
