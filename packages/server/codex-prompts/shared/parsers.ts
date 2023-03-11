@@ -74,8 +74,8 @@ export const pseudocodeParser = (r: string) => {
 
             if (obj.pseudoCode.length != 0) {
                 obj.pseudoCode[obj.pseudoCode.length - 1].lines.push({
-                    code,
-                    explanation,
+                    code: code.trimEnd(),
+                    explanation: explanation?.trimEnd(),
                 });
             }
         }
@@ -124,8 +124,8 @@ export const explainCodeParser = (r: string) => {
             const [code, explanation] = line.split(" // ");
 
             obj.lines.push({
-                code,
-                explanation,
+                code: code.trimEnd(),
+                explanation: explanation?.trimEnd(),
             });
         }
     }
