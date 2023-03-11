@@ -1,8 +1,4 @@
-import {
-    explainCodeParser,
-    genericParser,
-    suggestionsParser,
-} from "./shared/parsers";
+import { explainCodeParser, genericParser, suggestionsParser } from "./shared/parsers";
 
 export const mainExplainCode = (code: string) => {
     return {
@@ -10,13 +6,10 @@ export const mainExplainCode = (code: string) => {
 [code]:
 nice code you got over there :)
 [explanation]: this is not a C program! please enter a C program so that I can explain it to you.
-[end-explain-code]
+[STOP-end-explain-code-STOP]
 
 
 [code]:
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -46,9 +39,6 @@ void write_random_pieces(int soc, const char *message, int times) {
 }
 [explanation]: This code defines a function that generates a random message by repeatedly writing pieces of the input message to a socket with random piece sizes. It selects a random piece size between \`MINCHARS\` and \`MAXCHARS\` and writes that many characters to the socket until the total number of bytes sent is equal to the length of the input message multiplied by \`times\`. If the random piece size is larger than the number of bytes remaining to be sent, the function adjusts the piece size to ensure that the entire message is sent. The function uses modulo arithmetic to loop back to the beginning of the message when the end is reached.
 [annotated-code]:
-#include <stdio.h> // \`stdio.h\` is needed for \`printf()\`
-#include <stdlib.h> // \`stdlib.h\` is needed for \`rand()\`
-#include <string.h> // \`string.h\` is needed for \`strlen()\`
 #include <unistd.h> // \`unistd.h\` is needed for \`write()\`
 #include <arpa/inet.h> // \`arpa/inet.h\` is needed for \`inet_addr()\`
 #include <netdb.h> // \`netdb.h\` is needed for \`gethostbyname()\`
@@ -78,13 +68,13 @@ void write_random_pieces(int soc, const char *message, int times) { // the funct
 }
 [end-annotated-code]
 [c-library-functions]: write, rand, strlen
-[end-explain-code]
+[STOP-end-explain-code-STOP]
 
 
 [code]:
 ${code}
 [explanation]:`,
-        stop: ["[end-explain-code]"],
+        stop: ["[STOP-end-explain-code-STOP]"],
         model: "text-davinci-003",
         temperature: 0.1,
         max_tokens: 1536,
@@ -165,7 +155,7 @@ void read_bitmap_metadata(FILE *image, int *pixel_array_offset, int *width, int 
 }
 [question]: what does SEEK_SET do?
 [answer]: \`SEEK_SET\` is a constant defined in the \`stdio.h\` header file that specifies the reference position used by the \`fseek()\` function to set the file position indicator. Specifically, \`SEEK_SET\` sets the position relative to the beginning of the file. In the provided code, \`fseek()\` is used to set the file pointer to a specific position in the file (10 and 18 bytes from the beginning of the file, respectively), so that the appropriate data can be read from the file using \`fread()\`.
-[end-question-answer]
+[STOP-end-question-answer-STOP]
 
 
 [follow-up-question]: show me an example of different ways to use \`fseek()\` to set the file position indicator
@@ -192,13 +182,13 @@ int main() {
 }
 [end-code]
 [c-library-functions]: fread, fseek, ftell, fopen, fclose, malloc, free, printf
-[end-question-answer]
+[STOP-end-question-answer-STOP]
 
 
 ${thread}
 [follow-up-question]: ${newQuestion}
 [answer]:`,
-        stop: ["[end-question-answer]"],
+        stop: ["[STOP-end-question-answer-STOP]"],
         model: "text-davinci-003",
         temperature: 0.15,
         max_tokens: 1536,

@@ -6,7 +6,7 @@ export const mainAskQuestion = (question: string) => {
 
 [question]: what is the meaning of life?
 [answer]: this question is irrelevant to C Programming.
-[end-question-answer]
+[STOP-end-question-answer-STOP]
 
 
 [question]: how can I read from a file?
@@ -23,7 +23,7 @@ while (fgets(line, sizeof(line), file)) {
 }
 fclose(file);
 [end-code]
-[end-question-answer]
+[STOP-end-question-answer-STOP]
 
 
 [question]: is it possible to initialize a boolean and reassign its value for use later in a program?
@@ -40,12 +40,12 @@ int main() {
     return 0;
 }
 [end-code]
-[end-question-answer]
+[STOP-end-question-answer-STOP]
 
 
 [question]: ${question}
 [answer]:`,
-        stop: ["[end-question-answer]"],
+        stop: ["[STOP-end-question-answer-STOP]"],
         model: "text-davinci-003",
         temperature: 0.05,
         max_tokens: 2048,
@@ -94,7 +94,7 @@ export const replyAskQuestion = (
 
 [question]: how can I read from a file?
 [answer]: You can use the \`fopen()\` function to open a file and store the file pointer in a variable (like \`FILE *fp\`). The \`fopen()\` function takes two arguments: the filename and the mode. The mode can be \`r\` for reading, \`w\` for writing, \`a\` for appending, \`r+\` for both reading and writing, and \`w+\` for both reading and writing. Then, you can use the \`fgets()\` function to read a line from the file. The \`fgets()\` takes a buffer (as a char array), the size of the buffer, and the file pointer as arguments. The \`fgets()\` function returns the buffer if successful, and returns NULL if an error occurs, therefore, it could be used in a while loop to read the file line by line. When you are done reading the file, you can use the \`fclose()\` function to close the file.
-[end-question-answer]
+[STOP-end-question-answer-STOP]
 
 
 [follow-up-question]: I don't want to use fgets, is there another way to read a file?
@@ -111,13 +111,13 @@ file = fopen("file.txt", "r");
 fscanf(file, "%d %s %f", &i, str, &f);
 fclose(file);
 [end-code]
-[end-question-answer]
+[STOP-end-question-answer-STOP]
 
 
 ${thread}
 [follow-up-question]: ${newQuestion}
 [answer]:`,
-        stop: ["[end-question-answer]"],
+        stop: ["[STOP-end-question-answer-STOP]"],
         model: "text-davinci-003",
         temperature: 0.15,
         max_tokens: 1024,

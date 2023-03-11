@@ -44,6 +44,8 @@ export const genericParser = (r: string) => {
         }
     }
 
+    obj.rawCode = obj.rawCode?.trim();
+
     return obj as IParsedAskQuestionResponse;
 };
 

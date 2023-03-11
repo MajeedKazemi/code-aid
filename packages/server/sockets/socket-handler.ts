@@ -2,37 +2,13 @@ import * as http from "http";
 import jwt from "jsonwebtoken";
 import { Server, Socket } from "socket.io";
 
-import {
-    mainAskFromCode,
-    replyAskFromCode,
-    suggestAskFromCode,
-} from "../codex-prompts/ask-from-code-prompt";
-import {
-    mainAskQuestion,
-    replyAskQuestion,
-    suggestAskQuestion,
-} from "../codex-prompts/ask-question-prompt";
+import { mainAskFromCode, replyAskFromCode, suggestAskFromCode } from "../codex-prompts/ask-from-code-prompt";
+import { mainAskQuestion, replyAskQuestion, suggestAskQuestion } from "../codex-prompts/ask-question-prompt";
 import { codeToPseudocode } from "../codex-prompts/code-to-pseudocode";
-import {
-    mainExplainCode,
-    replyExplainCode,
-    suggestExplainCode,
-} from "../codex-prompts/explain-code-prompt";
-import {
-    mainDiffFixedCode,
-    mainFixCode,
-} from "../codex-prompts/fix-code-prompt";
-import {
-    formatCCode,
-    labelFixedCode,
-    labelOriginalCode,
-    removeComments,
-} from "../codex-prompts/shared/agents";
-import {
-    mainWriteCode,
-    replyWriteCode,
-    suggestWriteCode,
-} from "../codex-prompts/write-code-prompt";
+import { mainExplainCode, replyExplainCode, suggestExplainCode } from "../codex-prompts/explain-code-prompt";
+import { mainDiffFixedCode, mainFixCode } from "../codex-prompts/fix-code-prompt";
+import { formatCCode, labelFixedCode, labelOriginalCode, removeComments } from "../codex-prompts/shared/agents";
+import { mainWriteCode, replyWriteCode, suggestWriteCode } from "../codex-prompts/write-code-prompt";
 import { ResponseModel } from "../models/response";
 import { IUser, UserModel } from "../models/user";
 import { openai } from "../utils/codex";
@@ -1166,6 +1142,7 @@ const codexStreamReader = async (
     from: string,
     componentId: string,
     prompt: {
+        stop: string[];
         model: string;
         prompt: string;
         max_tokens: number;
@@ -1198,7 +1175,10 @@ const codexStreamReader = async (
                 for (const line of lines) {
                     const message = line.replace(/^data: /, "");
 
-                    if (message === "[DONE]") {
+                    if (
+                        message === "[DONE]" ||
+                        prompt.stop.some((stop) => resTxt.includes(stop))
+                    ) {
                         resolve(filler(resTxt, prompt.parser(resTxt)));
 
                         return;

@@ -5,7 +5,7 @@ export const mainWriteCode = (question: string) => {
         prompt: `focus on implementing c programming code. for each [question] below, implement the C programming code. first provide a high-level [answer], then provide the C programming code. finally, provide the [c-library-functions] used in the code. end response with [end-question].
 [question]: what is the meaning of life?
 [answer]: this question is irrelevant to C Programming.
-[end-question-answer]
+[STOP-end-question-answer-STOP]
 
 
 [question]: the fib function generates the first n values in the Fibonacci sequence, stores them in a dynamically-allocated array, and returns them through a pointer parameter passed as the first argument. call fib using argc and argv in the main function.
@@ -40,12 +40,12 @@ int main(int argc, char *argv[]) {
 }
 [end-code]
 [c-library-functions]: malloc, free, atoi, printf
-[end-question-answer]
+[STOP-end-question-answer-STOP]
 
 
 [question]: ${question}
 [answer]:`,
-        stop: [`[end-question-answer]`],
+        stop: ["[STOP-end-question-answer-STOP]"],
         model: "code-davinci-002",
         temperature: 0.1,
         max_tokens: 2048,
