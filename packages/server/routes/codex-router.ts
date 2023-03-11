@@ -1,5 +1,4 @@
 import express from "express";
-import { v4 as uuid } from "uuid";
 
 import { ResponseModel } from "../models/response";
 import { IUser, UserModel } from "../models/user";
@@ -9,513 +8,569 @@ import { verifyUser } from "../utils/strategy";
 export const codexRouter = express.Router();
 
 codexRouter.post("/explain-code", verifyUser, async (req, res, next) => {
-    const { code } = req.body;
-    const userId = (req.user as IUser)._id;
+    res.json({
+        success: false,
+        message: "refresh your page to see the updated version of the tool",
+    });
 
-    if (code !== undefined) {
-        const promptExplainSteps = explainCodeStepsPrompt(code);
-        const promptShortExplain = explainCodeShortPrompt(code);
+    return;
 
-        const expStepsRes = await openai.createCompletion({
-            model: "code-davinci-002",
-            prompt: promptExplainSteps.prompt,
-            temperature: 0.3,
-            max_tokens: 500,
-            stop: promptExplainSteps.stopTokens,
-            user: userId,
-        });
+    // const { code } = req.body;
+    // const userId = (req.user as IUser)._id;
 
-        const expShortRes = await openai.createCompletion({
-            model: "code-davinci-002",
-            prompt: promptShortExplain.prompt,
-            temperature: 0.3,
-            max_tokens: 500,
-            stop: promptShortExplain.stopTokens,
-            user: userId,
-        });
+    // if (code !== undefined) {
+    //     const promptExplainSteps = explainCodeStepsPrompt(code);
+    //     const promptShortExplain = explainCodeShortPrompt(code);
 
-        const curUser = await UserModel.findById(userId);
+    //     const expStepsRes = await openai.createCompletion({
+    //         model: "code-davinci-002",
+    //         prompt: promptExplainSteps.prompt,
+    //         temperature: 0.3,
+    //         max_tokens: 500,
+    //         stop: promptExplainSteps.stopTokens,
+    //         user: userId,
+    //     });
 
-        if (
-            expStepsRes.data.choices &&
-            expStepsRes.data.choices?.length > 0 &&
-            expShortRes.data.choices &&
-            expShortRes.data.choices?.length > 0
-        ) {
-            let expSteps = expStepsRes.data.choices[0].text?.trim();
-            const steps = expSteps
-                ? expSteps
-                      .split("\n")
-                      .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
-                : [];
-            const explanation = expShortRes.data.choices[0].text?.trim();
+    //     const expShortRes = await openai.createCompletion({
+    //         model: "code-davinci-002",
+    //         prompt: promptShortExplain.prompt,
+    //         temperature: 0.3,
+    //         max_tokens: 500,
+    //         stop: promptShortExplain.stopTokens,
+    //         user: userId,
+    //     });
 
-            if (curUser) {
-                const response = new ResponseModel({
-                    type: "explain-code",
-                    data: {
-                        code,
-                        explanation,
-                        steps,
-                    },
-                });
+    //     const curUser = await UserModel.findById(userId);
 
-                const savedResponse = await response.save();
-                curUser.responses.push(savedResponse);
-                curUser.canUseToolbox = false;
-                await curUser.save();
+    //     if (
+    //         expStepsRes.data.choices &&
+    //         expStepsRes.data.choices?.length > 0 &&
+    //         expShortRes.data.choices &&
+    //         expShortRes.data.choices?.length > 0
+    //     ) {
+    //         let expSteps = expStepsRes.data.choices[0].text?.trim();
+    //         const steps = expSteps
+    //             ? expSteps
+    //                   .split("\n")
+    //                   .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
+    //             : [];
+    //         const explanation = expShortRes.data.choices[0].text?.trim();
 
-                res.json({
-                    id: savedResponse.id,
-                    code,
-                    explanation,
-                    steps,
-                    success: true,
-                });
-            }
-        } else {
-            res.json({
-                success: false,
-            });
-        }
-    }
+    //         if (curUser) {
+    //             const response = new ResponseModel({
+    //                 type: "explain-code",
+    //                 data: {
+    //                     code,
+    //                     explanation,
+    //                     steps,
+    //                 },
+    //             });
+
+    //             const savedResponse = await response.save();
+    //             curUser.responses.push(savedResponse);
+    //             curUser.canUseToolbox = false;
+    //             await curUser.save();
+
+    //             res.json({
+    //                 id: savedResponse.id,
+    //                 code,
+    //                 explanation,
+    //                 steps,
+    //                 success: true,
+    //             });
+    //         }
+    //     } else {
+    //         res.json({
+    //             success: false,
+    //         });
+    //     }
+    // }
 });
 
 codexRouter.post("/answer-question", verifyUser, async (req, res, next) => {
-    const { question } = req.body;
-    const userId = (req.user as IUser)._id;
+    res.json({
+        success: false,
+        message: "refresh your page to see the updated version of the tool",
+    });
 
-    if (question !== undefined) {
-        const prompt = answerQuestionPrompt(question);
+    return;
 
-        const result = await openai.createCompletion({
-            model: "code-davinci-002",
-            prompt: prompt.prompt,
-            temperature: 0.3,
-            max_tokens: 500,
-            stop: prompt.stopTokens,
-            user: userId,
-        });
+    // const { question } = req.body;
+    // const userId = (req.user as IUser)._id;
 
-        const curUser = await UserModel.findById(userId);
+    // if (question !== undefined) {
+    //     const prompt = answerQuestionPrompt(question);
 
-        if (result.data.choices && result.data.choices?.length > 0) {
-            const answer = result.data.choices[0].text?.trim() || "";
-            const query = [
-                `// [question]: ${question}`,
-                `// [answer]: ${answer}`,
-            ].join("\n");
+    //     const result = await openai.createCompletion({
+    //         model: "code-davinci-002",
+    //         prompt: prompt.prompt,
+    //         temperature: 0.3,
+    //         max_tokens: 500,
+    //         stop: prompt.stopTokens,
+    //         user: userId,
+    //     });
 
-            if (curUser) {
-                const response = new ResponseModel({
-                    type: "question-answer",
-                    data: {
-                        query,
-                        question,
-                        answer,
-                    },
-                });
+    //     const curUser = await UserModel.findById(userId);
 
-                const savedResponse = await response.save();
-                curUser.responses.push(savedResponse);
-                curUser.canUseToolbox = false;
-                await curUser.save();
+    //     if (result.data.choices && result.data.choices?.length > 0) {
+    //         const answer = result.data.choices[0].text?.trim() || "";
+    //         const query = [
+    //             `// [question]: ${question}`,
+    //             `// [answer]: ${answer}`,
+    //         ].join("\n");
 
-                res.json({
-                    query,
-                    id: savedResponse.id,
-                    question,
-                    answer,
-                    success: true,
-                });
-            }
-        } else {
-            res.json({
-                success: false,
-            });
-        }
-    }
+    //         if (curUser) {
+    //             const response = new ResponseModel({
+    //                 type: "question-answer",
+    //                 data: {
+    //                     query,
+    //                     question,
+    //                     answer,
+    //                 },
+    //             });
+
+    //             const savedResponse = await response.save();
+    //             curUser.responses.push(savedResponse);
+    //             curUser.canUseToolbox = false;
+    //             await curUser.save();
+
+    //             res.json({
+    //                 query,
+    //                 id: savedResponse.id,
+    //                 question,
+    //                 answer,
+    //                 success: true,
+    //             });
+    //         }
+    //     } else {
+    //         res.json({
+    //             success: false,
+    //         });
+    //     }
+    // }
 });
 
 codexRouter.post(
     "/reply-answer-question",
     verifyUser,
     async (req, res, next) => {
-        const { id, prevQuestions, question } = req.body;
-        const userId = (req.user as IUser)._id;
+        res.json({
+            success: false,
+            message: "refresh your page to see the updated version of the tool",
+        });
 
-        if (question !== undefined) {
-            const prompt = replyAnswerQuestionPrompt(prevQuestions, question);
+        return;
 
-            const result = await openai.createCompletion({
-                model: "code-davinci-002",
-                prompt: prompt.prompt,
-                temperature: 0.3,
-                max_tokens: 500,
-                stop: prompt.stopTokens,
-                user: userId,
-            });
+        // const { id, prevQuestions, question } = req.body;
+        // const userId = (req.user as IUser)._id;
 
-            if (result.data.choices && result.data.choices?.length > 0) {
-                const answer = result.data.choices[0].text?.trim() || "";
-                const query = [
-                    ...prevQuestions.split("\n"),
-                    `// [follow-up-question]: ${question}`,
-                    `// [follow-up-answer]: ${answer}`,
-                ].join("\n");
-                const curResponse = await ResponseModel.findById(id);
-                const curUser = await UserModel.findById(userId);
+        // if (question !== undefined) {
+        //     const prompt = replyAnswerQuestionPrompt(prevQuestions, question);
 
-                const followUpId = uuid();
+        //     const result = await openai.createCompletion({
+        //         model: "code-davinci-002",
+        //         prompt: prompt.prompt,
+        //         temperature: 0.3,
+        //         max_tokens: 500,
+        //         stop: prompt.stopTokens,
+        //         user: userId,
+        //     });
 
-                if (curResponse && curUser) {
-                    curResponse.followUps.push({
-                        time: new Date(),
-                        query,
-                        id: followUpId,
-                        question,
-                        answer,
-                        finished: true,
-                    });
+        //     if (result.data.choices && result.data.choices?.length > 0) {
+        //         const answer = result.data.choices[0].text?.trim() || "";
+        //         const query = [
+        //             ...prevQuestions.split("\n"),
+        //             `// [follow-up-question]: ${question}`,
+        //             `// [follow-up-answer]: ${answer}`,
+        //         ].join("\n");
+        //         const curResponse = await ResponseModel.findById(id);
+        //         const curUser = await UserModel.findById(userId);
 
-                    curResponse.save();
+        //         const followUpId = uuid();
 
-                    curUser.canUseToolbox = false;
-                    await curUser.save();
+        //         if (curResponse && curUser) {
+        //             curResponse.followUps.push({
+        //                 time: new Date(),
+        //                 query,
+        //                 id: followUpId,
+        //                 question,
+        //                 answer,
+        //                 finished: true,
+        //             });
 
-                    res.json({
-                        query,
-                        id: followUpId,
-                        question,
-                        answer,
-                        success: true,
-                    });
-                }
-            } else {
-                res.json({
-                    success: false,
-                });
-            }
-        }
+        //             curResponse.save();
+
+        //             curUser.canUseToolbox = false;
+        //             await curUser.save();
+
+        //             res.json({
+        //                 query,
+        //                 id: followUpId,
+        //                 question,
+        //                 answer,
+        //                 success: true,
+        //             });
+        //         }
+        //     } else {
+        //         res.json({
+        //             success: false,
+        //         });
+        //     }
+        // }
     }
 );
 
 codexRouter.post("/break-down-task", verifyUser, async (req, res, next) => {
-    const { task } = req.body;
-    const userId = (req.user as IUser)._id;
+    res.json({
+        success: false,
+        message: "refresh your page to see the updated version of the tool",
+    });
 
-    if (task !== undefined) {
-        const prompt = breakDownTaskPrompt(task);
+    return;
 
-        const result = await openai.createCompletion({
-            model: "code-davinci-002",
-            prompt: prompt.prompt,
-            temperature: 0.3,
-            max_tokens: 500,
-            stop: prompt.stopTokens,
-            user: userId,
-        });
+    // const { task } = req.body;
+    // const userId = (req.user as IUser)._id;
 
-        const curUser = await UserModel.findById(userId);
+    // if (task !== undefined) {
+    //     const prompt = breakDownTaskPrompt(task);
 
-        if (result.data.choices && result.data.choices?.length > 0) {
-            const answer = result.data.choices[0].text?.trim();
-            const steps = answer
-                ? ("// 1. " + answer)
-                      .split("\n")
-                      .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
-                : [];
+    //     const result = await openai.createCompletion({
+    //         model: "code-davinci-002",
+    //         prompt: prompt.prompt,
+    //         temperature: 0.3,
+    //         max_tokens: 500,
+    //         stop: prompt.stopTokens,
+    //         user: userId,
+    //     });
 
-            if (curUser) {
-                const response = new ResponseModel({
-                    type: "break-down-steps",
-                    data: {
-                        task,
-                        steps,
-                    },
-                });
+    //     const curUser = await UserModel.findById(userId);
 
-                const savedResponse = await response.save();
-                curUser.responses.push(savedResponse);
-                curUser.canUseToolbox = false;
-                await curUser.save();
+    //     if (result.data.choices && result.data.choices?.length > 0) {
+    //         const answer = result.data.choices[0].text?.trim();
+    //         const steps = answer
+    //             ? ("// 1. " + answer)
+    //                   .split("\n")
+    //                   .map((it: string) => it.replace(/\/\/ \d+\.\s/, ""))
+    //             : [];
 
-                res.json({
-                    id: savedResponse.id,
-                    task,
-                    steps,
-                    success: true,
-                });
-            }
-        } else {
-            res.json({
-                success: false,
-            });
-        }
-    }
+    //         if (curUser) {
+    //             const response = new ResponseModel({
+    //                 type: "break-down-steps",
+    //                 data: {
+    //                     task,
+    //                     steps,
+    //                 },
+    //             });
+
+    //             const savedResponse = await response.save();
+    //             curUser.responses.push(savedResponse);
+    //             curUser.canUseToolbox = false;
+    //             await curUser.save();
+
+    //             res.json({
+    //                 id: savedResponse.id,
+    //                 task,
+    //                 steps,
+    //                 success: true,
+    //             });
+    //         }
+    //     } else {
+    //         res.json({
+    //             success: false,
+    //         });
+    //     }
+    // }
 });
 
 codexRouter.post("/question-from-code", verifyUser, async (req, res, next) => {
-    const { question, code } = req.body;
-    const userId = (req.user as IUser)._id;
+    res.json({
+        success: false,
+        message: "refresh your page to see the updated version of the tool",
+    });
 
-    if (question !== undefined && code !== undefined) {
-        const prompt = questionFromCodePrompt(code, question);
+    return;
 
-        const result = await openai.createCompletion({
-            model: "code-davinci-002",
-            prompt: prompt.prompt,
-            temperature: 0.3,
-            max_tokens: 500,
-            stop: prompt.stopTokens,
-            user: userId,
-        });
+    // const { question, code } = req.body;
+    // const userId = (req.user as IUser)._id;
 
-        const curUser = await UserModel.findById(userId);
+    // if (question !== undefined && code !== undefined) {
+    //     const prompt = questionFromCodePrompt(code, question);
 
-        if (result.data.choices && result.data.choices?.length > 0) {
-            const answer = result.data.choices[0].text?.trim() || "";
+    //     const result = await openai.createCompletion({
+    //         model: "code-davinci-002",
+    //         prompt: prompt.prompt,
+    //         temperature: 0.3,
+    //         max_tokens: 500,
+    //         stop: prompt.stopTokens,
+    //         user: userId,
+    //     });
 
-            if (curUser) {
-                const response = new ResponseModel({
-                    type: "question-from-code",
-                    data: {
-                        code,
-                        question,
-                        answer,
-                    },
-                });
+    //     const curUser = await UserModel.findById(userId);
 
-                const savedResponse = await response.save();
-                curUser.responses.push(savedResponse);
-                curUser.canUseToolbox = false;
-                await curUser.save();
+    //     if (result.data.choices && result.data.choices?.length > 0) {
+    //         const answer = result.data.choices[0].text?.trim() || "";
 
-                res.json({
-                    id: savedResponse.id,
-                    code,
-                    question,
-                    answer,
-                    success: true,
-                });
-            }
-        } else {
-            res.json({
-                success: false,
-            });
-        }
-    }
+    //         if (curUser) {
+    //             const response = new ResponseModel({
+    //                 type: "question-from-code",
+    //                 data: {
+    //                     code,
+    //                     question,
+    //                     answer,
+    //                 },
+    //             });
+
+    //             const savedResponse = await response.save();
+    //             curUser.responses.push(savedResponse);
+    //             curUser.canUseToolbox = false;
+    //             await curUser.save();
+
+    //             res.json({
+    //                 id: savedResponse.id,
+    //                 code,
+    //                 question,
+    //                 answer,
+    //                 success: true,
+    //             });
+    //         }
+    //     } else {
+    //         res.json({
+    //             success: false,
+    //         });
+    //     }
+    // }
 });
 
 codexRouter.post("/help-fix-code", verifyUser, async (req, res, next) => {
-    const { code, intention } = req.body;
-    const userId = (req.user as IUser)._id;
+    res.json({
+        success: false,
+        message: "refresh your page to see the updated version of the tool",
+    });
 
-    if (code !== undefined) {
-        const prompt = helpFixCodePromptV2(code, intention);
+    return;
 
-        const result = await openai.createCompletion({
-            model: "code-davinci-002",
-            prompt: prompt.prompt,
-            temperature: 0.4,
-            max_tokens: 2000,
-            stop: prompt.stopTokens,
-            user: userId,
-        });
+    // const { code, intention } = req.body;
+    // const userId = (req.user as IUser)._id;
 
-        const curUser = await UserModel.findById(userId);
+    // if (code !== undefined) {
+    //     const prompt = helpFixCodePromptV2(code, intention);
 
-        if (result.data.choices && result.data.choices?.length > 0) {
-            const answer = result.data.choices[0].text?.trim() || "";
-            const changes = answer.split("// [changes]:")[1];
-            const fixes = (
-                changes?.split("\n").filter((it) => it !== "") || []
-            ).map((it) => {
-                return it
-                    .replace(/\/\/ \d+\.\s/, "")
-                    .replace("[your-code]: ", "")
-                    .replace("[fixed-code]: ", "-> ")
-                    .trim();
-            });
+    //     const result = await openai.createCompletion({
+    //         model: "code-davinci-002",
+    //         prompt: prompt.prompt,
+    //         temperature: 0.4,
+    //         max_tokens: 2000,
+    //         stop: prompt.stopTokens,
+    //         user: userId,
+    //     });
 
-            if (curUser) {
-                const response = new ResponseModel({
-                    type: "help-fix-code",
-                    data: {
-                        code,
-                        intention,
-                        fixes,
-                    },
-                });
-                const savedResponse = await response.save();
-                curUser.responses.push(savedResponse);
-                curUser.canUseToolbox = false;
-                await curUser.save();
+    //     const curUser = await UserModel.findById(userId);
 
-                res.json({
-                    id: savedResponse.id,
-                    code,
-                    intention,
-                    fixes,
-                    success: true,
-                });
-            }
-        } else {
-            res.json({
-                success: false,
-            });
-        }
-    }
+    //     if (result.data.choices && result.data.choices?.length > 0) {
+    //         const answer = result.data.choices[0].text?.trim() || "";
+    //         const changes = answer.split("// [changes]:")[1];
+    //         const fixes = (
+    //             changes?.split("\n").filter((it) => it !== "") || []
+    //         ).map((it) => {
+    //             return it
+    //                 .replace(/\/\/ \d+\.\s/, "")
+    //                 .replace("[your-code]: ", "")
+    //                 .replace("[fixed-code]: ", "-> ")
+    //                 .trim();
+    //         });
+
+    //         if (curUser) {
+    //             const response = new ResponseModel({
+    //                 type: "help-fix-code",
+    //                 data: {
+    //                     code,
+    //                     intention,
+    //                     fixes,
+    //                 },
+    //             });
+    //             const savedResponse = await response.save();
+    //             curUser.responses.push(savedResponse);
+    //             curUser.canUseToolbox = false;
+    //             await curUser.save();
+
+    //             res.json({
+    //                 id: savedResponse.id,
+    //                 code,
+    //                 intention,
+    //                 fixes,
+    //                 success: true,
+    //             });
+    //         }
+    //     } else {
+    //         res.json({
+    //             success: false,
+    //         });
+    //     }
+    // }
 });
 
 codexRouter.post(
     "/keyword-usage-example",
     verifyUser,
     async (req, res, next) => {
-        const { keyword } = req.body;
-        const userId = (req.user as IUser)._id;
+        res.json({
+            success: false,
+            message: "refresh your page to see the updated version of the tool",
+        });
 
-        if (keyword !== undefined) {
-            const prompt = generateExampleCodePrompt(keyword);
+        return;
 
-            const result = await openai.createCompletion({
-                model: "code-davinci-002",
-                prompt: prompt.prompt,
-                temperature: 0.3,
-                max_tokens: 500,
-                stop: prompt.stopTokens,
-                user: userId,
-            });
+        // const { keyword } = req.body;
+        // const userId = (req.user as IUser)._id;
 
-            const curUser = await UserModel.findById(userId);
+        // if (keyword !== undefined) {
+        //     const prompt = generateExampleCodePrompt(keyword);
 
-            if (result.data.choices && result.data.choices?.length > 0) {
-                const answer = result.data.choices[0].text?.trim() || "";
+        //     const result = await openai.createCompletion({
+        //         model: "code-davinci-002",
+        //         prompt: prompt.prompt,
+        //         temperature: 0.3,
+        //         max_tokens: 500,
+        //         stop: prompt.stopTokens,
+        //         user: userId,
+        //     });
 
-                const [code, description] = answer.split(
-                    "// [short-explanation]: "
-                );
+        //     const curUser = await UserModel.findById(userId);
 
-                if (curUser) {
-                    const response = new ResponseModel({
-                        type: "keyword-example",
-                        data: {
-                            keyword,
-                            code,
-                            description,
-                        },
-                    });
+        //     if (result.data.choices && result.data.choices?.length > 0) {
+        //         const answer = result.data.choices[0].text?.trim() || "";
 
-                    const savedResponse = await response.save();
-                    curUser.responses.push(savedResponse);
-                    curUser.canUseToolbox = false;
-                    await curUser.save();
+        //         const [code, description] = answer.split(
+        //             "// [short-explanation]: "
+        //         );
 
-                    res.json({
-                        id: savedResponse.id,
-                        keyword,
-                        code,
-                        description,
-                        success: true,
-                    });
-                }
-            } else {
-                res.json({
-                    success: false,
-                });
-            }
-        }
+        //         if (curUser) {
+        //             const response = new ResponseModel({
+        //                 type: "keyword-example",
+        //                 data: {
+        //                     keyword,
+        //                     code,
+        //                     description,
+        //                 },
+        //             });
+
+        //             const savedResponse = await response.save();
+        //             curUser.responses.push(savedResponse);
+        //             curUser.canUseToolbox = false;
+        //             await curUser.save();
+
+        //             res.json({
+        //                 id: savedResponse.id,
+        //                 keyword,
+        //                 code,
+        //                 description,
+        //                 success: true,
+        //             });
+        //         }
+        //     } else {
+        //         res.json({
+        //             success: false,
+        //         });
+        //     }
+        // }
     }
 );
 
 codexRouter.post("/explain-code-hover", verifyUser, async (req, res, next) => {
-    const { code } = req.body;
-    const userId = (req.user as IUser)._id;
+    res.json({
+        success: false,
+        message: "refresh your page to see the updated version of the tool",
+    });
 
-    if (code !== undefined) {
-        const promptHoverExplain = explainCodeHoverPrompt(code);
-        const promptSummaryExplain = explainCodeShortPrompt(code);
+    return;
 
-        const expHoverRes = await openai.createCompletion({
-            model: "code-davinci-002",
-            prompt: promptHoverExplain.prompt,
-            temperature: 0.3,
-            max_tokens: 2000,
-            stop: promptHoverExplain.stopTokens,
-            user: userId,
-        });
+    // const { code } = req.body;
+    // const userId = (req.user as IUser)._id;
 
-        const expShortRes = await openai.createCompletion({
-            model: "code-davinci-002",
-            prompt: promptSummaryExplain.prompt,
-            temperature: 0.3,
-            max_tokens: 500,
-            stop: promptSummaryExplain.stopTokens,
-            user: userId,
-        });
+    // if (code !== undefined) {
+    //     const promptHoverExplain = explainCodeHoverPrompt(code);
+    //     const promptSummaryExplain = explainCodeShortPrompt(code);
 
-        const curUser = await UserModel.findById(userId);
+    //     const expHoverRes = await openai.createCompletion({
+    //         model: "code-davinci-002",
+    //         prompt: promptHoverExplain.prompt,
+    //         temperature: 0.3,
+    //         max_tokens: 2000,
+    //         stop: promptHoverExplain.stopTokens,
+    //         user: userId,
+    //     });
 
-        if (
-            expHoverRes.data.choices &&
-            expHoverRes.data.choices?.length > 0 &&
-            expShortRes.data.choices &&
-            expShortRes.data.choices?.length > 0
-        ) {
-            const explanation = expShortRes.data.choices[0].text?.trim();
-            const annotatedCode =
-                expHoverRes.data.choices[0].text?.trim() || "";
+    //     const expShortRes = await openai.createCompletion({
+    //         model: "code-davinci-002",
+    //         prompt: promptSummaryExplain.prompt,
+    //         temperature: 0.3,
+    //         max_tokens: 500,
+    //         stop: promptSummaryExplain.stopTokens,
+    //         user: userId,
+    //     });
 
-            const annotatedCodeLines = new Array<{
-                code: string;
-                explanation: string | null;
-            }>();
+    //     const curUser = await UserModel.findById(userId);
 
-            annotatedCode.split("\n").forEach((line) => {
-                const parts = line.split("// [explain]:");
+    //     if (
+    //         expHoverRes.data.choices &&
+    //         expHoverRes.data.choices?.length > 0 &&
+    //         expShortRes.data.choices &&
+    //         expShortRes.data.choices?.length > 0
+    //     ) {
+    //         const explanation = expShortRes.data.choices[0].text?.trim();
+    //         const annotatedCode =
+    //             expHoverRes.data.choices[0].text?.trim() || "";
 
-                if (parts.length == 2) {
-                    annotatedCodeLines.push({
-                        code: parts[0],
-                        explanation: parts[1],
-                    });
-                } else {
-                    annotatedCodeLines.push({
-                        code: line,
-                        explanation: null,
-                    });
-                }
-            });
+    //         const annotatedCodeLines = new Array<{
+    //             code: string;
+    //             explanation: string | null;
+    //         }>();
 
-            if (curUser) {
-                const response = new ResponseModel({
-                    type: "explain-code-hover",
-                    data: {
-                        code,
-                        explanation,
-                        annotatedCode: annotatedCodeLines,
-                    },
-                });
+    //         annotatedCode.split("\n").forEach((line) => {
+    //             const parts = line.split("// [explain]:");
 
-                const savedResponse = await response.save();
-                curUser.responses.push(savedResponse);
-                curUser.canUseToolbox = false;
-                await curUser.save();
+    //             if (parts.length == 2) {
+    //                 annotatedCodeLines.push({
+    //                     code: parts[0],
+    //                     explanation: parts[1],
+    //                 });
+    //             } else {
+    //                 annotatedCodeLines.push({
+    //                     code: line,
+    //                     explanation: null,
+    //                 });
+    //             }
+    //         });
 
-                res.json({
-                    id: savedResponse.id,
-                    code,
-                    explanation,
-                    annotatedCode: annotatedCodeLines,
-                    success: true,
-                });
-            }
-        } else {
-            res.json({
-                success: false,
-            });
-        }
-    }
+    //         if (curUser) {
+    //             const response = new ResponseModel({
+    //                 type: "explain-code-hover",
+    //                 data: {
+    //                     code,
+    //                     explanation,
+    //                     annotatedCode: annotatedCodeLines,
+    //                 },
+    //             });
+
+    //             const savedResponse = await response.save();
+    //             curUser.responses.push(savedResponse);
+    //             curUser.canUseToolbox = false;
+    //             await curUser.save();
+
+    //             res.json({
+    //                 id: savedResponse.id,
+    //                 code,
+    //                 explanation,
+    //                 annotatedCode: annotatedCodeLines,
+    //                 success: true,
+    //             });
+    //         }
+    //     } else {
+    //         res.json({
+    //             success: false,
+    //         });
+    //     }
+    // }
 });
 
 codexRouter.post(
