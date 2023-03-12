@@ -116,6 +116,7 @@ export const CodingAssistant = () => {
                         data.responses.map((it: any) => {
                             return {
                                 ...it.data,
+                                hasData: JSON.stringify(it.data) !== "{}",
                                 type: it.type,
                                 id: it.id,
                                 followUps: it.followUps,
@@ -133,6 +134,7 @@ export const CodingAssistant = () => {
                         ...data.responses.map((it: any) => {
                             return {
                                 ...it.data,
+                                hasData: JSON.stringify(it.data) !== "{}",
                                 type: it.type,
                                 id: it.id,
                                 followUps: it.followUps,
@@ -731,7 +733,7 @@ export const CodingAssistant = () => {
                     <div className="responses-container">
                         {responses
                             .filter((r) => {
-                                return !(!r.stream && !r.finished);
+                                return r.hasData || !(!r.stream && !r.finished);
                             })
                             .map((response) => {
                                 switch (response.type) {

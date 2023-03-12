@@ -85,7 +85,7 @@ responseRouter.get("/latest", verifyUser, async (req, res, next) => {
         _id: { $in: user?.responses },
     })
         .sort({ time: -1 })
-        .limit(25)
+        .limit(30)
         .exec();
 
     if (responses) {
