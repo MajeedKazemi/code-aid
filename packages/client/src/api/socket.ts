@@ -24,8 +24,6 @@ export const connectSocket = (token: string) => {
     return socket;
 };
 
-// TODO: might needthe following for [production] deployment
-
 function createUrl(hostname: string, port: number, path: string): string {
     let host = hostname;
 
@@ -45,7 +43,5 @@ function createUrl(hostname: string, port: number, path: string): string {
         url = `${host}:${port}${path}`;
     }
 
-    const f = normalizeUrl(`${protocol}://${url}`);
-    console.log(f);
-    return f;
+    return normalizeUrl(`${protocol}://${url}`);
 }

@@ -2,29 +2,53 @@ import * as http from "http";
 import jwt from "jsonwebtoken";
 import { Server, Socket } from "socket.io";
 
-import { mainAskFromCode, replyAskFromCode, suggestAskFromCode } from "../codex-prompts/ask-from-code-prompt";
-import { mainAskQuestion, replyAskQuestion, suggestAskQuestion } from "../codex-prompts/ask-question-prompt";
+import {
+    mainAskFromCode,
+    replyAskFromCode,
+    suggestAskFromCode,
+} from "../codex-prompts/ask-from-code-prompt";
+import {
+    mainAskQuestion,
+    replyAskQuestion,
+    suggestAskQuestion,
+} from "../codex-prompts/ask-question-prompt";
 import { codeToPseudocode } from "../codex-prompts/code-to-pseudocode";
-import { mainExplainCode, replyExplainCode, suggestExplainCode } from "../codex-prompts/explain-code-prompt";
-import { mainDiffFixedCode, mainFixCode } from "../codex-prompts/fix-code-prompt";
-import { formatCCode, labelFixedCode, labelOriginalCode, removeComments } from "../codex-prompts/shared/agents";
-import { mainWriteCode, replyWriteCode, suggestWriteCode } from "../codex-prompts/write-code-prompt";
+import {
+    mainExplainCode,
+    replyExplainCode,
+    suggestExplainCode,
+} from "../codex-prompts/explain-code-prompt";
+import {
+    mainDiffFixedCode,
+    mainFixCode,
+} from "../codex-prompts/fix-code-prompt";
+import {
+    formatCCode,
+    labelFixedCode,
+    labelOriginalCode,
+    removeComments,
+} from "../codex-prompts/shared/agents";
+import {
+    mainWriteCode,
+    replyWriteCode,
+    suggestWriteCode,
+} from "../codex-prompts/write-code-prompt";
 import { ResponseModel } from "../models/response";
 import { IUser, UserModel } from "../models/user";
 import { openai } from "../utils/codex";
 import env from "../utils/env";
 
-export let socket: Server;
+export let io: Server;
 
 export const initializeSocket = (server: http.Server) => {
-    socket = new Server(server, {
+    io = new Server(server, {
         cors: {
             origin: env.WHITELISTED_DOMAINS.split(",").map((d) => d.trim()),
             credentials: true,
         },
     });
 
-    socket.use((socket: Socket, next) => {
+    io.use((socket: Socket, next) => {
         // Upgrade the request to get the bearer token from the header
         const req = socket.request as any;
         const token = req._query.token;
@@ -142,17 +166,17 @@ export const initializeSocket = (server: http.Server) => {
         });
     });
 
-    socket.on("connection", (socket: any) => {
+    io.on("connection", (socket: any) => {
         // console.log(
         //     `Socket connected with user ${socket.request.user?.username}`
         // );
     });
 
-    socket.on("disconnect", (reason: string) => {
+    io.on("disconnect", (reason: string) => {
         console.log(`Disconnected from Socket.IO server: ${reason}`);
     });
 
-    socket.on("error", (err: Error) => {
+    io.on("error", (err: Error) => {
         console.error(`Socket.IO error: ${err.message}`);
     });
 };
@@ -356,7 +380,7 @@ async function explainCode(
     await user.save();
 
     // notify client: finished
-    socket.to(from).emit("codex", {
+    io.to(from).emit("codex", {
         type: "done",
         componentId: responseId,
     });
@@ -446,7 +470,7 @@ async function writeCode(
     await user.save();
 
     // notify client: finished
-    socket.to(from).emit("codex", {
+    io.to(from).emit("codex", {
         type: "done",
         componentId: responseId,
     });
@@ -537,7 +561,7 @@ async function askQuestion(
     await user.save();
 
     // notify client: finished
-    socket.to(from).emit("codex", {
+    io.to(from).emit("codex", {
         type: "done",
         componentId: responseId,
     });
@@ -632,7 +656,7 @@ async function askQuestionFromCode(
     await user.save();
 
     // notify client: finished
-    socket.to(from).emit("codex", {
+    io.to(from).emit("codex", {
         type: "done",
         componentId: responseId,
     });
@@ -717,7 +741,7 @@ async function fixCode(
     await user.save();
 
     // notify client: finished
-    socket.to(from).emit("codex", {
+    io.to(from).emit("codex", {
         type: "done",
         componentId: responseId,
     });
@@ -820,7 +844,7 @@ async function askQuestionReply(
         await user.save();
 
         // notify client: finished
-        socket.to(from).emit("codex", {
+        io.to(from).emit("codex", {
             type: "done",
             componentId: replyId,
         });
@@ -924,7 +948,7 @@ async function writeCodeReply(
         await user.save();
 
         // notify client: finished
-        socket.to(from).emit("codex", {
+        io.to(from).emit("codex", {
             type: "done",
             componentId: replyId,
         });
@@ -1030,7 +1054,7 @@ async function askQuestionFromCodeReply(
         await user.save();
 
         // notify client: finished
-        socket.to(from).emit("codex", {
+        io.to(from).emit("codex", {
             type: "done",
             componentId: replyId,
         });
@@ -1131,7 +1155,7 @@ async function explainCodeReply(
         await user.save();
 
         // notify client: finished
-        socket.to(from).emit("codex", {
+        io.to(from).emit("codex", {
             type: "done",
             componentId: replyId,
         });
@@ -1186,7 +1210,7 @@ const codexStreamReader = async (
                     try {
                         resTxt += JSON.parse(message).choices[0].text;
 
-                        socket.to(from).emit("codex", {
+                        io.to(from).emit("codex", {
                             type: "response",
                             componentId,
                             data: filler(resTxt, prompt.parser(resTxt)).mask(),
