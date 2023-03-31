@@ -1,38 +1,15 @@
 import * as http from "http";
 import jwt from "jsonwebtoken";
+import { ChatCompletionRequestMessage } from "openai";
 import { Server, Socket } from "socket.io";
 
-import {
-    mainAskFromCode,
-    replyAskFromCode,
-    suggestAskFromCode,
-} from "../codex-prompts/ask-from-code-prompt";
-import {
-    mainAskQuestion,
-    replyAskQuestion,
-    suggestAskQuestion,
-} from "../codex-prompts/ask-question-prompt";
+import { mainAskFromCode, replyAskFromCode, suggestAskFromCode } from "../codex-prompts/ask-from-code-prompt";
+import { mainAskQuestion, replyAskQuestion, suggestAskQuestion } from "../codex-prompts/ask-question-prompt";
 import { codeToPseudocode } from "../codex-prompts/code-to-pseudocode";
-import {
-    mainExplainCode,
-    replyExplainCode,
-    suggestExplainCode,
-} from "../codex-prompts/explain-code-prompt";
-import {
-    mainDiffFixedCode,
-    mainFixCode,
-} from "../codex-prompts/fix-code-prompt";
-import {
-    formatCCode,
-    labelFixedCode,
-    labelOriginalCode,
-    removeComments,
-} from "../codex-prompts/shared/agents";
-import {
-    mainWriteCode,
-    replyWriteCode,
-    suggestWriteCode,
-} from "../codex-prompts/write-code-prompt";
+import { mainExplainCode, replyExplainCode, suggestExplainCode } from "../codex-prompts/explain-code-prompt";
+import { mainDiffFixedCode, mainFixCode } from "../codex-prompts/fix-code-prompt";
+import { formatCCode, labelFixedCode, labelOriginalCode, removeComments } from "../codex-prompts/shared/agents";
+import { mainWriteCode, replyWriteCode, suggestWriteCode } from "../codex-prompts/write-code-prompt";
 import { ResponseModel } from "../models/response";
 import { IUser, UserModel } from "../models/user";
 import { openai } from "../utils/codex";
@@ -323,7 +300,7 @@ async function explainCode(
 
     if (response?.finished) return;
 
-    const formattedCode = await formatCCode(removeComments(code));
+    const formattedCode = await formatCCode(removeComments(code.trim()));
     const mainPrompt = mainExplainCode(formattedCode.substring(0, 2500));
 
     let res = new IExplainCodeResponse();
@@ -1168,7 +1145,8 @@ const codexStreamReader = async (
     prompt: {
         stop: string[];
         model: string;
-        prompt: string;
+        prompt?: string;
+        messages?: Array<ChatCompletionRequestMessage>;
         max_tokens: number;
         temperature: number;
         parser: (response: string) => any;
@@ -1177,18 +1155,39 @@ const codexStreamReader = async (
 ) =>
     new Promise<IResponse>(async (resolve, reject) => {
         let resTxt = "";
+        let res: any = null;
+
+        let type = "completion";
+
+        if (prompt.model === "gpt-3.5-turbo") {
+            type = "chat";
+        }
 
         try {
-            const res: any = await openai.createCompletion(
-                {
-                    model: prompt.model,
-                    prompt: prompt.prompt,
-                    max_tokens: prompt.max_tokens,
-                    temperature: prompt.temperature,
-                    stream: true,
-                },
-                { responseType: "stream" }
-            );
+            if (type === "chat" && prompt.messages) {
+                res = await openai.createChatCompletion(
+                    {
+                        model: prompt.model,
+                        messages: prompt.messages,
+                        temperature: prompt.temperature,
+                        stream: true,
+                        stop: prompt.stop,
+                    },
+                    { responseType: "stream" }
+                );
+            } else {
+                res = await openai.createCompletion(
+                    {
+                        model: prompt.model,
+                        prompt: prompt.prompt,
+                        max_tokens: prompt.max_tokens,
+                        temperature: prompt.temperature,
+                        stream: true,
+                        stop: prompt.stop,
+                    },
+                    { responseType: "stream" }
+                );
+            }
 
             res.data.on("data", (data: any) => {
                 const lines = data
@@ -1208,7 +1207,16 @@ const codexStreamReader = async (
                         return;
                     }
                     try {
-                        resTxt += JSON.parse(message).choices[0].text;
+                        const parsed = JSON.parse(message);
+
+                        if (type === "completion") {
+                            resTxt += parsed.choices[0].text;
+                        } else if (
+                            type === "chat" &&
+                            parsed.choices[0].delta.content
+                        ) {
+                            resTxt += parsed.choices[0].delta.content;
+                        }
 
                         io.to(from).emit("codex", {
                             type: "response",
