@@ -188,6 +188,24 @@ export const ExplainCodeV2Response = (props: IProps) => {
                     </div>
                 )}
 
+                {response.cLibraryFunctions &&
+                    response.cLibraryFunctions?.length > 0 && (
+                        <div className="c-library-functions-container">
+                            <span className="c-library-functions-title">
+                                {"Standard Library Functions (Manual Pages): "}
+                            </span>
+                            {response.cLibraryFunctions?.map(
+                                (cLibraryFunction) => (
+                                    <QuickDocumentation
+                                        key={cLibraryFunction.name}
+                                        name={cLibraryFunction.name}
+                                        data={cLibraryFunction.data}
+                                    />
+                                )
+                            )}
+                        </div>
+                    )}
+
                 {streamFinished && (
                     <ResponseFeedback
                         admin={props.admin}
