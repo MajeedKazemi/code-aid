@@ -1,15 +1,27 @@
+import { ChatCompletionRequestMessage } from "openai";
+
 import { explainCodeParser, genericParser, suggestionsParser } from "./shared/parsers";
 
 export const mainExplainCode = (code: string) => {
-    return {
-        prompt: `<|endoftext|> provide a short overall [explanation] for the given code, and then display [annotated-code] where you explain each line of code. Use the following two examples as a format:
-[code]:
+    const messages: Array<ChatCompletionRequestMessage> = [
+        {
+            role: "system",
+            content:
+                "provide a short overall [explanation] for the given code, and then display [annotated-code] where you explain each line of code",
+        },
+        {
+            role: "user",
+            content: `[code]:
 nice code you got over there :)
-[explanation]: this is not a C program! please enter a C program so that I can explain it to you.
-[STOP-end-explain-code-STOP]
-
-
-[code]:
+`,
+        },
+        {
+            role: "assistant",
+            content: `[explanation]: this is not a C program! please enter a C program so that I can explain it to you.`,
+        },
+        {
+            role: "user",
+            content: `[code]:
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -37,7 +49,11 @@ void write_random_pieces(int soc, const char *message, int times) {
         current_byte += piece_size;
     }
 }
-[explanation]: This code defines a function that generates a random message by repeatedly writing pieces of the input message to a socket with random piece sizes. It selects a random piece size between \`MINCHARS\` and \`MAXCHARS\` and writes that many characters to the socket until the total number of bytes sent is equal to the length of the input message multiplied by \`times\`. If the random piece size is larger than the number of bytes remaining to be sent, the function adjusts the piece size to ensure that the entire message is sent. The function uses modulo arithmetic to loop back to the beginning of the message when the end is reached.
+`,
+        },
+        {
+            role: "assistant",
+            content: `[explanation]: This code defines a function that generates a random message by repeatedly writing pieces of the input message to a socket with random piece sizes. It selects a random piece size between \`MINCHARS\` and \`MAXCHARS\` and writes that many characters to the socket until the total number of bytes sent is equal to the length of the input message multiplied by \`times\`. If the random piece size is larger than the number of bytes remaining to be sent, the function adjusts the piece size to ensure that the entire message is sent. The function uses modulo arithmetic to loop back to the beginning of the message when the end is reached.
 [annotated-code]:
 #include <unistd.h> // \`unistd.h\` is needed for \`write()\`
 #include <arpa/inet.h> // \`arpa/inet.h\` is needed for \`inet_addr()\`
@@ -68,14 +84,21 @@ void write_random_pieces(int soc, const char *message, int times) { // the funct
 }
 [end-annotated-code]
 [c-library-functions]: write, rand, strlen
-[STOP-end-explain-code-STOP]
-
-
-[code]:
+[STOP-end-explain-code-STOP]`,
+        },
+        {
+            role: "user",
+            content: `[code]:
 ${code}
-[explanation]:`,
+`,
+        },
+    ];
+
+    return {
+        type: "chat",
+        messages: messages,
         stop: ["[STOP-end-explain-code-STOP]"],
-        model: "text-davinci-003",
+        model: "gpt-3.5-turbo",
         temperature: 0.1,
         max_tokens: 1536,
         parser: (resTxt: string) => explainCodeParser(resTxt),

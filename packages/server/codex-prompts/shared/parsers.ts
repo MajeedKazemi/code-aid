@@ -95,7 +95,7 @@ export const suggestionsParser = (r: string) => {
 export const explainCodeParser = (r: string) => {
     const obj: any = {};
     const stack: string[] = [];
-    const lines = ("[explanation]:" + r).split("\n");
+    const lines = r.trim().split("\n");
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
