@@ -10542,10 +10542,10 @@ open@^8.0.9, open@^8.4.0:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
-openai@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-3.2.0.tgz#8328e46e7fe9373813713cdcc64144bbb43c9a0e"
-  integrity sha512-feeX3sSKyCVpDt1CBB++FxlaPxzc1dpwmx5ZlXAvuauv+Yk+R26x04TFIm9mLBJnDQ69MoCcJ5YSMASPJidSNA==
+openai@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-3.2.1.tgz#1fa35bdf979cbde8453b43f2dd3a7d401ee40866"
+  integrity sha512-762C9BNlJPbjjlWZi4WYK9iM2tAVAv0uUp1UmI34vb0CN5T2mjB/qM6RYBmNKMh/dN9fC+bxqPwWJZUTWW052A==
   dependencies:
     axios "^0.26.0"
     form-data "^4.0.0"
