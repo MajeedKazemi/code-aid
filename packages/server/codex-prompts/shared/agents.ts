@@ -12,7 +12,7 @@ export const removeComments = (code: string) =>
 export const formatCCode = (code: string): Promise<string> =>
     new Promise((resolve, reject) => {
         const clangFormat = spawn("clang-format", [
-            "-style={BasedOnStyle: Google, ColumnLimit: 160, IndentWidth: 4}",
+            "-style={BasedOnStyle: Google, ColumnLimit: 160, IndentWidth: 4, AllowShortFunctionsOnASingleLine: Empty}",
         ]);
 
         clangFormat.stdin.write(code);

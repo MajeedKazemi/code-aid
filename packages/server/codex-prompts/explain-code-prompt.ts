@@ -12,8 +12,7 @@ export const mainExplainCode = (code: string) => {
         {
             role: "user",
             content: `[code]:
-nice code you got over there :)
-`,
+nice code you got over there :)`,
         },
         {
             role: "assistant",
@@ -48,8 +47,7 @@ void write_random_pieces(int soc, const char *message, int times) {
         write(soc, piece, piece_size);
         current_byte += piece_size;
     }
-}
-`,
+}`,
         },
         {
             role: "assistant",
@@ -89,76 +87,35 @@ void write_random_pieces(int soc, const char *message, int times) { // the funct
         {
             role: "user",
             content: `[code]:
-${code}
-`,
+${code}`,
         },
     ];
 
     return {
-        type: "chat",
-        messages: messages,
+        messages,
         stop: ["[STOP-end-explain-code-STOP]"],
         model: "gpt-3.5-turbo",
         temperature: 0.1,
         max_tokens: 1536,
         parser: (resTxt: string) => explainCodeParser(resTxt),
-        raw: (resTxt: string) => `[code]:
-${code}
-[annotated-code]:
-${resTxt}`,
+        raw: (resTxt: string) => `[code]:\n${code}\n${resTxt}`,
     };
 };
-
-// it could potentially have another follow-up method which is, on each hoverable explanation, include a button to ask a question about that line of code (and its surrounding context).
-// but at the end of the day, this is something else, and should be a separate prompt.
-
-// replyExplainCode could simply be very similar to askQuestionFromCode
 
 export const replyExplainCode = (
     code: string,
     prevResponses: string[] | undefined,
     newQuestion: string
 ) => {
-    let thread = `[annotated-code]:\n${code}\n`;
-
-    if (prevResponses !== undefined && prevResponses.length !== 0) {
-        for (let i = 0; i < prevResponses.length; i++) {
-            if (prevResponses[i]) {
-                let lines = prevResponses[i].split("\n");
-
-                let startWithQuestion = lines.filter((line) =>
-                    line.startsWith("[question]:")
-                );
-
-                if (startWithQuestion.length > 0) {
-                    let question = startWithQuestion[0].replace(
-                        "[question]: ",
-                        ""
-                    );
-                    let answer = lines
-                        .filter((line) => line.startsWith("[answer]:"))[0]
-                        .replace("[answer]: ", "");
-
-                    thread += `[question]: ${question}\n[answer]: ${answer}\n[end-question-answer]\n\n`;
-                } else {
-                    let followUpQuestion = lines
-                        .filter((line) =>
-                            line.startsWith("[follow-up-question]:")
-                        )[0]
-                        .replace("[follow-up-question]: ", "");
-
-                    let followUpAnswer = lines
-                        .filter((line) => line.startsWith("[answer]:"))[0]
-                        .replace("[answer]: ", "");
-
-                    thread += `[follow-up-question]: ${followUpQuestion}\n${followUpAnswer}\n[end-question-answer]\n\n`;
-                }
-            }
-        }
-    }
-
-    return {
-        prompt: `[annotated-code]:
+    const messages: Array<ChatCompletionRequestMessage> = [
+        {
+            role: "system",
+            content:
+                "answer questions about the provided explained and annotated code below. questions should be about c programming.",
+        },
+        {
+            role: "user",
+            content: `[annotated-code]:
 void read_bitmap_metadata(FILE *image, int *pixel_array_offset, int *width, int *height) { // the function takes four arguments: a file pointer, and three pointers to integers
     fseek(image, 10, SEEK_SET); // sets the file pointer to the 10th byte in the file
     if (fread(pixel_array_offset, 4, 1, image) == 0) { // reads 4 bytes from the file and stores them in the \`pixel_array_offset\` pointer
@@ -176,13 +133,20 @@ void read_bitmap_metadata(FILE *image, int *pixel_array_offset, int *width, int 
         exit(1); // exits the program
     }
 }
-[question]: what does SEEK_SET do?
-[answer]: \`SEEK_SET\` is a constant defined in the \`stdio.h\` header file that specifies the reference position used by the \`fseek()\` function to set the file position indicator. Specifically, \`SEEK_SET\` sets the position relative to the beginning of the file. In the provided code, \`fseek()\` is used to set the file pointer to a specific position in the file (10 and 18 bytes from the beginning of the file, respectively), so that the appropriate data can be read from the file using \`fread()\`.
-[STOP-end-question-answer-STOP]
-
-
-[follow-up-question]: show me an example of different ways to use \`fseek()\` to set the file position indicator
-[answer]: \`fseek()\` can be used with three different constants to set the file position indicator to different positions in the file. The constants are \`SEEK_SET\`, \`SEEK_CUR\`, and \`SEEK_END\`. \`SEEK_SET\` sets the position relative to the beginning of the file, \`SEEK_CUR\` sets the position relative to the current position of the file position indicator, and \`SEEK_END\` sets the position relative to the end of the file.
+[question]: what does SEEK_SET do?`,
+        },
+        {
+            role: "assistant",
+            content: `[answer]: \`SEEK_SET\` is a constant defined in the \`stdio.h\` header file that specifies the reference position used by the \`fseek()\` function to set the file position indicator. Specifically, \`SEEK_SET\` sets the position relative to the beginning of the file. In the provided code, \`fseek()\` is used to set the file pointer to a specific position in the file (10 and 18 bytes from the beginning of the file, respectively), so that the appropriate data can be read from the file using \`fread()\`.
+[STOP-end-question-answer-STOP]`,
+        },
+        {
+            role: "user",
+            content: `[follow-up-question]: show me an example of different ways to use \`fseek()\` to set the file position indicator`,
+        },
+        {
+            role: "assistant",
+            content: `[answer]: \`fseek()\` can be used with three different constants to set the file position indicator to different positions in the file. The constants are \`SEEK_SET\`, \`SEEK_CUR\`, and \`SEEK_END\`. \`SEEK_SET\` sets the position relative to the beginning of the file, \`SEEK_CUR\` sets the position relative to the current position of the file position indicator, and \`SEEK_END\` sets the position relative to the end of the file.
 [code]:
 [code-title]: reading file contents using fseek and ftell
 #include <stdio.h>
@@ -205,31 +169,102 @@ int main() {
 }
 [end-code]
 [c-library-functions]: fread, fseek, ftell, fopen, fclose, malloc, free, printf
-[STOP-end-question-answer-STOP]
+[STOP-end-question-answer-STOP]`,
+        },
+    ];
 
+    if (prevResponses !== undefined && prevResponses.length !== 0) {
+        for (let i = 0; i < prevResponses.length; i++) {
+            if (prevResponses[i]) {
+                let lines = prevResponses[i].split("\n");
 
-${thread}
-[follow-up-question]: ${newQuestion}
-[answer]:`,
+                let startWithQuestion = lines.filter((line) =>
+                    line.startsWith("[question]:")
+                );
+
+                if (startWithQuestion.length > 0) {
+                    let question = startWithQuestion[0].replace(
+                        "[question]: ",
+                        ""
+                    );
+                    let answer = lines
+                        .filter((line) => line.startsWith("[answer]:"))[0]
+                        .replace("[answer]: ", "");
+
+                    messages.push(
+                        {
+                            role: "user",
+                            content: `[annotated-code]:\n${code}\n[question]: ${question}`,
+                        },
+                        {
+                            role: "assistant",
+                            content: `[answer]: ${answer}\n[end-question-answer]`,
+                        }
+                    );
+                } else {
+                    let followUpQuestion = lines
+                        .filter((line) =>
+                            line.startsWith("[follow-up-question]:")
+                        )[0]
+                        .replace("[follow-up-question]: ", "");
+
+                    let followUpAnswer = lines
+                        .filter((line) => line.startsWith("[answer]:"))[0]
+                        .replace("[answer]: ", "");
+
+                    messages.push(
+                        {
+                            role: "user",
+                            content: `[follow-up-question]: ${followUpQuestion}`,
+                        },
+                        {
+                            role: "assistant",
+                            content: `[answer]: ${followUpAnswer}\n[end-question-answer]`,
+                        }
+                    );
+                }
+            }
+        }
+    }
+
+    messages.push({
+        role: "user",
+        content: `[follow-up-question]: ${newQuestion}`,
+    });
+
+    return {
+        messages,
         stop: ["[STOP-end-question-answer-STOP]"],
-        model: "text-davinci-003",
+        model: "gpt-3.5-turbo",
         temperature: 0.15,
         max_tokens: 1536,
         parser: (resTxt: string) => genericParser(resTxt),
-        raw: (resTxt: string) => `[follow-up-question]: ${newQuestion}
-[answer]:${resTxt}`,
+        raw: (resTxt: string) =>
+            `[follow-up-question]: ${newQuestion}\n${resTxt}`,
     };
 };
 
 // suggestions: again, something about the code that might be interesting to ask about
 export const suggestExplainCode = (code: string) => {
-    return {
-        prompt: `[code]:
+    const messages: Array<ChatCompletionRequestMessage> = [
+        {
+            role: "system",
+            content:
+                "generate three follow-up questions based on the provided code. the questions should be about c programming, and could be about the topics covered in the code. the questions should be different from each other, single-line (short, max 100 chars) and thought-provoking to help with learning about c programming.",
+        },
+        {
+            role: "user",
+            content: `[code]:
 ${code}
-[follow-up-questions]: based on the above [code], generate three interesting and detailed, single-line (short, max 100 chars) questions to ask about the [code]:
+[follow-up-questions]: generate three follow-up questions based on the provided code. the questions should be about c programming, and could be about the topics covered in the code. the questions should be different from each other, single-line (short, max 100 chars) and thought-provoking to help with learning about c programming.
 1.`,
+        },
+    ];
+
+    return {
+        messages,
         stop: ["4."],
-        model: "text-davinci-003",
+        model: "gpt-3.5-turbo",
         temperature: 0.3,
         max_tokens: 500,
         parser: (output: string) => suggestionsParser(output),

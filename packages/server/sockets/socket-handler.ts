@@ -650,7 +650,7 @@ async function fixCode(
 
     if (response?.finished) return;
 
-    const formattedCode = await formatCCode(removeComments(code));
+    const formattedCode = await formatCCode(removeComments(code.trim()));
     const fixCodePrompt = mainFixCode(
         question.substring(0, 500),
         formattedCode.substring(0, 2500)
@@ -676,11 +676,12 @@ async function fixCode(
     );
 
     if (res.rawFixedCode) {
+        const fixedCode = res.rawFixedCode.replace("[fixed-code]:", "").trim();
         // create two labeled versions of the code: labeledOriginalCode (with all modified lines labeled) and labeledFixedCode (with all fixed lines labeled)
         // this LLM prompt will be used to annotate the original code with some explanation of the changes + provide an overview of all changes made
         const explainDiffPrompt = mainDiffFixedCode(
-            labelOriginalCode(formattedCode, res.rawFixedCode),
-            labelFixedCode(formattedCode, res.rawFixedCode),
+            labelOriginalCode(formattedCode, fixedCode),
+            labelFixedCode(formattedCode, fixedCode),
             question.substring(0, 500)
         );
 
@@ -1145,8 +1146,7 @@ const codexStreamReader = async (
     prompt: {
         stop: string[];
         model: string;
-        prompt?: string;
-        messages?: Array<ChatCompletionRequestMessage>;
+        messages: Array<ChatCompletionRequestMessage>;
         max_tokens: number;
         temperature: number;
         parser: (response: string) => any;
@@ -1157,37 +1157,17 @@ const codexStreamReader = async (
         let resTxt = "";
         let res: any = null;
 
-        let type = "completion";
-
-        if (prompt.model === "gpt-3.5-turbo") {
-            type = "chat";
-        }
-
         try {
-            if (type === "chat" && prompt.messages) {
-                res = await openai.createChatCompletion(
-                    {
-                        model: prompt.model,
-                        messages: prompt.messages,
-                        temperature: prompt.temperature,
-                        stream: true,
-                        stop: prompt.stop,
-                    },
-                    { responseType: "stream" }
-                );
-            } else {
-                res = await openai.createCompletion(
-                    {
-                        model: prompt.model,
-                        prompt: prompt.prompt,
-                        max_tokens: prompt.max_tokens,
-                        temperature: prompt.temperature,
-                        stream: true,
-                        stop: prompt.stop,
-                    },
-                    { responseType: "stream" }
-                );
-            }
+            res = await openai.createChatCompletion(
+                {
+                    model: prompt.model,
+                    messages: prompt.messages,
+                    temperature: prompt.temperature,
+                    stream: true,
+                    stop: prompt.stop,
+                },
+                { responseType: "stream" }
+            );
 
             res.data.on("data", (data: any) => {
                 const lines = data
@@ -1209,12 +1189,7 @@ const codexStreamReader = async (
                     try {
                         const parsed = JSON.parse(message);
 
-                        if (type === "completion") {
-                            resTxt += parsed.choices[0].text;
-                        } else if (
-                            type === "chat" &&
-                            parsed.choices[0].delta.content
-                        ) {
+                        if (parsed.choices[0].delta.content) {
                             resTxt += parsed.choices[0].delta.content;
                         }
 

@@ -1,8 +1,5 @@
 import express from "express";
 
-import { ResponseModel } from "../models/response";
-import { IUser, UserModel } from "../models/user";
-import { openai } from "../utils/codex";
 import { verifyUser } from "../utils/strategy";
 
 export const codexRouter = express.Router();
@@ -577,56 +574,63 @@ codexRouter.post(
     "/man-page-with-example",
     verifyUser,
     async (req, res, next) => {
-        const { keyword } = req.body;
-        const userId = (req.user as IUser)._id;
+        res.json({
+            success: false,
+            message: "refresh your page to see the updated version of the tool",
+        });
 
-        if (keyword !== undefined) {
-            const manPagePrompt = manPageWithExamplePrompt(keyword);
+        return;
 
-            const manPageRes = await openai.createCompletion({
-                model: "code-davinci-002",
-                prompt: manPagePrompt.prompt,
-                temperature: 0.05,
-                max_tokens: 2000,
-                stop: manPagePrompt.stopTokens,
-                user: userId,
-            });
+        // const { keyword } = req.body;
+        // const userId = (req.user as IUser)._id;
 
-            const curUser = await UserModel.findById(userId);
+        // if (keyword !== undefined) {
+        //     const manPagePrompt = manPageWithExamplePrompt(keyword);
 
-            if (
-                manPageRes.data.choices &&
-                manPageRes.data.choices?.length > 0
-            ) {
-                const documentation = manPageRes.data.choices[0].text?.trim();
+        //     const manPageRes = await openai.createCompletion({
+        //         model: "code-davinci-002",
+        //         prompt: manPagePrompt.prompt,
+        //         temperature: 0.05,
+        //         max_tokens: 2000,
+        //         stop: manPagePrompt.stopTokens,
+        //         user: userId,
+        //     });
 
-                if (curUser) {
-                    const response = new ResponseModel({
-                        type: "man-page-with-example",
-                        data: {
-                            keyword,
-                            documentation,
-                        },
-                    });
+        //     const curUser = await UserModel.findById(userId);
 
-                    const savedResponse = await response.save();
-                    curUser.responses.push(savedResponse);
-                    curUser.canUseToolbox = false;
-                    await curUser.save();
+        //     if (
+        //         manPageRes.data.choices &&
+        //         manPageRes.data.choices?.length > 0
+        //     ) {
+        //         const documentation = manPageRes.data.choices[0].text?.trim();
 
-                    res.json({
-                        id: savedResponse.id,
-                        keyword,
-                        documentation,
-                        success: true,
-                    });
-                }
-            } else {
-                res.json({
-                    success: false,
-                });
-            }
-        }
+        //         if (curUser) {
+        //             const response = new ResponseModel({
+        //                 type: "man-page-with-example",
+        //                 data: {
+        //                     keyword,
+        //                     documentation,
+        //                 },
+        //             });
+
+        //             const savedResponse = await response.save();
+        //             curUser.responses.push(savedResponse);
+        //             curUser.canUseToolbox = false;
+        //             await curUser.save();
+
+        //             res.json({
+        //                 id: savedResponse.id,
+        //                 keyword,
+        //                 documentation,
+        //                 success: true,
+        //             });
+        //         }
+        //     } else {
+        //         res.json({
+        //             success: false,
+        //         });
+        //     }
+        // }
     }
 );
 

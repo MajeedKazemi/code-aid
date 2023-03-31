@@ -13,6 +13,7 @@ const JWT_SECRET = process.env.SESSION_EXPIRY;
 const WHITELISTED_DOMAINS = process.env.WHITELISTED_DOMAINS;
 const COOKIE_SECRET = process.env.COOKIE_SECRET;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_ORG_ID = process.env.OPENAI_ORG_ID;
 const NODE_APP_INSTANCE = process.env.NODE_APP_INSTANCE;
 
 if (REFRESH_TOKEN_EXPIRY === undefined) {
@@ -50,6 +51,9 @@ if (COOKIE_SECRET === undefined) {
 if (OPENAI_API_KEY === undefined) {
     throw Error("OPENAI_API_KEY not set in .env");
 }
+if (OPENAI_ORG_ID === undefined) {
+    throw Error("OPENAI_ORG_ID not set in .env");
+}
 
 if (NODE_APP_INSTANCE === undefined) {
     throw Error("NODE_APP_INSTANCE not set in .env");
@@ -67,4 +71,5 @@ export default {
     OPENAI_API_KEY,
     dev,
     NODE_APP_INSTANCE,
+    OPENAI_ORG_ID,
 };

@@ -10,7 +10,7 @@ import { getManPage } from "../static-man-pages";
 export const genericParser = (r: string) => {
     let obj: any = {};
     const stack: string[] = [];
-    const lines = ("[answer]:" + r).split("\n");
+    const lines = r.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
@@ -30,7 +30,7 @@ export const genericParser = (r: string) => {
                     };
                 })
                 .filter((f: any) => f.data);
-        } else if (line.startsWith("[code]:")) {
+        } else if (line.startsWith("[code]:") || line.startsWith("#include")) {
             obj.rawCode = "";
             stack.push("code");
         } else if (line.startsWith("[end-code]")) {
@@ -67,7 +67,10 @@ export const pseudocodeParser = (r: string) => {
                 title: line.replace("[code-title]:", "").trim(),
                 lines: [],
             });
-        } else if (line == "[end-pseudo-code]") {
+        } else if (
+            line.trim() == "[end-pseudo-code]" ||
+            line.trim() == "[pseudo-code]:"
+        ) {
             continue;
         } else {
             const [code, explanation] = line.split(" // ");
