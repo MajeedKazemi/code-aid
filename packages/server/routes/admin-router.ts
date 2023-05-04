@@ -193,8 +193,40 @@ adminRouter.get(
                 },
             ]);
 
+            // hist2 to be bracketed by 0-9, 10-19, 20-29, 30-39, 40-49, 50-59, 60-69, 70-79, 80-89, 90-99, 100+
+            const brackets2 = [
+                { min: 0, max: 0, label: "Not Used" },
+                { min: 1, max: 9, label: "1-9" },
+                { min: 10, max: 19, label: "10-19" },
+                { min: 20, max: 29, label: "20-29" },
+                { min: 30, max: 39, label: "30-39" },
+                { min: 40, max: 49, label: "40-49" },
+                { min: 50, max: 59, label: "50-59" },
+                { min: 60, max: 69, label: "60-69" },
+                { min: 70, max: 79, label: "70-79" },
+                { min: 80, max: 89, label: "80-89" },
+                { min: 90, max: 99, label: "90-99" },
+                { min: 100, max: 100000, label: "100+" },
+            ];
+
+            const hist2 = brackets2.map((b) => {
+                const count = histogram
+                    .filter((h) => {
+                        return h._id >= b.min && h._id <= b.max;
+                    })
+                    .reduce((acc, curr) => {
+                        return acc + curr.count;
+                    }, 0);
+
+                return {
+                    label: b.label,
+                    count,
+                };
+            });
+
             if (histogram) {
                 res.json({
+                    hist2,
                     histogram,
                     success: true,
                 });
@@ -662,6 +694,62 @@ adminRouter.get(
             res.status(401).json({
                 message:
                     "unauthorized access to /admin/get-all-responses-raw-data",
+                success: false,
+            });
+        }
+    }
+);
+
+adminRouter.get(
+    "/get-student-usage-data",
+    verifyUser,
+    async (req, res, next) => {
+        const user = req.user as IUser;
+
+        if (user.role === "admin") {
+            // get the count of responses for each User:
+            const users = await UserModel.find({}).exec();
+
+            const responses = [];
+
+            for (let i = 0; i < users.length; i++) {
+                const user = users[i];
+
+                const r: any = {};
+
+                for (let j = 0; j < user.responses.length; j++) {
+                    const response = user.responses[j];
+
+                    if (r[response.type]) {
+                        r[response.type] += 1;
+                    } else {
+                        r[response.type] = 1;
+                    }
+                }
+
+                responses.push({
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    username: user.username,
+                    responses: r,
+                    count: user.responses.length,
+                });
+            }
+
+            // sort by number of responses
+            responses.sort((a, b) => {
+                return b.count - a.count;
+            });
+
+            if (responses) {
+                res.json({
+                    responses,
+                    success: true,
+                });
+            }
+        } else {
+            res.status(401).json({
+                message: "unauthorized access to /admin/get-student-usage-data",
                 success: false,
             });
         }

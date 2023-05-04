@@ -211,3 +211,13 @@ export const apiGetAllResponsesRawData = (token: string | null | undefined) =>
             Authorization: `Bearer ${token}`,
         },
     });
+
+export const apiGetStudentUsage = (token: string | null | undefined) =>
+    fetch(env.API_URL + `/api/admin/get-student-usage-data`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });

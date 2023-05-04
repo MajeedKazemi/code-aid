@@ -15,8 +15,8 @@ import {
     apiGetResponseCount,
     apiGetResponseCountHistogram,
     apiGetResponseTypeHistogram,
+    apiGetStudentUsage,
 } from "../api/admin-api";
-import { AnalysisBox } from "../components/analysis-box";
 import { Layout } from "../components/layout";
 import { BreakDownStepsResponse } from "../components/responses/break-down-task-response";
 import { ExplainCodeHoverResponse } from "../components/responses/explain-code-hover-response";
@@ -123,7 +123,7 @@ export const SummaryPage = () => {
     return (
         <Layout>
             <div>
-                <div className="analyzed-responses-container">
+                {/* <div className="analyzed-responses-container">
                     {analyzedResponses.map((response) => (
                         <div>
                             {displayResponse(response)}
@@ -133,7 +133,7 @@ export const SummaryPage = () => {
                             ></AnalysisBox>
                         </div>
                     ))}
-                </div>
+                </div> */}
 
                 <button
                     onClick={() => {
@@ -390,6 +390,31 @@ export const SummaryPage = () => {
                                     );
                                     element.href = URL.createObjectURL(file);
                                     element.download = "data-all.json";
+                                    document.body.appendChild(element); // Required for this to work in FireFox
+                                    element.click();
+                                }
+                            );
+                        }}
+                    >
+                        Get
+                    </button>
+                </div>
+
+                <div className="admin-dashboard-column">
+                    <h2>Expprt All Student Usage</h2>
+                    <button
+                        onClick={() => {
+                            apiGetStudentUsage(context?.token).then(
+                                async (res) => {
+                                    const data = await res.json();
+
+                                    const element = document.createElement("a");
+                                    const file = new Blob(
+                                        [JSON.stringify(data)],
+                                        { type: "text/plain" }
+                                    );
+                                    element.href = URL.createObjectURL(file);
+                                    element.download = "student-usage.json";
                                     document.body.appendChild(element); // Required for this to work in FireFox
                                     element.click();
                                 }
