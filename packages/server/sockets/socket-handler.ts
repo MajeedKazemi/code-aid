@@ -3,13 +3,37 @@ import jwt from "jsonwebtoken";
 import { ChatCompletionRequestMessage } from "openai";
 import { Server, Socket } from "socket.io";
 
-import { mainAskFromCode, replyAskFromCode, suggestAskFromCode } from "../codex-prompts/ask-from-code-prompt";
-import { mainAskQuestion, replyAskQuestion, suggestAskQuestion } from "../codex-prompts/ask-question-prompt";
+import {
+    mainAskFromCode,
+    replyAskFromCode,
+    suggestAskFromCode,
+} from "../codex-prompts/ask-from-code-prompt";
+import {
+    mainAskQuestion,
+    replyAskQuestion,
+    suggestAskQuestion,
+} from "../codex-prompts/ask-question-prompt";
 import { codeToPseudocode } from "../codex-prompts/code-to-pseudocode";
-import { mainExplainCode, replyExplainCode, suggestExplainCode } from "../codex-prompts/explain-code-prompt";
-import { mainDiffFixedCode, mainFixCode } from "../codex-prompts/fix-code-prompt";
-import { formatCCode, labelFixedCode, labelOriginalCode, removeComments } from "../codex-prompts/shared/agents";
-import { mainWriteCode, replyWriteCode, suggestWriteCode } from "../codex-prompts/write-code-prompt";
+import {
+    mainExplainCode,
+    replyExplainCode,
+    suggestExplainCode,
+} from "../codex-prompts/explain-code-prompt";
+import {
+    mainDiffFixedCode,
+    mainFixCode,
+} from "../codex-prompts/fix-code-prompt";
+import {
+    formatCCode,
+    labelFixedCode,
+    labelOriginalCode,
+    removeComments,
+} from "../codex-prompts/shared/agents";
+import {
+    mainWriteCode,
+    replyWriteCode,
+    suggestWriteCode,
+} from "../codex-prompts/write-code-prompt";
 import { ResponseModel } from "../models/response";
 import { IUser, UserModel } from "../models/user";
 import { openai } from "../utils/codex";
@@ -1169,6 +1193,8 @@ const codexStreamReader = async (
                 { responseType: "stream" }
             );
 
+            let unParsed = "";
+
             res.data.on("data", (data: any) => {
                 const lines = data
                     .toString()
@@ -1186,8 +1212,28 @@ const codexStreamReader = async (
 
                         return;
                     }
+
                     try {
-                        const parsed = JSON.parse(message);
+                        if (unParsed !== "") {
+                            // check if the new message is also unparsable:
+                            try {
+                                JSON.parse(message);
+
+                                // if it is, then no need to keep the old message
+                                unParsed = "";
+                            } catch (error) {
+                                // if it is not, then append the new message to the old one to create a potentially parsable message
+                                unParsed += message;
+                            }
+                        }
+
+                        let parsed = null;
+
+                        if (unParsed !== "") {
+                            parsed = JSON.parse(unParsed);
+                        } else {
+                            parsed = JSON.parse(message);
+                        }
 
                         if (parsed.choices[0].delta.content) {
                             resTxt += parsed.choices[0].delta.content;
@@ -1205,6 +1251,10 @@ const codexStreamReader = async (
                             message,
                             error
                         );
+
+                        if (unParsed === "") {
+                            unParsed = message;
+                        }
                     }
                 }
             });
