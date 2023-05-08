@@ -19,10 +19,10 @@ import { AuthContext } from "../context";
 export const AnalyzePage = () => {
     const { context, setContext } = useContext(AuthContext);
     const [analysisResponse, setAnalysisResponse] = useState<any>(null);
-    const [selectedType, setSelectedType] = useState<string | null>(null);
-    const [selectedTag, setSelectedTag] = useState<string | null>(null);
+    const [selectedType, setSelectedType] = useState<string | null>("any");
+    const [selectedTag, setSelectedTag] = useState<string | null>("any");
     const [selectedTimePeriod, setSelectedTimePeriod] = useState<string | null>(
-        null
+        "any"
     );
 
     const displayResponse = (response: any) => {
@@ -179,6 +179,7 @@ export const AnalyzePage = () => {
                     <div>
                         <h4>Feature Type:</h4>
                         {[
+                            "any",
                             "explain-code-hover",
                             "explain-code-v2",
                             "help-fix-code",
@@ -209,6 +210,7 @@ export const AnalyzePage = () => {
                         <div>
                             <h4>Topic:</h4>
                             {[
+                                "any",
                                 "lab1",
                                 "lab2",
                                 "lab3",
@@ -224,7 +226,6 @@ export const AnalyzePage = () => {
                                 "a2",
                                 "a3",
                                 "a4",
-                                "other",
                             ].map((tag) => (
                                 <div>
                                     <label>
@@ -251,6 +252,7 @@ export const AnalyzePage = () => {
                             <h4>Pick Time Period:</h4>
 
                             {[
+                                "any",
                                 "week1-lab1",
                                 "week2-lab2",
                                 "week3-lab3",
