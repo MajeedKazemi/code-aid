@@ -4,6 +4,11 @@ import { useParams } from "react-router-dom";
 import { apiGetResponse } from "../api/admin-api";
 import { AnalysisBox } from "../components/analysis-box";
 import { Layout } from "../components/layout";
+import { AskFromCodeResponse } from "../components/responses-socket/ask-from-code";
+import { AskQuestionResponse } from "../components/responses-socket/ask-question";
+import { ExplainCodeV2Response } from "../components/responses-socket/explain-code";
+import { FixCodeResponse } from "../components/responses-socket/fix-code";
+import { WriteCodeResponse } from "../components/responses-socket/write-code";
 import { BreakDownStepsResponse } from "../components/responses/break-down-task-response";
 import { ExplainCodeHoverResponse } from "../components/responses/explain-code-hover-response";
 import { HelpFixCodeResponse } from "../components/responses/help-fix-code-response";
@@ -97,6 +102,56 @@ export const ResponsePage = () => {
                     <KeywordExampleResponse key={response.id} data={response} />
                 );
 
+            case "ask-question-v2":
+                return (
+                    <AskQuestionResponse
+                        admin
+                        key={response.id}
+                        data={response}
+                        canUseToolbox={false}
+                    />
+                );
+
+            case "question-from-code-v2":
+                return (
+                    <AskFromCodeResponse
+                        admin
+                        key={response.id}
+                        data={response}
+                        canUseToolbox={false}
+                    />
+                );
+
+            case "explain-code-v2":
+                return (
+                    <ExplainCodeV2Response
+                        admin
+                        key={response.id}
+                        data={response}
+                        canUseToolbox={false}
+                    />
+                );
+
+            case "write-code-v2":
+                return (
+                    <WriteCodeResponse
+                        admin
+                        key={response.id}
+                        data={response}
+                        canUseToolbox={false}
+                    />
+                );
+
+            case "help-fix-code-v2":
+                return (
+                    <FixCodeResponse
+                        admin
+                        key={response.id}
+                        data={response}
+                        canUseToolbox={false}
+                    />
+                );
+
             default:
                 return null;
         }
@@ -110,6 +165,7 @@ export const ResponsePage = () => {
                         <div>
                             {displayResponse(response)}
                             <AnalysisBox
+                                type={response.type}
                                 responseId={response.id}
                                 priorAnalysis={response.analysis}
                             ></AnalysisBox>

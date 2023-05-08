@@ -36,8 +36,10 @@ export interface IResponse extends mongoose.Document {
             directness: number;
         };
         notes: string;
+        analyzed: boolean;
     };
     finished: boolean;
+    tags: Array<string>;
 }
 
 export const ResponseSchema = new Schema({
@@ -68,6 +70,10 @@ export const ResponseSchema = new Schema({
     finished: {
         type: Boolean,
         default: false,
+    },
+    tags: {
+        type: Array,
+        default: [],
     },
 });
 

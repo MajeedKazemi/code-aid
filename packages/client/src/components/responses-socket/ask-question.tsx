@@ -10,6 +10,7 @@ import { ResponseFeedback } from "../response-feedback";
 import { FollowUp } from "./follow-up";
 import { PseudoCodeHoverable } from "./pseudo-code-hoverable";
 import { QuickDocumentation } from "./quick-documentation";
+import { RawResponseAdmin } from "./raw-response-admin";
 
 interface IAskQuestionResponse {
     answer?: string;
@@ -26,6 +27,7 @@ interface IAskQuestionResponse {
         }>;
     }>;
     suggestions?: Array<string>;
+    raw?: string;
 }
 
 interface IProps {
@@ -44,6 +46,7 @@ interface IProps {
         finished: boolean;
 
         response: IAskQuestionResponse;
+        raw?: string;
 
         feedback?: {
             reason: string;
@@ -146,6 +149,7 @@ export const AskQuestionResponse = (props: IProps) => {
                         ...meta,
                         response,
                     }}
+                    raw={props.data.raw}
                     stream={props.stream}
                     admin={props.admin}
                     canUseToolbox={props.canUseToolbox}
@@ -260,6 +264,7 @@ interface IAskQuestionContentProps {
         };
     };
 
+    raw?: string;
     canUseToolbox?: boolean;
     onSubmitFeedback?: () => void;
     setCanUseToolbox?: (canUseToolbox: boolean) => void;
@@ -414,6 +419,10 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
                         followUpId={props.followUp ? meta.id : undefined}
                         onSubmitFeedback={props.onSubmitFeedback}
                     />
+                )}
+
+                {props.admin && props.raw && (
+                    <RawResponseAdmin raw={props.raw} />
                 )}
             </div>
         </Fragment>

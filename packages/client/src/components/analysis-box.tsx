@@ -9,6 +9,7 @@ interface IProps {
     analyzePage?: boolean;
     onSubmit?: () => void;
     responseId: string;
+    type: string;
     priorAnalysis?: {
         likertScales: {
             relevance: number;
@@ -54,6 +55,17 @@ export const AnalysisBox = (props: IProps) => {
         props.priorAnalysis?.notes || ""
     );
 
+    let displayDirectness = true;
+    let displayCorrectness = true;
+
+    if (
+        props.type === "explain-code-hover" ||
+        props.type === "explain-code-v2"
+    ) {
+        displayDirectness = false;
+        displayCorrectness = false;
+    }
+
     return (
         <div className="analysis-box">
             {props.priorAnalysis && (
@@ -66,7 +78,7 @@ export const AnalysisBox = (props: IProps) => {
             <LikertScale
                 selectedOption={likertScaleRelevance}
                 priorRating={props.priorAnalysis?.likertScales?.relevance}
-                options={["0", "1", "2"]}
+                options={["0", "1"]}
                 question={"how related to C programming?"}
                 onChange={(val: number) => {
                     setLikertScaleRelevance(val);
@@ -74,16 +86,18 @@ export const AnalysisBox = (props: IProps) => {
                 }}
             />
 
-            <LikertScale
-                selectedOption={likertScaleCorrectness}
-                priorRating={props.priorAnalysis?.likertScales?.correctness}
-                options={["0", "1", "2", "3", "4"]}
-                question={"how technically correct?"}
-                onChange={(val: number) => {
-                    setLikertScaleCorrectness(val);
-                    setChanged(true);
-                }}
-            />
+            {displayCorrectness && (
+                <LikertScale
+                    selectedOption={likertScaleCorrectness}
+                    priorRating={props.priorAnalysis?.likertScales?.correctness}
+                    options={["0", "1", "2", "3", "4"]}
+                    question={"how technically correct?"}
+                    onChange={(val: number) => {
+                        setLikertScaleCorrectness(val);
+                        setChanged(true);
+                    }}
+                />
+            )}
 
             <LikertScale
                 selectedOption={likertScaleHelpfulness}
@@ -96,16 +110,18 @@ export const AnalysisBox = (props: IProps) => {
                 }}
             />
 
-            <LikertScale
-                selectedOption={likertScaleDirectness}
-                priorRating={props.priorAnalysis?.likertScales?.directness}
-                options={["0", "1", "2", "3", "4"]}
-                question={"how much revealing the solution?"}
-                onChange={(val: number) => {
-                    setLikertScaleDirectness(val);
-                    setChanged(true);
-                }}
-            />
+            {displayDirectness && (
+                <LikertScale
+                    selectedOption={likertScaleDirectness}
+                    priorRating={props.priorAnalysis?.likertScales?.directness}
+                    options={["0", "1", "2", "3", "4"]}
+                    question={"how much revealing the solution?"}
+                    onChange={(val: number) => {
+                        setLikertScaleDirectness(val);
+                        setChanged(true);
+                    }}
+                />
+            )}
 
             <textarea
                 className="analysis-notes-textarea"
@@ -121,7 +137,7 @@ export const AnalysisBox = (props: IProps) => {
 
             <Button
                 onClick={() => {
-                    if (likertScaleCorrectness === null) {
+                    if (likertScaleCorrectness === null && displayCorrectness) {
                         displayError("please rate correctness");
 
                         return;
@@ -139,7 +155,7 @@ export const AnalysisBox = (props: IProps) => {
                         return;
                     }
 
-                    if (likertScaleDirectness === null) {
+                    if (likertScaleDirectness === null && displayDirectness) {
                         displayError("please rate directness");
 
                         return;

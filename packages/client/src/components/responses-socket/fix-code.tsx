@@ -39,8 +39,6 @@ interface IProps {
             reason: string;
             rating: number;
         };
-
-        followUps: Array<any>;
     };
 }
 
@@ -68,10 +66,6 @@ export const FixCodeResponse = (props: IProps) => {
         lines: props.data.response?.lines,
         fixedCodeLinesCount: props.data.response?.fixedCodeLinesCount,
     });
-
-    const [followUps, setFollowUps] = useState(
-        props.data.followUps ? props.data.followUps : []
-    );
 
     useEffect(() => {
         if (codeEl.current) {

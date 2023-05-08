@@ -112,8 +112,8 @@ export const apiGetAverageRatingByType = (token: string | null | undefined) =>
 export const apiGetNewRandomResponseToAnalyze = (
     token: string | null | undefined,
     type: string | null,
-    rating: number | null,
-    withReason: boolean
+    tag: string | null,
+    timePeriod: string | null
 ) =>
     fetch(env.API_URL + `/api/admin/get-random-response-to-analyze`, {
         method: "POST",
@@ -124,8 +124,8 @@ export const apiGetNewRandomResponseToAnalyze = (
         },
         body: JSON.stringify({
             type,
-            rating: rating ? rating : 0,
-            withReason,
+            tag,
+            timePeriod,
         }),
     });
 

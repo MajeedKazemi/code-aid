@@ -11,6 +11,7 @@ import { ResponseFeedback } from "../response-feedback";
 import { FollowUp } from "./follow-up";
 import { PseudoCodeHoverable } from "./pseudo-code-hoverable";
 import { QuickDocumentation } from "./quick-documentation";
+import { RawResponseAdmin } from "./raw-response-admin";
 
 interface IAskFromCodeResponse {
     answer?: string;
@@ -46,6 +47,7 @@ interface IProps {
         finished: boolean;
 
         response: IAskFromCodeResponse;
+        raw?: string;
 
         feedback?: {
             reason: string;
@@ -150,6 +152,7 @@ export const AskFromCodeResponse = (props: IProps) => {
                         ...meta,
                         response,
                     }}
+                    raw={props.data.raw}
                     stream={props.stream}
                     admin={props.admin}
                     onSubmitFeedback={props.onSubmitFeedback}
@@ -263,6 +266,7 @@ interface IAskFromCodeContentProps {
         };
     };
 
+    raw?: string;
     canUseToolbox?: boolean;
     onSubmitFeedback?: () => void;
     setCanUseToolbox?: (canUseToolbox: boolean) => void;
@@ -436,6 +440,10 @@ const AskFromCodeContent = (props: IAskFromCodeContentProps) => {
                         followUpId={props.followUp ? meta.id : undefined}
                         onSubmitFeedback={props.onSubmitFeedback}
                     />
+                )}
+
+                {props.admin && props.raw && (
+                    <RawResponseAdmin raw={props.raw} />
                 )}
             </div>
         </Fragment>

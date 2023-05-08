@@ -3,6 +3,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { apiGetNewRandomResponseToAnalyze } from "../api/admin-api";
 import { AnalysisBox } from "../components/analysis-box";
 import { Layout } from "../components/layout";
+import { AskFromCodeResponse } from "../components/responses-socket/ask-from-code";
+import { AskQuestionResponse } from "../components/responses-socket/ask-question";
+import { ExplainCodeV2Response } from "../components/responses-socket/explain-code";
+import { FixCodeResponse } from "../components/responses-socket/fix-code";
+import { WriteCodeResponse } from "../components/responses-socket/write-code";
 import { BreakDownStepsResponse } from "../components/responses/break-down-task-response";
 import { ExplainCodeHoverResponse } from "../components/responses/explain-code-hover-response";
 import { HelpFixCodeResponse } from "../components/responses/help-fix-code-response";
@@ -15,9 +20,10 @@ export const AnalyzePage = () => {
     const { context, setContext } = useContext(AuthContext);
     const [analysisResponse, setAnalysisResponse] = useState<any>(null);
     const [selectedType, setSelectedType] = useState<string | null>(null);
-    const [selectedRating, setSelectedRating] = useState<number | null>(null);
-    const [selectedWithReason, setSelectedWithReason] =
-        useState<boolean>(false);
+    const [selectedTag, setSelectedTag] = useState<string | null>(null);
+    const [selectedTimePeriod, setSelectedTimePeriod] = useState<string | null>(
+        null
+    );
 
     const displayResponse = (response: any) => {
         switch (response.type) {
@@ -76,6 +82,56 @@ export const AnalyzePage = () => {
                     <KeywordExampleResponse key={response.id} data={response} />
                 );
 
+            case "ask-question-v2":
+                return (
+                    <AskQuestionResponse
+                        admin
+                        key={response.id}
+                        data={response}
+                        canUseToolbox={false}
+                    />
+                );
+
+            case "question-from-code-v2":
+                return (
+                    <AskFromCodeResponse
+                        admin
+                        key={response.id}
+                        data={response}
+                        canUseToolbox={false}
+                    />
+                );
+
+            case "explain-code-v2":
+                return (
+                    <ExplainCodeV2Response
+                        admin
+                        key={response.id}
+                        data={response}
+                        canUseToolbox={false}
+                    />
+                );
+
+            case "write-code-v2":
+                return (
+                    <WriteCodeResponse
+                        admin
+                        key={response.id}
+                        data={response}
+                        canUseToolbox={false}
+                    />
+                );
+
+            case "help-fix-code-v2":
+                return (
+                    <FixCodeResponse
+                        admin
+                        key={response.id}
+                        data={response}
+                        canUseToolbox={false}
+                    />
+                );
+
             default:
                 return null;
         }
@@ -85,8 +141,8 @@ export const AnalyzePage = () => {
         apiGetNewRandomResponseToAnalyze(
             context?.token,
             selectedType,
-            selectedRating,
-            selectedWithReason
+            selectedTag,
+            selectedTimePeriod
         )
             .then(async (res) => {
                 if (res.status === 200) {
@@ -121,208 +177,120 @@ export const AnalyzePage = () => {
                     }}
                 >
                     <div>
-                        <div>
-                            <h4>feature type:</h4>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="any"
-                                    checked={!selectedType}
-                                    onChange={(e) => setSelectedType(null)}
-                                />
-                                any
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="explain-code-hover"
-                                    checked={
-                                        selectedType === "explain-code-hover"
-                                    }
-                                    onChange={(e) =>
-                                        setSelectedType(e.target.value)
-                                    }
-                                />
-                                explain-code-hover
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="question-answer"
-                                    checked={selectedType === "question-answer"}
-                                    onChange={(e) =>
-                                        setSelectedType(e.target.value)
-                                    }
-                                />
-                                question-answer
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="break-down-steps"
-                                    checked={
-                                        selectedType === "break-down-steps"
-                                    }
-                                    onChange={(e) =>
-                                        setSelectedType(e.target.value)
-                                    }
-                                />
-                                break-down-steps
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="help-fix-code"
-                                    checked={selectedType === "help-fix-code"}
-                                    onChange={(e) =>
-                                        setSelectedType(e.target.value)
-                                    }
-                                />
-                                help-fix-code
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="question-from-code"
-                                    checked={
-                                        selectedType === "question-from-code"
-                                    }
-                                    onChange={(e) =>
-                                        setSelectedType(e.target.value)
-                                    }
-                                />
-                                question-from-code
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="keyword-example"
-                                    checked={selectedType === "keyword-example"}
-                                    onChange={(e) =>
-                                        setSelectedType(e.target.value)
-                                    }
-                                />
-                                keyword-example
-                            </label>
-                        </div>
-                        <hr />
-                        <div>
-                            <h4>rating:</h4>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={0}
-                                    checked={!selectedRating}
-                                    onChange={(e) => setSelectedRating(null)}
-                                />
-                                any
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={1}
-                                    checked={selectedRating == 1}
-                                    onChange={(e) => setSelectedRating(1)}
-                                />
-                                1
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={2}
-                                    checked={selectedRating == 2}
-                                    onChange={(e) => setSelectedRating(2)}
-                                />
-                                2
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={3}
-                                    checked={selectedRating == 3}
-                                    onChange={(e) => setSelectedRating(3)}
-                                />
-                                3
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={4}
-                                    checked={selectedRating == 4}
-                                    onChange={(e) => setSelectedRating(4)}
-                                />
-                                4
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={5}
-                                    checked={selectedRating == 5}
-                                    onChange={(e) => setSelectedRating(5)}
-                                />
-                                5
-                            </label>
-                            <br />
-                        </div>
-
-                        <hr />
+                        <h4>Feature Type:</h4>
+                        {[
+                            "explain-code-hover",
+                            "explain-code-v2",
+                            "help-fix-code",
+                            "help-fix-code-v2",
+                            "question-from-code",
+                            "question-from-code-v2",
+                            "question-answer",
+                            "ask-question-v2",
+                            "break-down-steps",
+                            "write-code-v2",
+                        ].map((type) => (
+                            <div>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={type}
+                                        checked={selectedType === type}
+                                        onChange={(e) =>
+                                            setSelectedType(e.target.value)
+                                        }
+                                    />
+                                    {type}
+                                </label>
+                                <br />
+                            </div>
+                        ))}
 
                         <div>
-                            <h4>with reason:</h4>
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={"false"}
-                                    checked={!selectedWithReason}
-                                    onChange={(e) =>
-                                        setSelectedWithReason(false)
-                                    }
-                                />
-                                without reason
-                            </label>
-                            <br />
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={"true"}
-                                    checked={selectedWithReason}
-                                    onChange={(e) =>
-                                        setSelectedWithReason(true)
-                                    }
-                                />
-                                with reason
-                            </label>
-                            <br />
+                            <h4>Topic:</h4>
+                            {[
+                                "lab1",
+                                "lab2",
+                                "lab3",
+                                "lab4",
+                                "lab5",
+                                "lab6",
+                                "lab7",
+                                "lab8",
+                                "lab9",
+                                "lab10",
+                                "lab11",
+                                "a1",
+                                "a2",
+                                "a3",
+                                "a4",
+                                "other",
+                            ].map((tag) => (
+                                <div>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            value={tag}
+                                            checked={selectedTag === tag}
+                                            onChange={(e) =>
+                                                setSelectedTag(e.target.value)
+                                            }
+                                        />
+                                        {tag}
+                                    </label>
+                                    <br />
+                                </div>
+                            ))}
                         </div>
                     </div>
 
                     <br />
 
-                    <button type="submit">get new response to analyze</button>
+                    <div>
+                        <div>
+                            <h4>Pick Time Period:</h4>
+
+                            {[
+                                "week1-lab1",
+                                "week2-lab2",
+                                "week3-lab3",
+                                "week4-lab4-a1",
+                                "week5-lab5",
+                                "week6-lab6-a2",
+                                "week7-lab7",
+                                "week8-lab8",
+                                "week9-lab9-a3",
+                                "week10-lab10",
+                                "week11-lab11",
+                                "week12-lab12-a4",
+                                "final",
+                            ].map((timePeriod) => (
+                                <div>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            value={timePeriod}
+                                            checked={
+                                                selectedTimePeriod ===
+                                                timePeriod
+                                            }
+                                            onChange={(e) =>
+                                                setSelectedTimePeriod(
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        {timePeriod}
+                                    </label>
+                                    <br />
+                                </div>
+                            ))}
+                        </div>
+
+                        <br />
+                    </div>
+
+                    <button type="submit">Get new Response to Analyze</button>
                 </form>
 
                 {analysisResponse && (
@@ -334,6 +302,7 @@ export const AnalyzePage = () => {
                                 getNewResponse();
                             }}
                             responseId={analysisResponse.id}
+                            type={analysisResponse.type}
                         ></AnalysisBox>
                     </div>
                 )}

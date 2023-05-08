@@ -241,3 +241,8 @@
 }
 
 /* error-message */
+
+.huge-dummy {
+    width: 100%;
+    height: 5000px;
+}

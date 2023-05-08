@@ -11,6 +11,7 @@ import { ResponseFeedback } from "../response-feedback";
 import { FollowUp } from "./follow-up";
 import { PseudoCodeHoverable } from "./pseudo-code-hoverable";
 import { QuickDocumentation } from "./quick-documentation";
+import { RawResponseAdmin } from "./raw-response-admin";
 
 interface IWriteCodeResponse {
     answer?: string;
@@ -45,6 +46,7 @@ interface IProps {
         finished: boolean;
 
         response: IWriteCodeResponse;
+        raw?: string;
 
         feedback?: {
             reason: string;
@@ -152,12 +154,13 @@ export const WriteCodeResponse = (props: IProps) => {
             </div>
 
             <div>
-                <AskQuestionContent
+                <HelpWriteContent
                     key={props.data.id}
                     data={{
                         ...meta,
                         response,
                     }}
+                    raw={props.data.raw}
                     stream={props.stream}
                     admin={props.admin}
                     onSubmitFeedback={props.onSubmitFeedback}
@@ -176,7 +179,7 @@ export const WriteCodeResponse = (props: IProps) => {
                     <div className="follow-ups-container">
                         {followUps.map((f) => {
                             return (
-                                <AskQuestionContent
+                                <HelpWriteContent
                                     followUp
                                     key={f.id}
                                     data={{
@@ -272,6 +275,8 @@ interface IAskQuestionContentProps {
         };
     };
 
+    raw?: string;
+
     canUseToolbox?: boolean;
     onSubmitFeedback?: () => void;
     setCanUseToolbox?: (canUseToolbox: boolean) => void;
@@ -283,7 +288,7 @@ interface IAskQuestionContentProps {
     setFollowUpResponse?: (response: IWriteCodeResponse) => void;
 }
 
-const AskQuestionContent = (props: IAskQuestionContentProps) => {
+const HelpWriteContent = (props: IAskQuestionContentProps) => {
     const { context } = useContext(AuthContext);
     const { socket } = useContext(SocketContext);
 
@@ -423,6 +428,8 @@ const AskQuestionContent = (props: IAskQuestionContentProps) => {
                     onSubmitFeedback={props.onSubmitFeedback}
                 />
             )}
+
+            {props.admin && props.raw && <RawResponseAdmin raw={props.raw} />}
         </div>
     );
 };

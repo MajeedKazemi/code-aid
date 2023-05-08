@@ -449,6 +449,11 @@ adminRouter.get("/average-rating-type", verifyUser, async (req, res, next) => {
     }
 });
 
+const responseIdsCache = {
+    responses: new Array(),
+    lastUpdated: new Date(0),
+};
+
 adminRouter.post(
     "/get-random-response-to-analyze",
     verifyUser,
@@ -456,34 +461,207 @@ adminRouter.post(
         const user = req.user as IUser;
 
         if (user.role === "admin") {
-            const { type, rating, withReason } = req.body;
+            const { type, tag, timePeriod } = req.body;
 
-            const agg = await ResponseModel.aggregate([
-                {
-                    $match: {
-                        type: type ? { $eq: type } : { $exists: true },
-                        "feedback.rating":
-                            rating == 0 ? { $exists: true } : { $eq: rating },
-                        "feedback.reason": withReason
-                            ? { $ne: "" }
-                            : { $exists: true },
-                        analysis: { $exists: false },
-                    },
-                },
-                {
-                    $sample: { size: 1 },
-                },
-            ]).exec();
+            if (
+                responseIdsCache.lastUpdated.getTime() <
+                new Date().getTime() - 1000 * 60 * 60 * 24
+            ) {
+                // should update cache
+                responseIdsCache.lastUpdated = new Date();
 
-            if (agg.length > 0) {
+                ResponseModel.find({})
+                    .exec()
+                    .then((responses) => {
+                        for (const response of responses) {
+                            responseIdsCache.responses.push({
+                                tags: response.tags,
+                                id: response._id,
+                                type: response.type,
+                                time: response.time,
+                                feedback: response.feedback,
+                                followUpCount: response.followUps.length,
+                                analyzed: response.analysis.analyzed,
+                            });
+                        }
+                    });
+            }
+
+            // can randomly select from cache
+            const filteredResponses = responseIdsCache.responses.filter((r) => {
+                let shouldInclude = !r.analyzed;
+
+                if (type && type !== "any") {
+                    shouldInclude = shouldInclude && r.type === type;
+                }
+
+                if (tag && tag !== "any") {
+                    shouldInclude = shouldInclude && r.tags.includes(tag);
+                }
+
+                if (timePeriod && timePeriod !== "any") {
+                    // week1-lab1 -> start: Jan 6 2023 -> end: Jan 13 2023
+                    // week2-lab2 -> start: Jan 13 2023 -> end: Jan 20 2023
+                    // week3-lab3 -> start: Jan 20 2023 -> end: Jan 27 2023
+                    // week4-lab4-a1 -> start: Jan 27 2023 -> end: Feb 3 2023
+                    // week5-lab5 -> start: Feb 3 2023 -> end: Feb 10 2023
+                    // week6-lab6-a2 -> start: Feb 10 2023 -> end: Feb 17 2023
+                    // week7-lab7 -> start: Feb 17 2023 -> end: Mar 3 2023
+                    // week8-lab8 -> start: Mar 3 2023 -> end: Mar 10 2023
+                    // week9-lab9-a3 -> start: Mar 10 2023 -> end: Mar 17 2023
+                    // week10-lab10 -> start: Mar 17 2023 -> end: Mar 24 2023
+                    // week11-lab11 -> start: Mar 24 2023 -> end: Mar 31 2023
+                    // week12-lab12-a4 -> start: Mar 31 2023 -> end: Apr 7 2023
+                    // final -> start: Apr 7 2023 -> end: Apr 25 2023
+
+                    const now = new Date();
+
+                    const week1Lab1Start = new Date("Jan 6 2023");
+                    const week1Lab1End = new Date("Jan 13 2023");
+
+                    const week2Lab2Start = new Date("Jan 13 2023");
+                    const week2Lab2End = new Date("Jan 20 2023");
+
+                    const week3Lab3Start = new Date("Jan 20 2023");
+                    const week3Lab3End = new Date("Jan 27 2023");
+
+                    const week4Lab4A1Start = new Date("Jan 27 2023");
+                    const week4Lab4A1End = new Date("Feb 3 2023");
+
+                    const week5Lab5Start = new Date("Feb 3 2023");
+                    const week5Lab5End = new Date("Feb 10 2023");
+
+                    const week6Lab6A2Start = new Date("Feb 10 2023");
+                    const week6Lab6A2End = new Date("Feb 17 2023");
+
+                    const week7Lab7Start = new Date("Feb 17 2023");
+                    const week7Lab7End = new Date("Mar 3 2023");
+
+                    const week8Lab8Start = new Date("Mar 3 2023");
+                    const week8Lab8End = new Date("Mar 10 2023");
+
+                    const week9Lab9A3Start = new Date("Mar 10 2023");
+                    const week9Lab9A3End = new Date("Mar 17 2023");
+
+                    const week10Lab10Start = new Date("Mar 17 2023");
+                    const week10Lab10End = new Date("Mar 24 2023");
+
+                    const week11Lab11Start = new Date("Mar 24 2023");
+                    const week11Lab11End = new Date("Mar 31 2023");
+
+                    const week12Lab12A4Start = new Date("Mar 31 2023");
+                    const week12Lab12A4End = new Date("Apr 7 2023");
+
+                    const finalStart = new Date("Apr 7 2023");
+                    const finalEnd = new Date("Apr 25 2023");
+
+                    let start: Date;
+                    let end: Date;
+
+                    switch (timePeriod) {
+                        case "week1-lab1":
+                            start = week1Lab1Start;
+                            end = week1Lab1End;
+                            break;
+
+                        case "week2-lab2":
+                            start = week2Lab2Start;
+                            end = week2Lab2End;
+                            break;
+
+                        case "week3-lab3":
+                            start = week3Lab3Start;
+                            end = week3Lab3End;
+                            break;
+
+                        case "week4-lab4-a1":
+                            start = week4Lab4A1Start;
+                            end = week4Lab4A1End;
+                            break;
+
+                        case "week5-lab5":
+                            start = week5Lab5Start;
+                            end = week5Lab5End;
+                            break;
+
+                        case "week6-lab6-a2":
+                            start = week6Lab6A2Start;
+                            end = week6Lab6A2End;
+                            break;
+
+                        case "week7-lab7":
+                            start = week7Lab7Start;
+                            end = week7Lab7End;
+                            break;
+
+                        case "week8-lab8":
+                            start = week8Lab8Start;
+                            end = week8Lab8End;
+                            break;
+
+                        case "week9-lab9-a3":
+                            start = week9Lab9A3Start;
+                            end = week9Lab9A3End;
+                            break;
+
+                        case "week10-lab10":
+                            start = week10Lab10Start;
+                            end = week10Lab10End;
+                            break;
+
+                        case "week11-lab11":
+                            start = week11Lab11Start;
+                            end = week11Lab11End;
+                            break;
+
+                        case "week12-lab12-a4":
+                            start = week12Lab12A4Start;
+                            end = week12Lab12A4End;
+                            break;
+
+                        case "final":
+                            start = finalStart;
+                            end = finalEnd;
+                            break;
+
+                        default:
+                            start = week1Lab1Start;
+                            end = finalEnd;
+                            break;
+                    }
+
+                    shouldInclude =
+                        shouldInclude && r.time >= start && r.time <= end;
+                }
+
+                return shouldInclude;
+            });
+
+            let success = false;
+
+            if (filteredResponses.length > 0) {
+                const randomResponse =
+                    filteredResponses[
+                        Math.floor(Math.random() * filteredResponses.length)
+                    ];
+
+                if (randomResponse) {
+                    const response = await ResponseModel.findById(
+                        randomResponse.id
+                    ).exec();
+
+                    success = true;
+
+                    res.json({
+                        response,
+                        success,
+                    });
+                }
+            }
+
+            if (!success) {
                 res.json({
-                    response: agg[0],
-                    success: true,
-                });
-            } else {
-                res.json({
-                    response: null,
-                    success: true,
+                    success: false,
                 });
             }
         } else {
@@ -513,6 +691,15 @@ adminRouter.post(
                     admin: user.username,
                 },
             }).exec();
+
+            // update response in cache as well:
+            const responseInCache = responseIdsCache.responses.find(
+                (r) => r.id === responseId
+            );
+
+            if (responseInCache) {
+                responseInCache.analyzed = true;
+            }
 
             if (response) {
                 res.json({
