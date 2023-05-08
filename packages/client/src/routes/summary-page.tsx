@@ -17,8 +17,10 @@ import {
     apiGetResponseTypeHistogram,
     apiGetStudentUsage,
 } from "../api/admin-api";
+import { AnalysisBox } from "../components/analysis-box";
 import { Layout } from "../components/layout";
 import { AuthContext } from "../context";
+import { getAdminComponentFromResponse } from "./response-page";
 
 export const SummaryPage = () => {
     const { context, setContext } = useContext(AuthContext);
@@ -26,108 +28,47 @@ export const SummaryPage = () => {
     const [analyzedResponses, setAnalyzedResponses] = useState<any[]>([]);
     const [skipCount, setSkipCount] = useState(0);
 
-    // useEffect(() => {
-    //     apiGetLatestAnalyzedResponses(context?.token, skipCount).then(
-    //         async (res) => {
-    //             const data = await res.json();
+    useEffect(() => {
+        apiGetLatestAnalyzedResponses(context?.token, skipCount).then(
+            async (res) => {
+                const data = await res.json();
 
-    //             if (data.success) {
-    //                 setAnalyzedResponses(
-    //                     data.responses.map((it: any) => {
-    //                         return {
-    //                             ...it.data,
-    //                             type: it.type,
-    //                             id: it.id,
-    //                             followUps: it.followUps,
-    //                             feedback: it.feedback,
-    //                             analysis: it.analysis,
-    //                         };
-    //                     })
-    //                 );
+                if (data.success) {
+                    setAnalyzedResponses(
+                        data.responses.map((it: any) => {
+                            return {
+                                ...it.data,
+                                type: it.type,
+                                id: it.id,
+                                followUps: it.followUps,
+                                feedback: it.feedback,
+                                analysis: it.analysis,
+                            };
+                        })
+                    );
 
-    //                 setSkipCount(data.responses.length + skipCount);
-    //                 setCountAnalyzed(data.countAnalyzed);
-    //             }
-    //         }
-    //     );
-    // }, []);
-
-    // const displayResponse = (response: any) => {
-    //     switch (response.type) {
-    //         case "question-answer":
-    //             return (
-    //                 <QuestionAnswerResponse
-    //                     admin
-    //                     key={response.id}
-    //                     data={response}
-    //                     canUseToolbox={false}
-    //                 />
-    //             );
-
-    //         case "break-down-steps":
-    //             return (
-    //                 <BreakDownStepsResponse
-    //                     admin
-    //                     key={response.id}
-    //                     data={response}
-    //                     canUseToolbox={false}
-    //                 />
-    //             );
-
-    //         case "help-fix-code":
-    //             return (
-    //                 <HelpFixCodeResponse
-    //                     admin
-    //                     key={response.id}
-    //                     data={response}
-    //                     canUseToolbox={false}
-    //                 />
-    //             );
-
-    //         case "explain-code-hover":
-    //             return (
-    //                 <ExplainCodeHoverResponse
-    //                     admin
-    //                     key={response.id}
-    //                     data={response}
-    //                     canUseToolbox={false}
-    //                 />
-    //             );
-
-    //         case "question-from-code":
-    //             return (
-    //                 <QuestionFromCodeResponse
-    //                     admin
-    //                     key={response.id}
-    //                     data={response}
-    //                     canUseToolbox={false}
-    //                 />
-    //             );
-
-    //         case "keyword-example":
-    //             return (
-    //                 <KeywordExampleResponse key={response.id} data={response} />
-    //             );
-
-    //         default:
-    //             return null;
-    //     }
-    // };
+                    setSkipCount(data.responses.length + skipCount);
+                    setCountAnalyzed(data.countAnalyzed);
+                }
+            }
+        );
+    }, []);
 
     return (
         <Layout>
             <div>
-                {/* <div className="analyzed-responses-container">
+                <div className="analyzed-responses-container">
                     {analyzedResponses.map((response) => (
                         <div>
-                            {displayResponse(response)}
+                            {getAdminComponentFromResponse(response)}
                             <AnalysisBox
+                                type={response.type}
                                 responseId={response.id}
                                 priorAnalysis={response.analysis}
                             ></AnalysisBox>
                         </div>
                     ))}
-                </div> */}
+                </div>
 
                 <button
                     onClick={() => {

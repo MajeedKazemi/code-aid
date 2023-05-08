@@ -689,6 +689,7 @@ adminRouter.post(
                     time: new Date(),
                     notes,
                     admin: user.username,
+                    analyzed: true,
                 },
             }).exec();
 
@@ -730,11 +731,11 @@ adminRouter.get(
             const { skip } = req.params;
 
             const countAnalyzed = await ResponseModel.countDocuments({
-                "analysis.admin": { $exists: true },
+                "analysis.analyzed": true,
             });
 
             const responses = await ResponseModel.find({
-                "analysis.admin": { $exists: true },
+                "analysis.analyzed": true,
             })
                 .sort({ "analysis.time": -1 })
                 .skip(parseInt(skip))

@@ -17,6 +17,116 @@ import { QuestionAnswerResponse } from "../components/responses/question-answer-
 import { QuestionFromCodeResponse } from "../components/responses/question-from-code-response";
 import { AuthContext } from "../context";
 
+export const getAdminComponentFromResponse = (response: any) => {
+    switch (response.type) {
+        case "question-answer":
+            return (
+                <QuestionAnswerResponse
+                    admin
+                    key={response.id}
+                    data={response}
+                    canUseToolbox={false}
+                />
+            );
+
+        case "break-down-steps":
+            return (
+                <BreakDownStepsResponse
+                    admin
+                    key={response.id}
+                    data={response}
+                    canUseToolbox={false}
+                />
+            );
+
+        case "help-fix-code":
+            return (
+                <HelpFixCodeResponse
+                    admin
+                    key={response.id}
+                    data={response}
+                    canUseToolbox={false}
+                />
+            );
+
+        case "explain-code-hover":
+            return (
+                <ExplainCodeHoverResponse
+                    admin
+                    key={response.id}
+                    data={response}
+                    canUseToolbox={false}
+                />
+            );
+
+        case "question-from-code":
+            return (
+                <QuestionFromCodeResponse
+                    admin
+                    key={response.id}
+                    data={response}
+                    canUseToolbox={false}
+                />
+            );
+
+        case "keyword-example":
+            return <KeywordExampleResponse key={response.id} data={response} />;
+
+        case "ask-question-v2":
+            return (
+                <AskQuestionResponse
+                    admin
+                    key={response.id}
+                    data={response}
+                    canUseToolbox={false}
+                />
+            );
+
+        case "question-from-code-v2":
+            return (
+                <AskFromCodeResponse
+                    admin
+                    key={response.id}
+                    data={response}
+                    canUseToolbox={false}
+                />
+            );
+
+        case "explain-code-v2":
+            return (
+                <ExplainCodeV2Response
+                    admin
+                    key={response.id}
+                    data={response}
+                    canUseToolbox={false}
+                />
+            );
+
+        case "write-code-v2":
+            return (
+                <WriteCodeResponse
+                    admin
+                    key={response.id}
+                    data={response}
+                    canUseToolbox={false}
+                />
+            );
+
+        case "help-fix-code-v2":
+            return (
+                <FixCodeResponse
+                    admin
+                    key={response.id}
+                    data={response}
+                    canUseToolbox={false}
+                />
+            );
+
+        default:
+            return null;
+    }
+};
+
 export const ResponsePage = () => {
     const { context, setContext } = useContext(AuthContext);
 
@@ -45,125 +155,13 @@ export const ResponsePage = () => {
         });
     }, []);
 
-    const displayResponse = (response: any) => {
-        switch (response.type) {
-            case "question-answer":
-                return (
-                    <QuestionAnswerResponse
-                        admin
-                        key={response.id}
-                        data={response}
-                        canUseToolbox={false}
-                    />
-                );
-
-            case "break-down-steps":
-                return (
-                    <BreakDownStepsResponse
-                        admin
-                        key={response.id}
-                        data={response}
-                        canUseToolbox={false}
-                    />
-                );
-
-            case "help-fix-code":
-                return (
-                    <HelpFixCodeResponse
-                        admin
-                        key={response.id}
-                        data={response}
-                        canUseToolbox={false}
-                    />
-                );
-
-            case "explain-code-hover":
-                return (
-                    <ExplainCodeHoverResponse
-                        admin
-                        key={response.id}
-                        data={response}
-                        canUseToolbox={false}
-                    />
-                );
-
-            case "question-from-code":
-                return (
-                    <QuestionFromCodeResponse
-                        admin
-                        key={response.id}
-                        data={response}
-                        canUseToolbox={false}
-                    />
-                );
-
-            case "keyword-example":
-                return (
-                    <KeywordExampleResponse key={response.id} data={response} />
-                );
-
-            case "ask-question-v2":
-                return (
-                    <AskQuestionResponse
-                        admin
-                        key={response.id}
-                        data={response}
-                        canUseToolbox={false}
-                    />
-                );
-
-            case "question-from-code-v2":
-                return (
-                    <AskFromCodeResponse
-                        admin
-                        key={response.id}
-                        data={response}
-                        canUseToolbox={false}
-                    />
-                );
-
-            case "explain-code-v2":
-                return (
-                    <ExplainCodeV2Response
-                        admin
-                        key={response.id}
-                        data={response}
-                        canUseToolbox={false}
-                    />
-                );
-
-            case "write-code-v2":
-                return (
-                    <WriteCodeResponse
-                        admin
-                        key={response.id}
-                        data={response}
-                        canUseToolbox={false}
-                    />
-                );
-
-            case "help-fix-code-v2":
-                return (
-                    <FixCodeResponse
-                        admin
-                        key={response.id}
-                        data={response}
-                        canUseToolbox={false}
-                    />
-                );
-
-            default:
-                return null;
-        }
-    };
-
     return (
         <Layout>
             <div>
                 <div className="analyzed-responses-container">
                     {response && (
                         <div>
-                            {displayResponse(response)}
+                            {getAdminComponentFromResponse(response)}
                             <AnalysisBox
                                 type={response.type}
                                 responseId={response.id}
