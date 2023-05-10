@@ -38,8 +38,33 @@ export interface IResponse extends mongoose.Document {
         notes: string;
         analyzed: boolean;
     };
+    analysis2: {
+        time: Date;
+        admin: string;
+        likertScales: {
+            relevance: number;
+            correctness: number;
+            helpfulness: number;
+            directness: number;
+        };
+        notes: string;
+        analyzed: boolean;
+    };
+    analysis3: {
+        time: Date;
+        admin: string;
+        likertScales: {
+            relevance: number;
+            correctness: number;
+            helpfulness: number;
+            directness: number;
+        };
+        notes: string;
+        analyzed: boolean;
+    };
     finished: boolean;
     tags: Array<string>;
+    canUseInResearch: boolean;
 }
 
 export const ResponseSchema = new Schema({
@@ -67,6 +92,14 @@ export const ResponseSchema = new Schema({
         type: JSON,
         default: {},
     },
+    analysis2: {
+        type: JSON,
+        default: {},
+    },
+    analysis3: {
+        type: JSON,
+        default: {},
+    },
     finished: {
         type: Boolean,
         default: false,
@@ -74,6 +107,10 @@ export const ResponseSchema = new Schema({
     tags: {
         type: Array,
         default: [],
+    },
+    canUseInResearch: {
+        type: Boolean,
+        default: false,
     },
 });
 

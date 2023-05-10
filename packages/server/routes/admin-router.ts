@@ -449,7 +449,12 @@ adminRouter.get("/average-rating-type", verifyUser, async (req, res, next) => {
     }
 });
 
-const responseIdsCache = {
+const responseIdsCache1 = {
+    responses: new Array(),
+    lastUpdated: new Date(0),
+};
+
+const responseIdsCache2 = {
     responses: new Array(),
     lastUpdated: new Date(0),
 };
@@ -464,17 +469,19 @@ adminRouter.post(
             const { type, tag, timePeriod } = req.body;
 
             if (
-                responseIdsCache.lastUpdated.getTime() <
+                responseIdsCache1.lastUpdated.getTime() <
                 new Date().getTime() - 1000 * 60 * 60 * 24
             ) {
                 // should update cache
-                responseIdsCache.lastUpdated = new Date();
+                responseIdsCache1.lastUpdated = new Date();
 
-                ResponseModel.find({})
+                ResponseModel.find({
+                    canUseInResearch: true,
+                })
                     .exec()
                     .then((responses) => {
                         for (const response of responses) {
-                            responseIdsCache.responses.push({
+                            responseIdsCache1.responses.push({
                                 tags: response.tags,
                                 id: response._id,
                                 type: response.type,
@@ -487,8 +494,50 @@ adminRouter.post(
                     });
             }
 
+            if (
+                responseIdsCache2.lastUpdated.getTime() <
+                new Date().getTime() - 1000 * 60 * 60 * 24
+            ) {
+                // should update cache
+                responseIdsCache2.lastUpdated = new Date();
+
+                ResponseModel.find({
+                    canUseInResearch: true,
+                    "analysis.analyzed": true,
+                })
+                    .exec()
+                    .then((responses) => {
+                        for (const response of responses) {
+                            responseIdsCache2.responses.push({
+                                tags: response.tags,
+                                id: response._id,
+                                type: response.type,
+                                time: response.time,
+                                feedback: response.feedback,
+                                followUpCount: response.followUps.length,
+                                analyzed: response.analysis2.analyzed,
+                            });
+                        }
+                    });
+            }
+
+            let cache = responseIdsCache1;
+
+            if (user.username === "harryye") {
+                // use analysis (1)
+                cache = responseIdsCache1;
+            } else if (user.username === "mcraig") {
+                // use analysis2
+                cache = responseIdsCache2;
+            }
+
+            let analyzedCount = cache.responses.filter(
+                (r) => r.analyzed
+            ).length;
+            let totalCount = cache.responses.length;
+
             // can randomly select from cache
-            const filteredResponses = responseIdsCache.responses.filter((r) => {
+            const filteredResponses = cache.responses.filter((r) => {
                 let shouldInclude = !r.analyzed;
 
                 if (type && type !== "any") {
@@ -653,6 +702,8 @@ adminRouter.post(
                     success = true;
 
                     res.json({
+                        analyzedCount,
+                        totalCount,
                         response,
                         success,
                     });
@@ -683,18 +734,39 @@ adminRouter.post(
         if (user.role === "admin") {
             const { responseId, likertScales, notes } = req.body;
 
-            const response = await ResponseModel.findByIdAndUpdate(responseId, {
-                analysis: {
-                    likertScales,
-                    time: new Date(),
-                    notes,
-                    admin: user.username,
-                    analyzed: true,
-                },
-            }).exec();
+            let cache = responseIdsCache1;
+            let response;
+
+            if (user.username === "harryye") {
+                // use analysis (1)
+                cache = responseIdsCache1;
+
+                response = await ResponseModel.findByIdAndUpdate(responseId, {
+                    analysis: {
+                        likertScales,
+                        time: new Date(),
+                        notes,
+                        admin: user.username,
+                        analyzed: true,
+                    },
+                }).exec();
+            } else if (user.username === "mcraig") {
+                // use analysis2
+                cache = responseIdsCache2;
+
+                response = await ResponseModel.findByIdAndUpdate(responseId, {
+                    analysis2: {
+                        likertScales,
+                        time: new Date(),
+                        notes,
+                        admin: user.username,
+                        analyzed: true,
+                    },
+                }).exec();
+            }
 
             // update response in cache as well:
-            const responseInCache = responseIdsCache.responses.find(
+            const responseInCache = cache.responses.find(
                 (r) => r.id === responseId
             );
 
@@ -736,6 +808,7 @@ adminRouter.get(
 
             const responses = await ResponseModel.find({
                 "analysis.analyzed": true,
+                canUseInResearch: true,
             })
                 .sort({ "analysis.time": -1 })
                 .skip(parseInt(skip))
@@ -801,39 +874,34 @@ adminRouter.get("/get-response/:id", verifyUser, async (req, res, next) => {
     }
 });
 
-adminRouter.get(
-    "/get-analyzed-percentages",
-    verifyUser,
-    async (req, res, next) => {
-        const user = req.user as IUser;
+adminRouter.get("/get-analyzed-count", verifyUser, async (req, res, next) => {
+    const user = req.user as IUser;
 
-        if (user.role === "admin") {
-            // for each type of response, get the number of responses that have been analyzed and the total number of responses
-            const analyzed = await ResponseModel.aggregate([
-                {
-                    $group: {
-                        _id: "$type",
-                        analyzed: { $sum: { $cond: ["$analysis", 1, 0] } },
-                        total: { $sum: 1 },
-                    },
-                },
-            ]).exec();
+    if (user.role === "admin") {
+        const analyzed1 = await ResponseModel.countDocuments({
+            "analysis.analyzed": true,
+            canUseInResearch: true,
+        }).exec();
 
-            if (analyzed) {
-                res.json({
-                    analyzed,
-                    success: true,
-                });
-            }
-        } else {
-            res.status(401).json({
-                message:
-                    "unauthorized access to /admin/get-analyzed-percentages",
-                success: false,
+        const analyzed2 = await ResponseModel.countDocuments({
+            "analysis2.analyzed": true,
+            canUseInResearch: true,
+        }).exec();
+
+        if (analyzed1 && analyzed2) {
+            res.json({
+                analyzed1,
+                analyzed2,
+                success: true,
             });
         }
+    } else {
+        res.status(401).json({
+            message: "unauthorized access to /admin/get-analyzed-count",
+            success: false,
+        });
     }
-);
+});
 
 adminRouter.get(
     "/get-analyzed-responses-raw-data",
@@ -843,7 +911,8 @@ adminRouter.get(
 
         if (user.role === "admin") {
             const responses = await ResponseModel.find({
-                "analysis.admin": { $exists: true },
+                "analysis.analyzed": true,
+                canUseInResearch: true,
             }).exec();
 
             if (responses) {

@@ -21,6 +21,7 @@ export interface IUser extends mongoose.Document {
     canUseToolbox: boolean;
     refreshToken: Array<{ refreshToken: string }>;
     generating: boolean;
+    participateInResearch: boolean;
 }
 
 export const getUserData = (user: IUser) => {
@@ -40,6 +41,7 @@ const UserSchema = new Schema({
         type: String,
         required: true,
         unique: true,
+        index: true,
     },
     firstName: {
         type: String,
@@ -63,6 +65,10 @@ const UserSchema = new Schema({
         type: [Session],
     },
     generating: {
+        type: Boolean,
+        default: false,
+    },
+    participateInResearch: {
         type: Boolean,
         default: false,
     },

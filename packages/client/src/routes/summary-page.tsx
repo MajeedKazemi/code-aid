@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import {
     apiGetActiveUsers,
     apiGetAllResponsesRawData,
-    apiGetAnalyzedPercentages,
+    apiGetAnalyzedCount,
     apiGetAnalyzedResponsesRawData,
     apiGetAverageRatingByType,
     apiGetLastWeekHistogram,
@@ -272,7 +272,7 @@ export const SummaryPage = () => {
                     <h2>Analyzed by type</h2>
                     <button
                         onClick={() => {
-                            apiGetAnalyzedPercentages(context?.token).then(
+                            apiGetAnalyzedCount(context?.token).then(
                                 async (res) => {
                                     const data = await res.json();
 

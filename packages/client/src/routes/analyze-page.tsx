@@ -25,6 +25,14 @@ export const AnalyzePage = () => {
         "any"
     );
 
+    const [analysisData, setAnalysisData] = useState<{
+        analyzedCount: number;
+        totalCount: number;
+    }>({
+        analyzedCount: 0,
+        totalCount: 0,
+    });
+
     const displayResponse = (response: any) => {
         switch (response.type) {
             case "question-answer":
@@ -155,6 +163,16 @@ export const AnalyzePage = () => {
                             id: data.response._id,
                             followUps: data.response.followUps,
                             feedback: data.response.feedback,
+                        });
+                    }
+
+                    if (
+                        data.analyzedCount !== undefined &&
+                        data.totalCount !== undefined
+                    ) {
+                        setAnalysisData({
+                            analyzedCount: data.analyzedCount,
+                            totalCount: data.totalCount,
                         });
                     }
                 }
@@ -297,6 +315,19 @@ export const AnalyzePage = () => {
 
                 {analysisResponse && (
                     <div className="analyze-response-container">
+                        <div>
+                            <div className="analyze-data-progress-container">
+                                <h3>Progress</h3>
+                                <div className="analyze-data-progress">
+                                    <span>
+                                        analyzed {analysisData.analyzedCount}{" "}
+                                        from {analysisData.totalCount} responses
+                                    </span>
+                                </div>
+                            </div>
+
+                            <br />
+                        </div>
                         {displayResponse(analysisResponse)}
                         <AnalysisBox
                             analyzePage

@@ -180,8 +180,8 @@ export const apiGetResponse = (token: string | null | undefined, id: string) =>
         },
     });
 
-export const apiGetAnalyzedPercentages = (token: string | null | undefined) =>
-    fetch(env.API_URL + `/api/admin/get-analyzed-percentages`, {
+export const apiGetAnalyzedCount = (token: string | null | undefined) =>
+    fetch(env.API_URL + `/api/admin/get-analyzed-count`, {
         method: "GET",
         credentials: "include",
         headers: {
