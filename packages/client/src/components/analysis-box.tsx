@@ -40,19 +40,19 @@ export const AnalysisBox = (props: IProps) => {
 
     const [likertScaleRelevance, setLikertScaleRelevance] = useState<
         number | null
-    >(props.priorAnalysis?.likertScales?.relevance || null);
+    >(props.priorAnalysis?.likertScales?.relevance ?? null);
     const [likertScaleCorrectness, setLikertScaleCorrectness] = useState<
         number | null
-    >(props.priorAnalysis?.likertScales?.correctness || null);
+    >(props.priorAnalysis?.likertScales?.correctness ?? null);
     const [likertScaleHelpfulness, setLikertScaleHelpfulness] = useState<
         number | null
-    >(props.priorAnalysis?.likertScales?.helpfulness || null);
+    >(props.priorAnalysis?.likertScales?.helpfulness ?? null);
     const [likertScaleDirectness, setLikertScaleDirectness] = useState<
         number | null
-    >(props.priorAnalysis?.likertScales?.directness || null);
+    >(props.priorAnalysis?.likertScales?.directness ?? null);
 
     const [analysisNotes, setAnalysisNotes] = useState<string>(
-        props.priorAnalysis?.notes || ""
+        props.priorAnalysis?.notes ?? ""
     );
 
     let displayDirectness = true;
