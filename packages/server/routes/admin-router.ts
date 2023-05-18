@@ -957,6 +957,27 @@ adminRouter.get(
     }
 );
 
+adminRouter.get("/get-all-student-data", verifyUser, async (req, res, next) => {
+    const user = req.user as IUser;
+
+    if (user.role === "admin") {
+        // get all users
+        const users = await UserModel.find({}).exec();
+
+        if (users) {
+            res.json({
+                users,
+                success: true,
+            });
+        }
+    } else {
+        res.status(401).json({
+            message: "unauthorized access to /admin/get-all-student-data",
+            success: false,
+        });
+    }
+});
+
 adminRouter.get(
     "/get-student-usage-data",
     verifyUser,
