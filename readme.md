@@ -17,7 +17,36 @@ It also has the following features:
 
 # Running the Tool:
 
+## Boot Docker Containers
+```bash
+docker compose up -d
 ```
-yarn install
+
+## Set environment variables
+
+1. `cp .env.template .env`
+2. Get Secrets for empty values
+
+## Install Dependencies
+```bash
+yarn
+```
+
+## Start the Tool
+```bash
 yarn dev
+```
+
+# Useful Endpoints:
+
+## User Creation
+This can be done through the `/api/auth/signup` endpoint which expects the following body:
+
+```bash
+{
+    "username": "username",
+    "password": "secret",
+    "firstName": "first",
+    "lastName": "last"
+}
 ```
